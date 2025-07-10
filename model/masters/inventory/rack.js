@@ -1,8 +1,8 @@
 const sequelize = require('../../../db/db');
 const { DataTypes } = require('sequelize');
 
-const Rack = sequelize.define('rackmaster',{
-    rackid: {
+const Rack = sequelize.define('rack',{
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,

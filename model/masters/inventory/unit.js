@@ -1,8 +1,8 @@
 const sequelize=require('../../../db/db');
 const { DataTypes } = require('sequelize');
 
-const Unit=sequelize.define('unitmaster', {
-    unitId: {
+const Unit=sequelize.define('unit', {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,

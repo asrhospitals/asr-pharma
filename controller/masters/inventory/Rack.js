@@ -4,11 +4,7 @@ const RackMaster=require("../../../model/masters/inventory/rack");
 const createRack = async (req, res) => {
     try {
         const rack = await RackMaster.create(req.body);
-        res.status(201).json({
-            success: true,
-            message: 'Rack created successfully',
-            data: rack,
-        });
+        res.status(201).json(rack);
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -27,11 +23,7 @@ const getRacks = async (req, res) => {
                 message: 'No racks found',
             });
         }
-        res.status(200).json({
-            success: true,
-            message: 'Racks retrieved successfully',
-            data: racks,
-        });
+        res.status(200).json(racks);
     } catch (error) {
         res.status(500).json({
             success: false,

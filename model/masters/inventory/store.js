@@ -1,10 +1,9 @@
 const sequelize = require("../../../db/db");
 const { DataTypes } = require("sequelize");
 
-const StoreMaster = sequelize.define("storemaster", {
-    storeid: {
+const StoreMaster = sequelize.define("store", {
+    id: {
         type: DataTypes.INTEGER,
-        unique: true,
         primaryKey: true,
         autoIncrement: true,
     },

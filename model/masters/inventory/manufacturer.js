@@ -4,7 +4,7 @@ const { DataTypes } = require("sequelize");
 const Manufacturer = sequelize.define(
   "manufacturer",
   {
-    manufacturerid: {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,

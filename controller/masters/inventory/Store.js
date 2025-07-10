@@ -4,11 +4,7 @@ const StoreMaster=require('../../../model/masters/inventory/store');
 const createStore = async (req, res) => {
     try {
         const store = await StoreMaster.create(req.body);
-        res.status(201).json({
-            success: true,
-            message: 'Store created successfully',
-            data: store,
-        });
+        res.status(201).json(store);
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -27,11 +23,7 @@ const getStores = async (req, res) => {
                 message: 'No stores found',
             });
         }
-        res.status(200).json({
-            success: true,
-            message: 'Stores retrieved successfully',
-            data: stores,
-        });
+        res.status(200).json(stores);
     } catch (error) {
         res.status(500).json({
             success: false,

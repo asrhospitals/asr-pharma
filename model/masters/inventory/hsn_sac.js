@@ -1,8 +1,8 @@
 const sequelize=require('../../../db/db');
 const { DataTypes } = require('sequelize');
 
-const HsnSac = sequelize.define('hsnsacmaster', {
-    hsnSacid: {
+const HsnSac = sequelize.define('hsnsac', {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,

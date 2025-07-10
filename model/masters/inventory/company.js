@@ -1,8 +1,8 @@
 const sequelize= require('../../../db/db');
 const { DataTypes } = require('sequelize');
 
-const Company = sequelize.define('companymaster', {
-    companyid: {
+const Company = sequelize.define('company', {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -11,12 +11,6 @@ const Company = sequelize.define('companymaster', {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        validate:{
-            notEmpty: true,
-            notNull: {
-                msg: "Company name cannot be null"
-            }
-        }
     },
     printremark: {
         type: DataTypes.STRING,

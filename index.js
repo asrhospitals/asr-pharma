@@ -9,8 +9,8 @@ const MasterRoutes = require("./routes/master/masterroutes");
 
 
 
-// Routes for Inventory
-  app.use("/pharmacy/master", MasterRoutes);
+// Routes for Masters
+  app.use("/pharmacy/admin/master", MasterRoutes);
 
 
 
@@ -19,7 +19,7 @@ const MasterRoutes = require("./routes/master/masterroutes");
 const startServer = async () => {
   try {
     await sequelize.authenticate().then(() => { console.log("Db connected to the localHost");}).catch((err) => {console.log("Error connecting to the Db", err);});
-    //  await sequelize.sync();
+    // await sequelize.sync();
     app.listen(port, () => {console.log(`Server is running on port ${port}`);})} catch (error) {console.log(error);}
 };
 
