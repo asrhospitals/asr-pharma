@@ -5,12 +5,12 @@ const sequelize = require("./db/db");
 const cors = require("cors");
 app.use(cors());
 app.use(express.json());
-const InventoryRoute = require("./routes/master/inventory/InventoryRoute");
+const MasterRoutes = require("./routes/master/masterroutes");
 
 
 
 // Routes for Inventory
-  app.use("/pharmacy/master/inventory", InventoryRoute);
+  app.use("/pharmacy/master", MasterRoutes);
 
 
 
