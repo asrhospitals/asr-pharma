@@ -23,7 +23,12 @@ app.use("/pharmacy/auth",AuthRoutes);
 
 
 // Routes for Masters
-  app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
+  // app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
+  
+  
+
+  // For LocalHost Test
+   app.use("/pharmacy/admin/master", MasterRoutes);
 
 
 
@@ -32,7 +37,7 @@ app.use("/pharmacy/auth",AuthRoutes);
 const startServer = async () => {
   try {
     await sequelize.authenticate().then(() => { console.log("Db Connected");}).catch((err) => {console.log("Error connecting to the Db", err);});
-    await sequelize.sync();
+    // await sequelize.sync();
     app.listen(PORT, () => {console.log(`Server is running on port ${PORT}`);})} catch (error) {console.log(error);}
 };
 

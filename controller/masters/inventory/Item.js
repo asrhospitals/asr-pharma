@@ -20,14 +20,34 @@ const createItem=async (req, res) => {
 const getItems=async (req, res) => {
     try {
         const items = await Item.findAll();
-        if (items.length === 0) {
-            return res.status(404).json({ message: 'No items available' });
-        }
         res.status(200).json(items);
     } catch (error) {
         res.status(500).json({ error: 'Something went wrong' });
     }
 }
+
+// Get Items by id
+
+const getItemById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const item = await Item.findByPk(id);
+      // Check if company exists
+    if (!item) {
+      return res.status(200).json({
+        success: false,
+        message: `Item with ID ${id} not found`,
+      });
+    }
+    res.status(200).json(item);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
 
 // C. Update Item from Item Id
 
@@ -69,6 +89,7 @@ const deleteItem=async (req, res) => {
 module.exports = {
     createItem,
     getItems,
+    getItemById,
     updateItem,
     deleteItem
 };

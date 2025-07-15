@@ -20,6 +20,30 @@ const getAllManufacturers = async (req, res) => {
   }
 };
 
+
+// Get Manufactures By ID
+
+const getManuById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const manu = await Manufacturer.findByPk(id);
+      // Check if company exists
+    if (!manu) {
+      return res.status(200).json({
+        success: false,
+        message: `Manufacture with ID ${id} not found`,
+      });
+    }
+    res.status(200).json(manu);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
+
 // C. Update a manufacturer by ID
 const updateManufacturer = async (req, res) => {
   const { id } = req.params;
@@ -61,6 +85,7 @@ const deleteManufacturer = async (req, res) => {
 module.exports = {
   addManufacturer,
   getAllManufacturers,
+  getManuById,
   updateManufacturer,
   deleteManufacturer,
 };

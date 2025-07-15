@@ -1,9 +1,10 @@
-const RackMaster=require("../../../model/masters/inventory/rack");
+const Rack = require("../../../model/masters/inventory/rack");
+const Store = require("../../../model/masters/inventory/store");
 
 // A. Add Rack
 const createRack = async (req, res) => {
     try {
-        const rack = await RackMaster.create(req.body);
+        const rack = await Rack.create(req.body);
         res.status(201).json(rack);
     } catch (error) {
         res.status(500).json({
@@ -17,12 +18,15 @@ const createRack = async (req, res) => {
 // B. Get All Racks
 const getRacks = async (req, res) => {
     try {
-        const racks = await RackMaster.findAll();
-        if (racks.length === 0) {
-            return res.status(404).json({
-                message: 'No racks found',
-            });
-        }
+        const racks = await Rack.findAll(
+            {
+               include:{
+                model:Store,
+                as:"stores",
+                attributes:['storename']
+               }
+            }
+        );
         res.status(200).json(racks);
     } catch (error) {
         res.status(500).json({
@@ -32,7 +36,30 @@ const getRacks = async (req, res) => {
         });
     }
 };
-// C. Update Rack from Rack Id
+
+// C. Get Rack By Id
+
+const getRackId=async (req,res) => {
+
+    try {
+        const {id}=req.params;
+        const rack=await Rack.findByPk(id,{
+            include:{
+                model:Store,
+                as:"stores",
+                attributes:['storename']
+            }
+        });
+        res.status(200).json(rack);
+    } catch (error) {
+        
+    }
+    
+};
+
+
+
+// D. Update Rack from Rack Id
 const updateRack = async (req, res) => {  
     
     const {id}=req.params;
@@ -44,7 +71,7 @@ const updateRack = async (req, res) => {
     }
     
     try {
-        const rack = await RackMaster.findByPk(id);
+        const rack = await Rack.findByPk(id);
         if (!rack) {
             return res.status(404).json({
                 success: false,
@@ -68,11 +95,11 @@ const updateRack = async (req, res) => {
 };
 
 
-// D. Delete Rack from Rack Id
+// E. Delete Rack from Rack Id
 const deleteRack = async (req, res) => {    
     const { id } = req.params;
     try {
-        const rack = await RackMaster.findByPk(id);
+        const rack = await Rack.findByPk(id);
         if (!rack) {
             return res.status(404).json({
                 success: false,
@@ -96,6 +123,7 @@ const deleteRack = async (req, res) => {
 module.exports = {
     createRack,
     getRacks,
+    getRackId,
     updateRack,
     deleteRack,
 };

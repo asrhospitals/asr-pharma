@@ -7,7 +7,7 @@ const addUnit = async (req, res) => {
         const newUnit = await Unit.create(req.body);
         res.status(201).json(newUnit);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: error.message });
     }
 };
 
@@ -17,9 +17,26 @@ const getAllUnits = async (req, res) => {
         const units = await Unit.findAll();
         res.status(200).json(units);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: error.message });
     }
 };
+
+// Get Units By id
+
+const getUnitById=async (req,res) => {
+
+    try {
+        const {id}=req.params;
+        const unit=await Unit.findByPk(id);
+        if(!unit) return res.status(404).json({message:`Unit with ${id} not found`});
+        res.status(200).json(unit);
+    } catch (error) {
+        res.status(400).json({message:`Something went wrong ${error}`})
+    }
+    
+}
+
+
 
 // Update Unit
 const updateUnit = async (req, res) => {
@@ -28,7 +45,7 @@ const updateUnit = async (req, res) => {
         const {id} = req.params;
         if(!id) return res.status(400).json({ error: "Unit ID is required" });
         const unit = await Unit.findByPk(id);
-        if (!unit) return res.status(404).json({ error: "Unit not found" });
+        if (!unit) return res.status(404).json({message:`Unit with ${id} not found`});
         const updatedUnit = await unit.update(req.body);    
         res.status(200).json(updatedUnit);
     } catch (error) {
@@ -42,7 +59,7 @@ const deleteUnit = async (req, res) => {
         const {id} = req.params;
         if(!id) return res.status(400).json({ error: "Unit ID is required" });
         const unit = await Unit.findByPk(id);
-        if (!unit) return res.status(404).json({ error: "Unit not found" });
+        if (!unit) return res.status(200).json({ error: "Unit not found" });
         await unit.destroy();
         res.status(200).json({ message: "Unit deleted successfully" });
     } catch (error) {
@@ -53,6 +70,7 @@ const deleteUnit = async (req, res) => {
 module.exports = {
     addUnit,
     getAllUnits,
+    getUnitById,
     updateUnit,
     deleteUnit
 };
