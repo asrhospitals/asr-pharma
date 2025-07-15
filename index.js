@@ -23,12 +23,12 @@ app.use("/pharmacy/auth",AuthRoutes);
 
 
 // Routes for Masters
-  // app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
+app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
   
   
 
   // For LocalHost Test
-   app.use("/pharmacy/admin/master", MasterRoutes);
+  //  app.use("/pharmacy/admin/master", MasterRoutes);
 
 
 
