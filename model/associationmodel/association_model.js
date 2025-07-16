@@ -6,9 +6,9 @@ const Store=require('../masters/inventory/store');
 
 
 // A. Salt <-----> Salt Variations
-
 Salt.hasMany(SaltVariation, { foreignKey: "salt_id", as: "saltvariations" });
-SaltVariation.belongsTo(Salt, { foreignKey: "salt_id", as: "salts" });
+SaltVariation.belongsTo(Salt, { foreignKey: "salt_id", as: "salt" });
+
 
 
 // B. Rack <------------> Store

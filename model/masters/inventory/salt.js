@@ -63,4 +63,6 @@ const Salt = sequelize.define(
 
 
 
+
+
 module.exports = Salt;

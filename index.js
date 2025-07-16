@@ -28,7 +28,7 @@ app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
   
 
   // For LocalHost Test
-  //  app.use("/pharmacy/admin/master", MasterRoutes);
+    // app.use("/pharmacy/master", MasterRoutes);
 
 
 

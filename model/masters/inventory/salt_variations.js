@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../../db/db");
-const Salt = require("./salt");
 
 const SaltVariation = sequelize.define(
   "saltvariation",
@@ -42,7 +41,6 @@ const SaltVariation = sequelize.define(
   },
   { timestamps: false }
 );
-
 
 
 

@@ -1,16 +1,63 @@
 const { SaltVariation } = require("../../../model/associationmodel/association_model");
 const Salt = require("../../../model/masters/inventory/salt");
+const sequelize=require('../../../db/db');
+
 
 // A. Create Salt
 
 const createSalt = async (req, res) => {
+  const { saltData, variationData } = req.body;
+
+  // Validate input
+  if (!saltData || !Array.isArray(variationData) || variationData.length === 0) {
+    return res.status(400).json({
+      error: "Invalid input. 'saltData' must be an object and 'variationData' must be a non-empty array.",
+    });
+  }
+
   try {
-    const addSalt = await Salt.create(req.body);
-    res.status(201).json(addSalt);
+    const result = await sequelize.transaction(async (t) => {
+      // Step 1: Create the salt entry
+      const salt = await Salt.create(saltData, { transaction: t });
+
+      // Step 2: Attach salt_id to each variation
+      const variations = variationData.map((variation) => ({
+        ...variation,
+        salt_id: salt.id,
+      }));
+
+      // Step 3: Bulk create all variations linked to the salt
+      await SaltVariation.bulkCreate(variations, { transaction: t });
+
+      // Step 4: Return the complete nested salt with variations
+      const fullSalt = await Salt.findOne({
+        where: { id: salt.id },
+        include: [
+          {
+            model: SaltVariation,
+            as: "saltvariations", // make sure this matches your association alias
+          },
+        ],
+        transaction: t,
+      });
+
+      return fullSalt;
+    });
+
+    return res.status(201).json({
+      message: "Salt and its variations created successfully.",
+      data: result,
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error in createSalt:", error);
+
+    return res.status(500).json({
+      error: "Failed to create salt with variations.",
+      details: error.message,
+    });
   }
 };
+
 
 // B. Get All salt
 
@@ -34,7 +81,13 @@ const getSalt = async (req, res) => {
 const getSaltById = async (req, res) => {
   try {
     const { id } = req.params;
-    const salt = await Salt.findByPk(id);
+    const salt = await Salt.findByPk(id,{
+        include:{
+        model:SaltVariation,
+        as:"saltvariations",
+        attributes:["str","brandname","dosage","packsize","mrp","dpco","dpcomrp"]
+      }
+    });
     // Check if company exists
     if (!salt) {
       return res.status(200).json({
