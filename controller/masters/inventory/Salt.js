@@ -8,13 +8,6 @@ const sequelize=require('../../../db/db');
 const createSalt = async (req, res) => {
   const { saltData, variationData } = req.body;
 
-  // Validate input
-  if (!saltData || !Array.isArray(variationData) || variationData.length === 0) {
-    return res.status(400).json({
-      error: "Invalid input. 'saltData' must be an object and 'variationData' must be a non-empty array.",
-    });
-  }
-
   try {
     const result = await sequelize.transaction(async (t) => {
       // Step 1: Create the salt entry

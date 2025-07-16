@@ -15,12 +15,11 @@ const Ledger = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    accountgroup: {
+    acgroup: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "Sundry Debtors",
     },
-    stattion: {
+    station: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -48,84 +47,107 @@ const Ledger = sequelize.define(
       type: DataTypes.STRING,
     },
 
-    /// ------------------Contact Information-----------------
-    mobilenumber: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    whatsappnumber: {
-      type: DataTypes.INTEGER,
-    },
-
     /// ------------------Balance Information-----------------
+
+    balancingmethod: {
+      type: DataTypes.STRING,
+    },
     openingbalance: {
       type: DataTypes.FLOAT,
-      allowNull: false,
       defaultValue: 0.0,
     },
     balacetype: {
       type: DataTypes.ENUM("Dr", "Cr"),
-      allowNull: false,
       defaultValue: "Dr",
     },
     creditdays: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
     },
-    /// ------------------GST Information-----------------
-    gstin: {
-      type: DataTypes.STRING,
-    },
-    gsttype: {
-      type: DataTypes.ENUM("Registered", "Composition", "Unregistered","SEZ"),
+
+    /// ------------------Contact Numbers-----------------
+    mobileno: {
+      type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    whtsappno: {
+      type: DataTypes.INTEGER,
+    },
+    phoneofc: {
+      type: DataTypes.INTEGER,
+    },
+
+    /// ------------------GST /Tax details-----------------
+
+    ledgertype: {
+      type: DataTypes.ENUM("Registered", "Composition", "Unregistered", "SEZ"),
       defaultValue: "Unregistered",
     },
     tdsapplicable: {
-      type: DataTypes.ENUM("Yes", "No"),    
+      type: DataTypes.ENUM("Yes", "No"),
       defaultValue: "No",
     },
     panno: {
       type: DataTypes.STRING,
-      allowNull: true,
     },
 
     /// ------------------Licence Information-----------------
-    druglicencenumber: {
+    druglicno: {
       type: DataTypes.STRING,
-      allowNull: true,
     },
-    druglicenceexpiry: {
+    druglicexp: {
       type: DataTypes.DATE,
-      allowNull: true,
     },
     /// ------------------Bank Information-----------------
-    bankname: {
+    bank: {
       type: DataTypes.STRING,
     },
-    bankaccountnumber: {
+    acno: {
       type: DataTypes.STRING,
     },
     ifsccode: {
       type: DataTypes.STRING,
     },
-    bankbranch: {
+    branch: {
       type: DataTypes.STRING,
     },
-    accounttype: {
-      type: DataTypes.ENUM("Savings", "Current",),
-    },  
-    accountholdername: {
+    actype: {
+      type: DataTypes.ENUM("Savings", "Current"),
+    },
+    acholdername: {
       type: DataTypes.STRING,
-    },  
+    },
 
-},
+    //--------------------Contact Info---------
+
+    title: {
+      type: DataTypes.STRING,
+    },
+    fname: {
+      type: DataTypes.STRING,
+    },
+    lname: {
+      type: DataTypes.STRING,
+    },
+    gender: {
+      type: DataTypes.STRING,
+    },
+    maritalstat: {
+      type: DataTypes.STRING,
+    },
+    designation: {
+      type: DataTypes.STRING,
+    },
+    website: {
+      type: DataTypes.STRING,
+    },
+    email: {
+      type: DataTypes.STRING,
+    },
+  },
+
   {
     timestamps: false,
-  
   }
-  
 );
 
 module.exports = Ledger;
