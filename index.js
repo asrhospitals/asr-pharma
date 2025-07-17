@@ -13,7 +13,7 @@ const role =require('./middleware/roleMiddleware');
 
 // Server Test Route
 app.get('/',async (req,res) => {
-    return res.json({message:"Server up and running"});
+    return res.json({message:"Pharmacy server is running"});
 });
 
 
