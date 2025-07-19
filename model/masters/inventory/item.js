@@ -1,5 +1,10 @@
 const sequelize = require("../../../db/db");
 const { DataTypes } = require("sequelize");
+const Unit = require('./unit');
+const HsnSac = require('./hsn_sac');
+const Company = require('./company');
+const Salt = require('./salt');
+const Rack = require('./rack');
 
 const Item = sequelize.define("item", {
     id: {
@@ -27,16 +32,18 @@ const Item = sequelize.define("item", {
         type: DataTypes.STRING,
     },
     unit1: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
-        validate: {
-            notEmpty: true,
+        references: {
+            model: Unit,
+            key: 'id',
         },
     },
     unit2: {
-        type: DataTypes.STRING,
-        validate: {
-            notEmpty: true,
+        type: DataTypes.INTEGER,
+        references: {
+            model: Unit,
+            key: 'id',
         },
     },
     conversion: {
@@ -48,22 +55,38 @@ const Item = sequelize.define("item", {
         defaultValue: "No",
     },
     hsnsac: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: HsnSac,
+            key: 'id',
+        },
     },
     taxcategory: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    company:{
-        type:DataTypes.STRING,
+    company: {
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: Company,
+            key: 'id',
+        },
     },
     salt: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
+        references: {
+            model: Salt,
+            key: 'id',
+        },
     },
     rack: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
+        references: {
+            model: Rack,
+            key: 'id',
+        },
     },
     price: {
         type: DataTypes.FLOAT,
@@ -211,5 +234,12 @@ const Item = sequelize.define("item", {
 }
 );
 
+// Associations
+Item.belongsTo(Unit, { as: 'Unit1', foreignKey: 'unit1' });
+Item.belongsTo(Unit, { as: 'Unit2', foreignKey: 'unit2' });
+Item.belongsTo(HsnSac, { as: 'HsnSacDetail', foreignKey: 'hsnsac' });
+Item.belongsTo(Company, { as: 'CompanyDetail', foreignKey: 'company' });
+Item.belongsTo(Salt, { as: 'SaltDetail', foreignKey: 'salt' });
+Item.belongsTo(Rack, { as: 'RackDetail', foreignKey: 'rack' });
 
 module.exports = Item;

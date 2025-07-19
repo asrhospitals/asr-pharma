@@ -1,4 +1,5 @@
 const StoreMaster = require("../../../model/masters/inventory/store");
+const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // A. Add Store
 const createStore = async (req, res) => {
@@ -17,12 +18,25 @@ const createStore = async (req, res) => {
 // B. Get All Stores
 const getStores = async (req, res) => {
   try {
-    const stores = await StoreMaster.findAll();
-    res.status(200).json(stores);
-  } catch (error) {
-    res.status(500).json({
-      message: `Error retrieving stores error: ${error}`,
+    const { where, offset, limit, order, page } = buildQueryOptions(
+      req.query,
+      ['storename'],
+      [] 
+    );
+    const { count, rows } = await StoreMaster.findAndCountAll({
+      where,
+      offset,
+      limit,
+      order,
     });
+    res.status(200).json({
+      data: rows,
+      total: count,
+      page,
+      totalPages: Math.ceil(count / limit),
+    });
+  } catch (error) {
+    res.status(500).json({ message: `Error retrieving stores error: ${error}` });
   }
 };
 

@@ -1,5 +1,5 @@
 const Item=require('../../../model/masters/inventory/item');
-
+const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 
 // A. Add Item
@@ -17,10 +17,25 @@ const createItem=async (req, res) => {
 
 // B. Get All Items
 
-const getItems=async (req, res) => {
+const getItems = async (req, res) => {
     try {
-        const items = await Item.findAll();
-        res.status(200).json(items);
+        const { where, offset, limit, order, page } = buildQueryOptions(
+            req.query,
+            ['name', 'description'],
+            ['status', 'companyId']  
+        );
+        const { count, rows } = await Item.findAndCountAll({
+            where,
+            offset,
+            limit,
+            order,
+        });
+        res.status(200).json({
+            data: rows,
+            total: count,
+            page,
+            totalPages: Math.ceil(count / limit),
+        });
     } catch (error) {
         res.status(500).json({ error: 'Something went wrong' });
     }

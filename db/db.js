@@ -13,5 +13,13 @@ const { Sequelize } = require('sequelize');
     dialect: 'postgres',
 });
 
+  sequelize.sync({ alter: true })
+  .then(() => {
+    console.log('All models were synchronized successfully.');
+  })
+  .catch((err) => {
+    console.error('Error synchronizing models:', err);
+  });
+
   module.exports = sequelize;
  

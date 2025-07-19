@@ -1,5 +1,6 @@
 const Rack = require("../../../model/masters/inventory/rack");
 const Store = require("../../../model/masters/inventory/store");
+const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // A. Add Rack
 const createRack = async (req, res) => {
@@ -18,16 +19,28 @@ const createRack = async (req, res) => {
 // B. Get All Racks
 const getRacks = async (req, res) => {
     try {
-        const racks = await Rack.findAll(
-            {
-               include:{
-                model:Store,
-                as:"stores",
-                attributes:['storename']
-               }
-            }
+        const { where, offset, limit, order, page } = buildQueryOptions(
+            req.query,
+            ['rackname'],
+            [] 
         );
-        res.status(200).json(racks);
+        const { count, rows } = await Rack.findAndCountAll({
+            where,
+            offset,
+            limit,
+            order,
+            include: {
+                model: Store,
+                as: 'stores',
+                attributes: ['storename']
+            }
+        });
+        res.status(200).json({
+            data: rows,
+            total: count,
+            page,
+            totalPages: Math.ceil(count / limit),
+        });
     } catch (error) {
         res.status(500).json({
             success: false,

@@ -1,4 +1,5 @@
 const Company = require("../../../model/masters/inventory/company");
+const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // A. Create a new company
 const createCompany = async (req, res) => {
@@ -13,8 +14,23 @@ const createCompany = async (req, res) => {
 // B. Get all companies
 const getAllCompanies = async (req, res) => {
   try {
-    const companies = await Company.findAll();
-    res.status(200).json(companies);
+    const { where, offset, limit, order, page } = buildQueryOptions(
+      req.query,
+      ['companyname'],
+      [] 
+    );
+    const { count, rows } = await Company.findAndCountAll({
+      where,
+      offset,
+      limit,
+      order,
+    });
+    res.status(200).json({
+      data: rows,
+      total: count,
+      page,
+      totalPages: Math.ceil(count / limit),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

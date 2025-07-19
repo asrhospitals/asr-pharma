@@ -1,4 +1,5 @@
 const Unit= require('../../../model/masters/inventory/unit');
+const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // Add Unit
 
@@ -14,8 +15,23 @@ const addUnit = async (req, res) => {
 // Get All Units
 const getAllUnits = async (req, res) => {
     try {
-        const units = await Unit.findAll();
-        res.status(200).json(units);
+        const { where, offset, limit, order, page } = buildQueryOptions(
+            req.query,
+            ['unitname'],
+            [] 
+        );
+        const { count, rows } = await Unit.findAndCountAll({
+            where,
+            offset,
+            limit,
+            order,
+        });
+        res.status(200).json({
+            data: rows,
+            total: count,
+            page,
+            totalPages: Math.ceil(count / limit),
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

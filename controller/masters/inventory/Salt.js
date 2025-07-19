@@ -1,6 +1,7 @@
 const { SaltVariation } = require("../../../model/associationmodel/association_model");
 const Salt = require("../../../model/masters/inventory/salt");
 const sequelize=require('../../../db/db');
+const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 
 // A. Create Salt
@@ -56,14 +57,28 @@ const createSalt = async (req, res) => {
 
 const getSalt = async (req, res) => {
   try {
-    const getSalt = await Salt.findAll({
-      include:{
-        model:SaltVariation,
-        as:"saltvariations",
-        attributes:["str","brandname","dosage","packsize","mrp","dpco","dpcomrp"]
+    const { where, offset, limit, order, page } = buildQueryOptions(
+      req.query,
+      ['saltname'],
+      [] 
+    );
+    const { count, rows } = await Salt.findAndCountAll({
+      where,
+      offset,
+      limit,
+      order,
+      include: {
+        model: SaltVariation,
+        as: 'saltvariations',
+        attributes: ["str","brandname","dosage","packsize","mrp","dpco","dpcomrp"]
       }
     });
-    res.status(200).json(getSalt);
+    res.status(200).json({
+      data: rows,
+      total: count,
+      page,
+      totalPages: Math.ceil(count / limit),
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

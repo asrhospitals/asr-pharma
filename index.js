@@ -10,6 +10,8 @@ const MasterRoutes = require("./routes/master/masterroutes");
 const AuthRoutes=require('./routes/auth/auth');
 const verifyToken=require('./middleware/authMiddleware');
 const role =require('./middleware/roleMiddleware');
+const User = require('./model/auth/userModel');
+const bcrypt = require('bcryptjs');
 
 // Server Test Route
 app.get('/',async (req,res) => {
@@ -35,9 +37,36 @@ app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
 
 const startServer = async () => {
   try {
-    await sequelize.authenticate().then(() => { console.log("Db Connected");}).catch((err) => {console.log("Error connecting to the Db", err);});
-    // await sequelize.sync();
-    app.listen(PORT, () => {console.log(`Server is running on port ${PORT}`);})} catch (error) {console.log(error);}
+    await sequelize.authenticate();
+    console.log("Db Connected");
+
+    await sequelize.sync();
+    console.log('All models were synchronized successfully.');
+
+    const admin = await User.findOne({ where: { uname: 'admin' } });
+    if (!admin) {
+      const hpwd = await bcrypt.hash('admin123', 10);
+      await User.create({
+        uname: 'admin',
+        pwd: hpwd,
+        role: 'admin',
+        module: ['admin'],
+        fname: 'Admin',
+        lname: 'User',
+        isactive: 'active'
+      });
+      console.log('Default admin user created.');
+    } else {
+      console.log('Default admin user already exists.');
+    }
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
 };
 
 startServer();

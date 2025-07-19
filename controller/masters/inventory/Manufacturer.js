@@ -1,4 +1,5 @@
 const Manufacturer = require("../../../model/masters/inventory/manufacturer");
+const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // A. Create a new manufacturer
 const addManufacturer = async (req, res) => {
@@ -13,8 +14,23 @@ const addManufacturer = async (req, res) => {
 // B. Get all manufacturers
 const getAllManufacturers = async (req, res) => {
   try {
-    const manufacturers = await Manufacturer.findAll();
-    res.status(200).json(manufacturers);
+    const { where, offset, limit, order, page } = buildQueryOptions(
+      req.query,
+      ['manufacturername'],
+      [] 
+    );
+    const { count, rows } = await Manufacturer.findAndCountAll({
+      where,
+      offset,
+      limit,
+      order,
+    });
+    res.status(200).json({
+      data: rows,
+      total: count,
+      page,
+      totalPages: Math.ceil(count / limit),
+    });
   } catch (error) {
     res.status(500).json({ message: "Error fetching manufacturers", error });
   }

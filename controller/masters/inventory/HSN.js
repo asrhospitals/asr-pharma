@@ -1,4 +1,5 @@
 const HSN = require('../../../model/masters/inventory/hsn_sac');
+const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // Add HSN
 const addHSN = async (req, res) => {
@@ -14,8 +15,23 @@ const addHSN = async (req, res) => {
 // Get all HSNs
 const getAllHSN = async (req, res) => {
     try {
-        const hsnList = await HSN.findAll();
-        res.status(200).json(hsnList);
+        const { where, offset, limit, order, page } = buildQueryOptions(
+            req.query,
+            ['hsncode'],
+            [] 
+        );
+        const { count, rows } = await HSN.findAndCountAll({
+            where,
+            offset,
+            limit,
+            order,
+        });
+        res.status(200).json({
+            data: rows,
+            total: count,
+            page,
+            totalPages: Math.ceil(count / limit),
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
