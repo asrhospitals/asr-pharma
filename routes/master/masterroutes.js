@@ -10,6 +10,7 @@ const { updateHSN, deleteHSN, addHSN, getAllHSN, getHSNById } = require('../../c
 const { updateUnit, deleteUnit, addUnit, getAllUnits, getUnitById } = require('../../controller/masters/inventory/Unit');
 const { addManufacturer, getAllManufacturers, updateManufacturer, deleteManufacturer, getManuById } = require('../../controller/masters/inventory/Manufacturer');
 const { addVariations, getVariations, updateVariation } = require('../../controller/masters/inventory/SaltVariation');
+const { createPatient, getAllPatients, getPatientById, updatePatient, deletePatient } = require('../../controller/masters/other/Patient');
 
 
 
@@ -171,6 +172,25 @@ router.route('/inventory/saltv/v1/get-saltv').get(getVariations);
 
 // 43. Update Salt Variation
 router.route('/inventory/saltv/v1/update-saltv').put(updateVariation);
+
+
+
+//--------------------------------------------------Patient Routes---------------------------------------
+
+// 44. Add Patient
+router.route('/other/patient/v1/add-patient').post(createPatient);
+
+// 45. Get All Patients
+router.route('/other/patient/v1/get-patient').get(getAllPatients);
+
+// 46. Get Patient By Id
+router.route('/other/patient/v1/get-patients/:id').get(getPatientById);
+
+// 47. Update Patient
+router.route('/other/patient/v1/update-patient/:id').put(updatePatient);
+
+// 48. Delete Patient
+router.route('/other/patient/v1/delete-patient/:id').delete(deletePatient);
 
 
 module.exports=router;
