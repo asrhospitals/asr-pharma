@@ -11,6 +11,9 @@ const { updateUnit, deleteUnit, addUnit, getAllUnits, getUnitById } = require('.
 const { addManufacturer, getAllManufacturers, updateManufacturer, deleteManufacturer, getManuById } = require('../../controller/masters/inventory/Manufacturer');
 const { addVariations, getVariations, updateVariation } = require('../../controller/masters/inventory/SaltVariation');
 const { createPatient, getAllPatients, getPatientById, updatePatient, deletePatient } = require('../../controller/masters/other/Patient');
+const { createDoctor, getDoctors, getDoctorById, updateDoctor, deleteDoctor } = require('../../controller/masters/other/Doctor');
+const { createPrescription, getPrescriptions, getPrescriptionById, updatePrescription, deletePrescription } = require('../../controller/masters/other/Prescription');
+const authorizeRole = require('../../middleware/roleMiddleware');
 
 
 
@@ -191,6 +194,21 @@ router.route('/other/patient/v1/update-patient/:id').put(updatePatient);
 
 // 48. Delete Patient
 router.route('/other/patient/v1/delete-patient/:id').delete(deletePatient);
+
+
+// Doctor Master Routes
+router.route('/other/doctor/v1/add-doctor').post(authorizeRole('admin', 'manager'), createDoctor);
+router.route('/other/doctor/v1/get-doctor').get(authorizeRole('admin', 'manager', 'user'), getDoctors);
+router.route('/other/doctor/v1/get-doctors/:id').get(authorizeRole('admin', 'manager', 'user'), getDoctorById);
+router.route('/other/doctor/v1/update-doctor/:id').put(authorizeRole('admin', 'manager'), updateDoctor);
+router.route('/other/doctor/v1/delete-doctor/:id').delete(authorizeRole('admin'), deleteDoctor);
+
+// Prescription Master Routes
+router.route('/other/prescription/v1/add-prescription').post(authorizeRole('admin', 'manager'), createPrescription);
+router.route('/other/prescription/v1/get-prescription').get(authorizeRole('admin', 'manager', 'user'), getPrescriptions);
+router.route('/other/prescription/v1/get-prescriptions/:id').get(authorizeRole('admin', 'manager', 'user'), getPrescriptionById);
+router.route('/other/prescription/v1/update-prescription/:id').put(authorizeRole('admin', 'manager'), updatePrescription);
+router.route('/other/prescription/v1/delete-prescription/:id').delete(authorizeRole('admin'), deletePrescription);
 
 
 module.exports=router;
