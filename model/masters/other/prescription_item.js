@@ -1,7 +1,7 @@
 const sequelize = require('../../../db/db');
 const { DataTypes } = require('sequelize');
 const Prescription = require('./prescription');
-const Item = require('../../inventory/item');
+const Item = require('../../masters/inventory/item');
 
 const PrescriptionItem = sequelize.define('prescription_item', {
     id: {

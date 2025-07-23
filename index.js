@@ -1,63 +1,56 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const sequelize = require("./db/db");
 const cors = require("cors");
+const MasterRoutes = require("./routes/master/masterroutes");
+const AuthRoutes = require("./routes/auth/auth");
+const verifyToken = require("./middleware/authMiddleware");
+const role = require("./middleware/roleMiddleware");
+const User = require("./model/auth/userModel");
+const bcrypt = require("bcryptjs");
+
 app.use(cors());
 app.use(express.json());
-const MasterRoutes = require("./routes/master/masterroutes");
-const AuthRoutes=require('./routes/auth/auth');
-const verifyToken=require('./middleware/authMiddleware');
-const role =require('./middleware/roleMiddleware');
-const User = require('./model/auth/userModel');
-const bcrypt = require('bcryptjs');
 
 // Server Test Route
-app.get('/',async (req,res) => {
-    return res.json({message:"Pharmacy server is running"});
+app.get("/", async (req, res) => {
+  return res.json({ message: "Pharmacy server is running" });
 });
 
-
 // Routes for Authentication
-app.use("/pharmacy/auth",AuthRoutes);
-
-
+app.use("/pharmacy/auth", AuthRoutes);
 
 // Routes for Masters
-app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
-
+app.use("/pharmacy/admin/master", verifyToken, role("admin"), MasterRoutes);
 
 // For LocalHost Test
 //app.use("/pharmacy/master", MasterRoutes);
-
-
-
-
 
 const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log("Db Connected");
 
-    await sequelize.sync();
-    console.log('All models were synchronized successfully.');
+    // await sequelize.sync({alter:true});
+    console.log("All models were synchronized successfully.");
 
-    const admin = await User.findOne({ where: { uname: 'admin' } });
+    const admin = await User.findOne({ where: { uname: "admin" } });
     if (!admin) {
-      const hpwd = await bcrypt.hash('admin123', 10);
+      const hpwd = await bcrypt.hash("Admin@123", 10);
       await User.create({
-        uname: 'admin',
+        uname: "Admin",
         pwd: hpwd,
-        role: 'admin',
-        module: ['admin'],
-        fname: 'Admin',
-        lname: 'User',
-        isactive: 'active'
+        role: "admin",
+        module: ["admin"],
+        fname: "Admin",
+        lname: "User",
+        isactive: "active",
       });
-      console.log('Default admin user created.');
+      console.log("Default admin user created.");
     } else {
-      console.log('Default admin user already exists.');
+      console.log("Default admin user already exists.");
     }
 
     app.listen(PORT, () => {
@@ -70,5 +63,3 @@ const startServer = async () => {
 };
 
 startServer();
-
-
