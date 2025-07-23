@@ -4,7 +4,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const sequelize = require("./db/db");
 const cors = require("cors");
-app.use(cors());
+app.use(cors({origin: "https://pharmacy.asrhospitals.com"}));
 app.use(express.json());
 const MasterRoutes = require("./routes/master/masterroutes");
 const AuthRoutes=require('./routes/auth/auth');
