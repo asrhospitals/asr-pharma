@@ -4,34 +4,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const sequelize = require("./db/db");
 const cors = require("cors");
+app.use(cors());
+app.use(express.json());
 const MasterRoutes = require("./routes/master/masterroutes");
 const AuthRoutes = require("./routes/auth/auth");
 const verifyToken = require("./middleware/authMiddleware");
 const role = require("./middleware/roleMiddleware");
-const User = require("./model/auth/userModel");
-const bcrypt = require("bcryptjs");
-
-app.use(express.json());
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://pharmacy.asrhospitals.com",
-];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-
-// app.use(cors({origin: "https://pharmacy.asrhospitals.com"}));
 
 // Server Test Route
 app.get("/", async (req, res) => {
@@ -49,35 +27,20 @@ app.use("/pharmacy/admin/master", verifyToken, role("admin"), MasterRoutes);
 
 const startServer = async () => {
   try {
-    await sequelize.authenticate();
-    console.log("Db Connected");
-
-    // await sequelize.sync({alter:true});
-    console.log("All models were synchronized successfully.");
-
-    const admin = await User.findOne({ where: { uname: "admin" } });
-    if (!admin) {
-      const hpwd = await bcrypt.hash("Admin@123", 10);
-      await User.create({
-        uname: "Admin",
-        pwd: hpwd,
-        role: "admin",
-        module: ["admin"],
-        fname: "Admin",
-        lname: "User",
-        isactive: "active",
+    await sequelize
+      .authenticate()
+      .then(() => {
+        console.log("Db Connected");
+      })
+      .catch((err) => {
+        console.log("Error connecting to the Db", err);
       });
-      console.log("Default admin user created.");
-    } else {
-      console.log("Default admin user already exists.");
-    }
-
+    // await sequelize.sync();
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
     console.log(error);
-    process.exit(1);
   }
 };
 
