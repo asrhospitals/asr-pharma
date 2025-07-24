@@ -12,7 +12,6 @@ const role = require("./middleware/roleMiddleware");
 const User = require("./model/auth/userModel");
 const bcrypt = require("bcryptjs");
 
-app.use(cors());
 app.use(express.json());
 
 // Server Test Route
