@@ -31,8 +31,6 @@ app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
 
 
 
-
-
 const startServer = async () => {
   try {
     await sequelize.authenticate().then(() => { console.log("Db Connected");}).catch((err) => {console.log("Error connecting to the Db", err);});
