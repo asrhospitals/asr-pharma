@@ -4,7 +4,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const sequelize = require("./db/db");
 const cors = require("cors");
-app.use(cors({origin: "https://pharmacy.asrhospitals.com"}));
 const MasterRoutes = require("./routes/master/masterroutes");
 const AuthRoutes = require("./routes/auth/auth");
 const verifyToken = require("./middleware/authMiddleware");
@@ -13,6 +12,26 @@ const User = require("./model/auth/userModel");
 const bcrypt = require("bcryptjs");
 
 app.use(express.json());
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://pharmacy.asrhospitals.com",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
+// app.use(cors({origin: "https://pharmacy.asrhospitals.com"}));
 
 // Server Test Route
 app.get("/", async (req, res) => {
