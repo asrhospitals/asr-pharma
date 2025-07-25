@@ -1,11 +1,35 @@
-const Rack = require("../../../model/masters/inventory/rack");
-const Store = require("../../../model/masters/inventory/store");
+const db = require('../../../models');
+const Rack = db.Rack;
+const Store = db.Store;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // A. Add Rack
 const createRack = async (req, res) => {
     try {
-        const rack = await Rack.create(req.body);
+        const { storeid, rackname } = req.body;
+        if (!storeid || !rackname) {
+            return res.status(400).json({
+                success: false,
+                message: 'storeid and rackname are required',
+            });
+        }
+        // Check if store exists
+        const store = await Store.findByPk(storeid);
+        if (!store) {
+            return res.status(400).json({
+                success: false,
+                message: 'storeid does not exist',
+            });
+        }
+        // Check for duplicate rackname (optional, but gives clearer error)
+        const existingRack = await Rack.findOne({ where: { rackname } });
+        if (existingRack) {
+            return res.status(400).json({
+                success: false,
+                message: 'rackname already exists',
+            });
+        }
+        const rack = await Rack.create({ storeid, rackname });
         res.status(201).json(rack);
     } catch (error) {
         res.status(500).json({
@@ -31,7 +55,7 @@ const getRacks = async (req, res) => {
             order,
             include: {
                 model: Store,
-                as: 'stores',
+                as: 'store',
                 attributes: ['storename']
             }
         });
@@ -59,7 +83,7 @@ const getRackId=async (req,res) => {
         const rack=await Rack.findByPk(id,{
             include:{
                 model:Store,
-                as:"stores",
+                as:"store",
                 attributes:['storename']
             }
         });

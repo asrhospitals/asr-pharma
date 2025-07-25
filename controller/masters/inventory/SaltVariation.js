@@ -1,4 +1,5 @@
-const SaltVariation = require("../../../model/masters/inventory/salt_variations");
+const db = require('../../../models');
+const SaltVariation = db.SaltVariation;
 
 // A. Create Salt Variations
 const addVariations = async (req, res) => {

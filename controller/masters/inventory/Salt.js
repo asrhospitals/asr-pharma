@@ -1,6 +1,7 @@
-const { SaltVariation } = require("../../../model/associationmodel/association_model");
-const Salt = require("../../../model/masters/inventory/salt");
-const sequelize=require('../../../db/db');
+const db = require('../../../models');
+const Salt = db.Salt;
+const SaltVariation = db.SaltVariation;
+const sequelize = db.sequelize;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 

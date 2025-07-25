@@ -1,10 +1,11 @@
-const HSN = require('../../../model/masters/inventory/hsn_sac');
+const db = require('../../../models');
+const HsnSac = db.HsnSac;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // Add HSN
 const addHSN = async (req, res) => {
     try {
-        const newHSN = await HSN.create(req.body);
+        const newHSN = await HsnSac.create(req.body);
         res.status(201).json(newHSN);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -20,7 +21,7 @@ const getAllHSN = async (req, res) => {
             ['hsncode'],
             [] 
         );
-        const { count, rows } = await HSN.findAndCountAll({
+        const { count, rows } = await HsnSac.findAndCountAll({
             where,
             offset,
             limit,
@@ -41,7 +42,7 @@ const getAllHSN = async (req, res) => {
 const getHSNById = async (req, res) => {
   try {
     const { id } = req.params;
-    const hsn = await HSN.findByPk(id);
+    const hsn = await HsnSac.findByPk(id);
       // Check if company exists
     if (!hsn) {
       return res.status(200).json({
@@ -60,7 +61,7 @@ const getHSNById = async (req, res) => {
 const updateHSN = async (req, res) => {
     const { id } = req.params;
     try {
-        const hsn = await HSN.findByPk(id);
+        const hsn = await HsnSac.findByPk(id);
         if (!hsn) {
             return res.status(404).json({ message: 'HSN not found' });
         }
@@ -76,7 +77,7 @@ const updateHSN = async (req, res) => {
 const deleteHSN = async (req, res) => {
     const { id } = req.params;
     try {
-        const hsn = await HSN.findByPk(id);
+        const hsn = await HsnSac.findByPk(id);
         if (!hsn) {
             return res.status(404).json({ message: 'HSN not found' });
         }

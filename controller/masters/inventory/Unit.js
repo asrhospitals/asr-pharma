@@ -1,4 +1,5 @@
-const Unit= require('../../../model/masters/inventory/unit');
+const db = require('../../../models');
+const Unit = db.Unit;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // Add Unit

@@ -1,9 +1,25 @@
-const Company = require("../../../model/masters/inventory/company");
+const db = require('../../../models');
+const Company = db.Company;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // A. Create a new company
 const createCompany = async (req, res) => {
   try {
+    const { companyname } = req.body;
+    if (!companyname) {
+      return res.status(400).json({
+        success: false,
+        message: 'companyname is required',
+      });
+    }
+    // Check for duplicate companyname
+    const existingCompany = await Company.findOne({ where: { companyname } });
+    if (existingCompany) {
+      return res.status(400).json({
+        success: false,
+        message: 'companyname already exists',
+      });
+    }
     const company = await Company.create(req.body);
     res.status(201).json(company);
   } catch (error) {

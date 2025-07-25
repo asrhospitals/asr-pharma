@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
-const sequelize = require("./db/db");
+const db = require("./models");
+const sequelize = db.sequelize;
 const cors = require("cors");
 app.use(cors());
 app.use(express.json());
@@ -10,6 +11,7 @@ const MasterRoutes = require("./routes/master/masterroutes");
 const AuthRoutes=require('./routes/auth/auth');
 const verifyToken=require('./middleware/authMiddleware');
 const role =require('./middleware/roleMiddleware');
+const salesBillRoutes = require('./routes/sales/billRoutes');
 
 // Server Test Route
 app.get('/',async (req,res) => {
@@ -24,6 +26,10 @@ app.use("/pharmacy/auth",AuthRoutes);
 
 // Routes for Masters
 app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
+
+
+// Register sales bill routes
+app.use('/pharmacy/sales/bills/v1', salesBillRoutes);
 
 
 // For LocalHost Test

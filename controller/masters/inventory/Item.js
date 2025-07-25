@@ -1,17 +1,46 @@
-const Item=require('../../../model/masters/inventory/item');
+const db = require('../../../models');
+const Item = db.Item;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 
 // A. Add Item
 
 
-const createItem=async (req, res) => {
+const createItem = async (req, res) => {
     try {
-        const itemData = req.body;
-        const newItem = await Item.create(itemData);
+        const {
+            productname, unit1, unit2, hsnsac, taxcategory, company, price, purchasePrice, cost, salerate
+        } = req.body;
+        // Required fields
+        if (!productname || !unit1 || !unit2 || !hsnsac || !taxcategory || !company) {
+            return res.status(400).json({
+                success: false,
+                message: 'productname, unit1, unit2, hsnsac, taxcategory, and company are required',
+            });
+        }
+        // Check foreign keys (unit1, unit2, hsnsac, company)
+        const unit1Exists = await db.Unit.findByPk(unit1);
+        const unit2Exists = await db.Unit.findByPk(unit2);
+        const hsnsacExists = await db.HsnSac.findByPk(hsnsac);
+        const companyExists = await db.Company.findByPk(company);
+        if (!unit1Exists || !unit2Exists || !hsnsacExists || !companyExists) {
+            return res.status(400).json({
+                success: false,
+                message: 'One or more foreign keys (unit1, unit2, hsnsac, company) do not exist',
+            });
+        }
+        // Check for duplicate productname (optional, if you want uniqueness)
+        const existingItem = await Item.findOne({ where: { productname } });
+        if (existingItem) {
+            return res.status(400).json({
+                success: false,
+                message: 'productname already exists',
+            });
+        }
+        const newItem = await Item.create(req.body);
         res.status(201).json(newItem);
     } catch (error) {
-        res.status(500).json({ error: 'Something went wrong' });
+        res.status(500).json({ error: error.message });
     }
 }
 

@@ -1,8 +1,24 @@
-const Doctor = require('../../../model/masters/other/doctor');
+const db = require('../../../models');
+const Doctor = db.Doctor;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 const createDoctor = async (req, res) => {
   try {
+    const { name, mobileNo, gender, age } = req.body;
+    if (!name || !mobileNo) {
+      return res.status(400).json({
+        success: false,
+        message: 'name and mobileNo are required',
+      });
+    }
+    // Check for duplicate mobileNo
+    const existingDoctor = await Doctor.findOne({ where: { mobileNo } });
+    if (existingDoctor) {
+      return res.status(400).json({
+        success: false,
+        message: 'mobileNo already exists',
+      });
+    }
     const doctor = await Doctor.create(req.body);
     res.status(201).json({
       success: true,

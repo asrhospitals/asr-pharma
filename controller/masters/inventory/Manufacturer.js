@@ -1,4 +1,5 @@
-const Manufacturer = require("../../../model/masters/inventory/manufacturer");
+const db = require('../../../models');
+const Manufacturer = db.Manufacturer;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // A. Create a new manufacturer

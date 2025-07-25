@@ -1,10 +1,26 @@
-const StoreMaster = require("../../../model/masters/inventory/store");
+const db = require('../../../models');
+const Store = db.Store;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // A. Add Store
 const createStore = async (req, res) => {
   try {
-    const store = await StoreMaster.create(req.body);
+    const { storecode, storename, address1 } = req.body;
+    if (!storecode || !storename || !address1) {
+      return res.status(400).json({
+        success: false,
+        message: 'storecode, storename, and address1 are required',
+      });
+    }
+    // Check for duplicate storename
+    const existingStore = await Store.findOne({ where: { storename } });
+    if (existingStore) {
+      return res.status(400).json({
+        success: false,
+        message: 'storename already exists',
+      });
+    }
+    const store = await Store.create(req.body);
     res.status(201).json(store);
   } catch (error) {
     res.status(500).json({
@@ -23,7 +39,7 @@ const getStores = async (req, res) => {
       ['storename'],
       [] 
     );
-    const { count, rows } = await StoreMaster.findAndCountAll({
+    const { count, rows } = await Store.findAndCountAll({
       where,
       offset,
       limit,
@@ -45,7 +61,7 @@ const getStores = async (req, res) => {
 const getStoreById = async (req, res) => {
   try {
     const { id } = req.params;
-    const store = await StoreMaster.findByPk(id);
+    const store = await Store.findByPk(id);
     if (!store)
       return res.status(404).json({ message: `Store with id ${id} not found` });
     res.status(200).json(store);
@@ -61,7 +77,7 @@ const updateStore = async (req, res) => {
   const { id } = req.params;
   if (!id) return res.status(200).json({message: "Store ID is required"});
   try {
-    const store = await StoreMaster.findByPk(id);
+    const store = await Store.findByPk(id);
     if (!store) return res.status(404).json({ message: `Store with ${id} not found` });
     await store.update(req.body);
     res.status(200).json(store);
@@ -76,7 +92,7 @@ const updateStore = async (req, res) => {
 const deleteStore = async (req, res) => {
   const { id } = req.params;
   try {
-    const store = await StoreMaster.findByPk(id);
+    const store = await Store.findByPk(id);
     if (!store) {
       return res.status(404).json({
         success: false,

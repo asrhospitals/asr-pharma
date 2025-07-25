@@ -1,9 +1,10 @@
-const Prescription = require('../../../model/masters/other/prescription');
-const PrescriptionItem = require('../../../model/masters/other/prescription_item');
-const Patient = require('../../../model/masters/other/patient');
-const Doctor = require('../../../model/masters/other/doctor');
-const Item = require('../../../model/masters/inventory/item');
-const sequelize = require('../../../db/db');
+const db = require('../../../models');
+const Prescription = db.Prescription;
+const PrescriptionItem = db.PrescriptionItem;
+const Patient = db.Patient;
+const Doctor = db.Doctor;
+const Item = db.Item;
+const sequelize = db.sequelize;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 // Helper to generate prescription number
