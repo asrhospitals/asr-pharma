@@ -7,12 +7,15 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       models.Bill.hasMany(models.BillItem, { foreignKey: "billId", as: "items" });
       BillItem.belongsTo(models.Bill, { foreignKey: "billId" });
+      models.Item.hasMany(models.BillItem, { foreignKey: "itemId" });
+      BillItem.belongsTo(models.Item, { foreignKey: "itemId" });
     }
   }
 
   BillItem.init({
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     billId: { type: DataTypes.INTEGER, allowNull: false },
+    itemId: { type: DataTypes.INTEGER, allowNull: false },
     product: { type: DataTypes.STRING },
     packing: { type: DataTypes.STRING },
     batch: { type: DataTypes.STRING },

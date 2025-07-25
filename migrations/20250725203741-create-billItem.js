@@ -10,6 +10,11 @@ module.exports = {
         allowNull: false,
         references: { model: 'Bills', key: 'id' },
       },
+      itemId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'Items', key: 'id' },
+      },
       product: { type: Sequelize.STRING },
       packing: { type: Sequelize.STRING },
       batch: { type: Sequelize.STRING },
