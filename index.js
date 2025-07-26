@@ -13,6 +13,9 @@ const verifyToken=require('./middleware/authMiddleware');
 const role =require('./middleware/roleMiddleware');
 const salesBillRoutes = require('./routes/sales/billRoutes');
 
+// Import Group Routes
+const groupRoutes = require('./routes/master/groupRoutes');
+
 // Server Test Route
 app.get('/',async (req,res) => {
     return res.json({message:"Pharmacy server is running"});
@@ -22,20 +25,17 @@ app.get('/',async (req,res) => {
 // Routes for Authentication
 app.use("/pharmacy/auth",AuthRoutes);
 
-
-
 // Routes for Masters
 app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
 
+// Routes for Accounting Groups (with permission-based access)
+app.use("/pharmacy/api", verifyToken, groupRoutes);
 
 // Register sales bill routes
 app.use('/pharmacy/sales/bills/v1', salesBillRoutes);
 
-
 // For LocalHost Test
 //app.use("/pharmacy/master", MasterRoutes);
-
-
 
 const startServer = async () => {
   try {
