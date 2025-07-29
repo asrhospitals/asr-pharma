@@ -13,7 +13,7 @@ const createRack = async (req, res) => {
                 message: 'storeid and rackname are required',
             });
         }
-        // Check if store exists
+
         const store = await Store.findByPk(storeid);
         if (!store) {
             return res.status(400).json({
@@ -21,7 +21,7 @@ const createRack = async (req, res) => {
                 message: 'storeid does not exist',
             });
         }
-        // Check for duplicate rackname (optional, but gives clearer error)
+        
         const existingRack = await Rack.findOne({ where: { rackname } });
         if (existingRack) {
             return res.status(400).json({

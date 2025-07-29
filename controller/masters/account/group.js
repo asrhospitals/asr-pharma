@@ -21,13 +21,13 @@ const inheritPermissionsFromParent = async (userId, parentGroupId) => {
 const GroupController = {
   createGroup: async (req, res) => {
     try {
-      const { groupName, groupType, description, parentGroupName, parentGroupId } = req.body;
+      const { groupName, prohibit, parentGroupId } = req.body;
       const userId = req.user.id;
 
-      if (!groupName || !groupType) {
+      if (!groupName || !parentGroupId) {
         return res.status(400).json({
           success: false,
-          message: "Group name and type are required"
+          message: "Group name and parent group are required"
         });
       }
 
@@ -42,73 +42,36 @@ const GroupController = {
         });
       }
 
-      let finalParentGroupId = parentGroupId;
-
-      if (parentGroupName && !parentGroupId) {
-        const parentGroup = await Group.findOne({
-          where: { groupName: parentGroupName }
+      const parentGroup = await Group.findByPk(parentGroupId);
+      if (!parentGroup) {
+        return res.status(400).json({
+          success: false,
+          message: "Parent group not found"
         });
-
-        if (!parentGroup) {
-          return res.status(404).json({
-            success: false,
-            message: "Parent group not found"
-          });
-        }
-
-        finalParentGroupId = parentGroup.id;
-
-        const canCreateSubGroup = await GroupPermissionService.canCreateSubGroup(userId, parentGroup.id);
-        if (!canCreateSubGroup) {
-          return res.status(403).json({
-            success: false,
-            message: "You don't have permission to create sub-groups under this parent"
-          });
-        }
       }
 
-      const parentGroup = finalParentGroupId ? await Group.findByPk(finalParentGroupId) : null;
-
-      if (parentGroup && !groupType) {
-        groupType = parentGroup.groupType;
+      const canCreateSubGroup = await GroupPermissionService.canCreateSubGroup(userId, parentGroupId);
+      if (!canCreateSubGroup) {
+        return res.status(403).json({
+          success: false,
+          message: "You don't have permission to create sub-groups under this parent"
+        });
       }
 
-      const newGroup = await Group.create({
+      const group = await Group.create({
         groupName,
-        groupType,
-        description,
-        parentGroupId: finalParentGroupId,
-        undergroup: parentGroup ? parentGroup.groupName : groupName,
-        isDefault: false,
-        isEditable: true,
-        isDeletable: true
+        groupType: parentGroup.groupType,
+        prohibit: prohibit || 'No',
+        parentGroupId,
+        undergroup: parentGroup.groupName
       });
 
-      if (finalParentGroupId) {
-        const inheritedPermissions = await inheritPermissionsFromParent(userId, finalParentGroupId);
-        if (inheritedPermissions) {
-          await GroupPermission.create({
-            userId,
-            groupId: newGroup.id,
-            ...inheritedPermissions
-          });
-        }
-      } else {
-        await GroupPermission.create({
-          userId,
-          groupId: newGroup.id,
-          canView: true,
-          canCreate: true,
-          canEdit: true,
-          canDelete: true,
-          canManagePermissions: true
-        });
-      }
+      await inheritPermissionsFromParent(userId, parentGroupId);
 
       res.status(201).json({
         success: true,
         message: "Group created successfully",
-        data: newGroup
+        data: group
       });
     } catch (error) {
       console.error("Error creating group:", error);
@@ -229,7 +192,7 @@ const GroupController = {
   updateGroup: async (req, res) => {
     try {
       const { id } = req.params;
-      const { groupName, groupType, description, undergroup } = req.body;
+      const { groupName, groupType, prohibit } = req.body;
       const userId = req.user.id;
 
       const group = await Group.findByPk(id);
@@ -271,8 +234,7 @@ const GroupController = {
       await group.update({
         groupName: groupName || group.groupName,
         groupType: groupType || group.groupType,
-        description: description !== undefined ? description : group.description,
-        undergroup: undergroup || group.undergroup
+        prohibit: prohibit !== undefined ? prohibit : group.prohibit
       });
 
       res.json({
@@ -545,13 +507,13 @@ const GroupController = {
       const userId = req.user.id;
 
       const allGroups = await Group.findAll({
-        where: { isDefault: true },
         include: [
           {
             model: Group,
             as: 'subGroups'
           }
-        ]
+        ],
+        order: [['groupName', 'ASC']]
       });
 
       const groupsWhereCanCreateSubGroups = await Promise.all(

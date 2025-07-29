@@ -2,7 +2,6 @@ const db = require('../../../models');
 const Company = db.Company;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
-// A. Create a new company
 const createCompany = async (req, res) => {
   try {
     const { companyname } = req.body;
@@ -12,7 +11,6 @@ const createCompany = async (req, res) => {
         message: 'companyname is required',
       });
     }
-    // Check for duplicate companyname
     const existingCompany = await Company.findOne({ where: { companyname } });
     if (existingCompany) {
       return res.status(400).json({
@@ -27,7 +25,6 @@ const createCompany = async (req, res) => {
   }
 };
 
-// B. Get all companies
 const getAllCompanies = async (req, res) => {
   try {
     const { where, offset, limit, order, page } = buildQueryOptions(
@@ -52,13 +49,11 @@ const getAllCompanies = async (req, res) => {
   }
 };
 
-// C. Get Companies by id
-
 const getCompanyById = async (req, res) => {
   try {
     const { id } = req.params;
     const company = await Company.findByPk(id);
-      // Check if company exists
+      
     if (!company) {
       return res.status(200).json({
         success: false,
@@ -71,7 +66,6 @@ const getCompanyById = async (req, res) => {
   }
 };
 
-// C. Update company by ID
 const updateCompany = async (req, res) => {
   const { id } = req.params;
   if (!id) {
@@ -105,7 +99,6 @@ const updateCompany = async (req, res) => {
   }
 };
 
-// D. Delete Rack from Rack Id
 const deleteCompany = async (req, res) => {
   const { id } = req.params;
   try {

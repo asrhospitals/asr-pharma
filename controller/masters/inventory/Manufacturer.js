@@ -44,7 +44,7 @@ const getManuById = async (req, res) => {
   try {
     const { id } = req.params;
     const manu = await Manufacturer.findByPk(id);
-      // Check if company exists
+      
     if (!manu) {
       return res.status(200).json({
         success: false,

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const BillController = require('../../controller/sales/BillController');
 
+// Bill routes - matching frontend /bills/v1/ pattern
 router.get('/get-bills', BillController.getAllBills);
 router.get('/get-bill/:id', BillController.getBillById);
 router.post('/add-bill', BillController.createBill);

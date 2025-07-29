@@ -97,7 +97,7 @@ const getSaltById = async (req, res) => {
         attributes:["str","brandname","dosage","packsize","mrp","dpco","dpcomrp"]
       }
     });
-    // Check if company exists
+    
     if (!salt) {
       return res.status(200).json({
         success: false,

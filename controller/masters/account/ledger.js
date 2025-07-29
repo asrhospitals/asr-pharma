@@ -1,6 +1,5 @@
-const Ledger = require("../../../model/masters/accountmaster/ledger");
+const Ledger = require("../../../models/masters/accountMaster/ledger");
 
-// A. Create Ledger
 const createLedger = async (req, res) => {
   try {
     const ledger = await Ledger.create(req.body);
@@ -10,7 +9,6 @@ const createLedger = async (req, res) => {
   }
 };
 
-// B. Get all Ledger
 const getLedger = async (req, res) => {
   try {
     const ledger = await Ledger.findAll();
@@ -19,8 +17,6 @@ const getLedger = async (req, res) => {
     res.status(400).json({ error: `Something went wrong ${error}` });
   }
 };
-
-// C. Ge Ledger by Id
 
 const getLedgerById = async (req, res) => {
   try {
@@ -32,7 +28,6 @@ const getLedgerById = async (req, res) => {
   }
 };
 
-// D. Update Ledger
 const updateLedger = async (req, res) => {
   try {
     const { id } = req.params;
@@ -43,8 +38,6 @@ const updateLedger = async (req, res) => {
     res.status(400).json({ error: `Something went wrong ${error}` });
   }
 };
-
-// E. Delete Ledger
 
 const deleteLedger = async (req, res) => {
   try {
@@ -63,5 +56,5 @@ module.exports={
     getLedger,
     getLedgerById,
     updateLedger,
-    deleteLedger
-}
+    deleteLedger,
+};

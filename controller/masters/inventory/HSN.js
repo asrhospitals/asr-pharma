@@ -43,7 +43,7 @@ const getHSNById = async (req, res) => {
   try {
     const { id } = req.params;
     const hsn = await HsnSac.findByPk(id);
-      // Check if company exists
+
     if (!hsn) {
       return res.status(200).json({
         success: false,

@@ -12,8 +12,7 @@ const AuthRoutes=require('./routes/auth/auth');
 const verifyToken=require('./middleware/authMiddleware');
 const role =require('./middleware/roleMiddleware');
 const salesBillRoutes = require('./routes/sales/billRoutes');
-
-// Import Group Routes
+const accountRoutes = require('./routes/master/accountRoutes');
 const groupRoutes = require('./routes/master/groupRoutes');
 
 // Server Test Route
@@ -27,6 +26,9 @@ app.use("/pharmacy/auth",AuthRoutes);
 
 // Routes for Masters
 app.use("/pharmacy/admin/master",verifyToken,role('admin'), MasterRoutes);
+
+// Routes for Accounting (ledgers)
+app.use("/pharmacy/admin/master",verifyToken,role('admin'), accountRoutes);
 
 // Routes for Accounting Groups (with permission-based access)
 app.use("/pharmacy/api", verifyToken, groupRoutes);

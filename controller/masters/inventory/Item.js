@@ -11,14 +11,14 @@ const createItem = async (req, res) => {
         const {
             productname, unit1, unit2, hsnsac, taxcategory, company, price, purchasePrice, cost, salerate
         } = req.body;
-        // Required fields
+        
         if (!productname || !unit1 || !unit2 || !hsnsac || !taxcategory || !company) {
             return res.status(400).json({
                 success: false,
                 message: 'productname, unit1, unit2, hsnsac, taxcategory, and company are required',
             });
         }
-        // Check foreign keys (unit1, unit2, hsnsac, company)
+        
         const unit1Exists = await db.Unit.findByPk(unit1);
         const unit2Exists = await db.Unit.findByPk(unit2);
         const hsnsacExists = await db.HsnSac.findByPk(hsnsac);
@@ -29,7 +29,7 @@ const createItem = async (req, res) => {
                 message: 'One or more foreign keys (unit1, unit2, hsnsac, company) do not exist',
             });
         }
-        // Check for duplicate productname (optional, if you want uniqueness)
+        
         const existingItem = await Item.findOne({ where: { productname } });
         if (existingItem) {
             return res.status(400).json({
@@ -76,7 +76,6 @@ const getItemById = async (req, res) => {
   try {
     const { id } = req.params;
     const item = await Item.findByPk(id);
-      // Check if company exists
     if (!item) {
       return res.status(200).json({
         success: false,

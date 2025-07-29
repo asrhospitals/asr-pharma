@@ -4,6 +4,7 @@ const GroupController = require('../../controller/masters/account/group');
 const { 
   canEditGroup, 
   canDeleteGroup,
+  canCreateGroup,
   canCreateLedger,
   canEditLedger,
   canDeleteLedger,
@@ -13,7 +14,7 @@ const authMiddleware = require('../../middleware/authMiddleware');
 
 router.use(authMiddleware);
 
-router.post('/groups', GroupController.createGroup);
+router.post('/groups', canCreateGroup, GroupController.createGroup);
 router.get('/groups', GroupController.getAllGroups);
 router.get('/groups/hierarchy', GroupController.getGroupHierarchy);
 router.get('/groups/type/:groupType', GroupController.getGroupsByType);
@@ -23,23 +24,15 @@ router.get('/groups/:id', GroupController.getGroupById);
 router.put('/groups/:id', canEditGroup, GroupController.updateGroup);
 router.delete('/groups/:id', canDeleteGroup, GroupController.deleteGroup);
 
+// Group permissions routes
 router.get('/groups/:groupId/permissions', GroupController.getGroupPermissions);
 router.post('/groups/:groupId/permissions/:userId', GroupController.setGroupPermission);
 
-router.post('/groups/:groupId/ledgers', canCreateLedger, (req, res) => {
-  res.status(200).json({ message: 'Permission check passed for creating ledger' });
-});
+// Note: Group ledger routes are commented out as the controller methods don't exist yet
+// These can be implemented later when the ledger functionality is added to the group controller
+// router.get('/groups/:groupId/ledgers', canViewLedger, GroupController.getGroupLedgers);
+// router.post('/groups/:groupId/ledgers', canCreateLedger, GroupController.createGroupLedger);
+// router.put('/groups/:groupId/ledgers/:ledgerId', canEditLedger, GroupController.updateGroupLedger);
+// router.delete('/groups/:groupId/ledgers/:ledgerId', canDeleteLedger, GroupController.deleteGroupLedger);
 
-router.put('/groups/:groupId/ledgers/:ledgerId', canEditLedger, (req, res) => {
-  res.status(200).json({ message: 'Permission check passed for editing ledger' });
-});
-
-router.delete('/groups/:groupId/ledgers/:ledgerId', canDeleteLedger, (req, res) => {
-  res.status(200).json({ message: 'Permission check passed for deleting ledger' });
-});
-
-router.get('/groups/:groupId/ledgers', canViewLedger, (req, res) => {
-  res.status(200).json({ message: 'Permission check passed for viewing ledgers' });
-});
-
-module.exports = router; 
+module.exports = router;
