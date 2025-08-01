@@ -48,7 +48,7 @@ const validateUserLogin = [
     .notEmpty()
     .withMessage('Username or email is required')
     .custom((value) => {
-      // Check if it's a valid email or username
+
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
       
@@ -74,7 +74,7 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email or username
+
     const user = await User.findOne({
       where: { 
         $or: [
@@ -91,7 +91,7 @@ const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // Find user by email or username
+
     const user = await User.findOne({
       where: { 
         $or: [

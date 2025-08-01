@@ -2,7 +2,7 @@ const db = require('../../../database/index');
 const Store = db.Store;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
-// A. Add Store
+
 const createStore = async (req, res) => {
   try {
     const { storecode, storename, address1 } = req.body;
@@ -12,7 +12,7 @@ const createStore = async (req, res) => {
         message: 'storecode, storename, and address1 are required',
       });
     }
-    // Check for duplicate storename
+
     const existingStore = await Store.findOne({ where: { storename } });
     if (existingStore) {
       return res.status(400).json({
@@ -31,7 +31,7 @@ const createStore = async (req, res) => {
   }
 };
 
-// B. Get All Stores
+
 const getStores = async (req, res) => {
   try {
     const { where, offset, limit, order, page } = buildQueryOptions(
@@ -56,7 +56,7 @@ const getStores = async (req, res) => {
   }
 };
 
-// Get Store By Id
+
 
 const getStoreById = async (req, res) => {
   try {
@@ -72,7 +72,7 @@ const getStoreById = async (req, res) => {
   }
 };
 
-// C. Update Store from Store Id
+
 const updateStore = async (req, res) => {
   const { id } = req.params;
   if (!id) return res.status(200).json({message: "Store ID is required"});
@@ -88,7 +88,7 @@ const updateStore = async (req, res) => {
   }
 };
 
-// D. Delete Store from Store Id
+
 const deleteStore = async (req, res) => {
   const { id } = req.params;
   try {

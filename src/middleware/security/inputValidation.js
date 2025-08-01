@@ -1,6 +1,6 @@
 const { body, param, query, validationResult } = require('express-validator');
 
-// Generic validation error handler
+
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -17,7 +17,7 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-// Sanitize common fields
+
 const sanitizeCommonFields = [
   body('name').trim().escape(),
   body('email').normalizeEmail(),
@@ -27,7 +27,7 @@ const sanitizeCommonFields = [
   body('notes').trim().escape()
 ];
 
-// User registration validation
+
 const validateUserRegistration = [
   body('username')
     .trim()
@@ -55,7 +55,7 @@ const validateUserRegistration = [
   handleValidationErrors
 ];
 
-// User login validation
+
 const validateUserLogin = [
   body('uname')
     .notEmpty()
@@ -72,7 +72,7 @@ const validateUserLogin = [
   handleValidationErrors
 ];
 
-// Item validation
+
 const validateItem = [
   body('name')
     .trim()
@@ -110,7 +110,7 @@ const validateItem = [
   handleValidationErrors
 ];
 
-// Company validation
+
 const validateCompany = [
   body('name')
     .trim()
@@ -144,7 +144,7 @@ const validateCompany = [
   handleValidationErrors
 ];
 
-// Bill validation
+
 const validateBill = [
   body('customerName')
     .trim()
@@ -185,7 +185,7 @@ const validateBill = [
   handleValidationErrors
 ];
 
-// Group validation
+
 const validateGroup = [
   body('name')
     .trim()
@@ -211,7 +211,7 @@ const validateGroup = [
   handleValidationErrors
 ];
 
-// Ledger validation
+
 const validateLedger = [
   body('name')
     .trim()
@@ -259,7 +259,7 @@ const validateLedger = [
   handleValidationErrors
 ];
 
-// Query parameter validation
+
 const validatePagination = [
   query('page')
     .optional()
@@ -285,7 +285,7 @@ const validatePagination = [
   handleValidationErrors
 ];
 
-// ID parameter validation
+
 const validateId = [
   param('id')
     .isInt({ min: 1 })
@@ -294,7 +294,7 @@ const validateId = [
   handleValidationErrors
 ];
 
-// UUID validation
+
 const validateUUID = [
   param('id')
     .isUUID()
@@ -303,7 +303,7 @@ const validateUUID = [
   handleValidationErrors
 ];
 
-// File upload validation
+
 const validateFileUpload = [
   body('filename')
     .optional()
@@ -319,7 +319,7 @@ const validateFileUpload = [
   handleValidationErrors
 ];
 
-// Email validation
+
 const validateEmail = [
   body('email')
     .isEmail()
@@ -329,7 +329,7 @@ const validateEmail = [
   handleValidationErrors
 ];
 
-// Phone validation
+
 const validatePhone = [
   body('phone')
     .trim()
@@ -339,7 +339,7 @@ const validatePhone = [
   handleValidationErrors
 ];
 
-// URL validation
+
 const validateURL = [
   body('url')
     .isURL()
@@ -348,7 +348,7 @@ const validateURL = [
   handleValidationErrors
 ];
 
-// Date validation
+
 const validateDate = [
   body('date')
     .isISO8601()
@@ -357,7 +357,7 @@ const validateDate = [
   handleValidationErrors
 ];
 
-// Price validation
+
 const validatePrice = [
   body('price')
     .isFloat({ min: 0 })
@@ -366,7 +366,7 @@ const validatePrice = [
   handleValidationErrors
 ];
 
-// Quantity validation
+
 const validateQuantity = [
   body('quantity')
     .isInt({ min: 0 })

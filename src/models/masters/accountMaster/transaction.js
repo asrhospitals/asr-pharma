@@ -4,7 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Transaction extends Model {
     static associate(models) {
-      // Define associations here
+
       Transaction.belongsTo(models.Ledger, { 
         foreignKey: 'debitLedgerId', 
         as: 'debitLedger',
@@ -164,7 +164,7 @@ module.exports = (sequelize, DataTypes) => {
     ],
     hooks: {
       beforeValidate: (transaction) => {
-        // Ensure debit and credit ledgers are different
+
         if (transaction.debitLedgerId === transaction.creditLedgerId) {
           throw new Error('Debit and credit ledgers cannot be the same');
         }

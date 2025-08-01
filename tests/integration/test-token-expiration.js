@@ -2,12 +2,12 @@ const axios = require('axios');
 
 const BASE_URL = 'http://localhost:3000/pharmacy';
 
-// Test token expiration handling
+
 async function testTokenExpiration() {
   try {
     console.log('🔐 Testing Token Expiration Handling...\n');
 
-    // Step 1: Login to get a token
+
     console.log('1. Logging in to get a token...');
     const loginResponse = await axios.post(`${BASE_URL}/auth/signin`, {
       uname: 'admin',
@@ -17,7 +17,7 @@ async function testTokenExpiration() {
     const token = loginResponse.data.data.accessToken;
     console.log('✅ Login successful, got token\n');
 
-    // Step 2: Test a protected endpoint with valid token
+
     console.log('2. Testing protected endpoint with valid token...');
     try {
       const validResponse = await axios.get(`${BASE_URL}/admin/master/inventory/item/v1/get-item`, {
@@ -30,7 +30,7 @@ async function testTokenExpiration() {
       console.log('❌ Protected endpoint failed:', error.response?.data?.message || error.message);
     }
 
-    // Step 3: Test with an expired/invalid token
+
     console.log('3. Testing with expired/invalid token...');
     try {
       const expiredResponse = await axios.get(`${BASE_URL}/admin/master/inventory/item/v1/get-item`, {
@@ -52,7 +52,7 @@ async function testTokenExpiration() {
       console.log('   4. Show a message: "Session expired. Please login again."\n');
     }
 
-    // Step 4: Test without token
+
     console.log('4. Testing without token...');
     try {
       const noTokenResponse = await axios.get(`${BASE_URL}/admin/master/inventory/item/v1/get-item`);
@@ -73,5 +73,5 @@ async function testTokenExpiration() {
   }
 }
 
-// Run the test
+
 testTokenExpiration(); 

@@ -49,7 +49,7 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable("items");
-    // Drop ENUM types explicitly to avoid PostgreSQL residue
+
     await queryInterface.sequelize.query(
       'DROP TYPE IF EXISTS "enum_items_goods";'
     );

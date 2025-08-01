@@ -1,6 +1,6 @@
 const { body, param, query, validationResult } = require('express-validator');
 
-// Validation rules for ledger operations
+
 const validateCreateLedger = [
   body('ledgerName')
     .trim()
@@ -183,7 +183,7 @@ const validateGetLedgerTransactions = [
     .withMessage('Invalid voucher type')
 ];
 
-// Middleware to handle validation errors
+
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

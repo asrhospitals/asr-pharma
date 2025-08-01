@@ -7,12 +7,12 @@ const Item = db.Item;
 const sequelize = db.sequelize;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
-// Helper to generate prescription number
+
 async function generatePresNo(id) {
     return 'PRES' + id.toString().padStart(6, '0');
 }
 
-// Create a new prescription with items
+
 exports.createPrescription = async (req, res) => {
     const t = await sequelize.transaction();
     try {
@@ -41,7 +41,7 @@ exports.createPrescription = async (req, res) => {
     }
 };
 
-// Get all prescriptions (with patient/doctor, paginated)
+
 exports.getPrescriptions = async (req, res) => {
     try {
         const { where, offset, limit, order, page } = buildQueryOptions(
@@ -81,7 +81,7 @@ exports.getPrescriptions = async (req, res) => {
     }
 };
 
-// Get prescription by ID (with items, patient, doctor)
+
 exports.getPrescriptionById = async (req, res) => {
     try {
         const prescription = await Prescription.findByPk(req.params.id, {
@@ -110,7 +110,7 @@ exports.getPrescriptionById = async (req, res) => {
     }
 };
 
-// Update prescription and its items
+
 exports.updatePrescription = async (req, res) => {
     const t = await sequelize.transaction();
     try {
@@ -146,7 +146,7 @@ exports.updatePrescription = async (req, res) => {
     }
 };
 
-// Delete prescription and its items
+
 exports.deletePrescription = async (req, res) => {
     const t = await sequelize.transaction();
     try {

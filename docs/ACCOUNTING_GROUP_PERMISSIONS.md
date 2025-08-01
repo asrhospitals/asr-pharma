@@ -72,7 +72,7 @@ The system includes the following default accounting groups (as shown in the ima
 
 #### Creating Sub-Groups
 ```javascript
-// Example: Create a sub-group under "Current Assets"
+
 const newGroup = {
   groupName: "Petty Cash",
   undergroup: "Current Assets",
@@ -81,15 +81,15 @@ const newGroup = {
   description: "Petty cash accounts"
 };
 
-// The system will:
-// 1. Automatically inherit group type from parent
-// 2. Inherit all permissions from parent group
-// 3. Allow further sub-groups under this new group
+
+
+
+
 ```
 
 #### Permission Inheritance
 ```javascript
-// When creating a sub-group, permissions are automatically inherited:
+
 const inheritedPermissions = {
   canCreateLedger: parentPermission.canCreateLedger,
   canEditLedger: parentPermission.canEditLedger,
@@ -114,7 +114,7 @@ const inheritedPermissions = {
 
 #### Recursive Hierarchy Building
 ```javascript
-// Build unlimited hierarchy recursively
+
 const buildHierarchy = (groups, parentId = null, level = 0) => {
   return groups
     .filter(group => group.parentGroupId === parentId)
@@ -128,7 +128,7 @@ const buildHierarchy = (groups, parentId = null, level = 0) => {
 
 #### Sub-Group Validation
 ```javascript
-// Check for sub-groups recursively before deletion
+
 const hasSubGroups = async (groupId) => {
   const subGroups = await Group.findAll({ where: { parentGroupId: groupId } });
   
@@ -136,7 +136,7 @@ const hasSubGroups = async (groupId) => {
     return true;
   }
 
-  // Check recursively
+
   for (const subGroup of subGroups) {
     const hasNestedSubGroups = await hasSubGroups(subGroup.id);
     if (hasNestedSubGroups) {
@@ -366,7 +366,7 @@ const {
   canViewLedger
 } = require('../middleware/groupPermissionMiddleware');
 
-// Apply to routes
+
 router.put('/groups/:id', canEditGroup, groupController.updateGroup);
 router.delete('/groups/:id', canDeleteGroup, groupController.deleteGroup);
 router.get('/groups', filterAccessibleGroups, groupController.getAllGroups);
@@ -379,25 +379,25 @@ Use the GroupPermissionService for permission checks:
 ```javascript
 const GroupPermissionService = require('../utils/groupPermissionService');
 
-// Check if user can create ledger under a group
+
 const canCreate = await GroupPermissionService.canCreateLedger(userId, groupId);
 
-// Check if user can edit a group
+
 const canEdit = await GroupPermissionService.canEditGroup(userId, groupId);
 
-// Get accessible groups for user
+
 const groups = await GroupPermissionService.getAccessibleGroups(userId);
 
-// Get complete hierarchy
+
 const hierarchy = await GroupPermissionService.getGroupHierarchy(userId);
 
-// Check if group has sub-groups
+
 const hasSubGroups = await GroupPermissionService.hasSubGroups(groupId);
 
-// Get all sub-groups recursively
+
 const allSubGroups = await GroupPermissionService.getAllSubGroups(groupId);
 
-// Set default permissions for new user
+
 await GroupPermissionService.setDefaultPermissions(userId, userRole);
 ```
 
@@ -419,10 +419,10 @@ The system includes a comprehensive frontend component (`HierarchicalGroupManage
 ```javascript
 import { hasGroupPermission, getGroupPermissions } from '../data/permissions';
 
-// Check if user can create ledger under a group
+
 const canCreate = hasGroupPermission('Current Assets', 'Asset', 'canCreateLedger');
 
-// Get all permissions for a group
+
 const permissions = getGroupPermissions('Capital Account', 'Capital');
 ```
 
@@ -440,7 +440,7 @@ The frontend should:
 ### 4. Route Protection
 
 ```javascript
-// In route configuration
+
 {
   path: "/master/accounts/group",
   module: "accounting_groups",
@@ -535,22 +535,22 @@ The frontend should:
 ### Debug Commands
 
 ```javascript
-// Check user permissions for a group
+
 const permissions = await GroupPermissionService.getUserGroupPermissions(userId);
 
-// Check if group is accessible
+
 const groups = await GroupPermissionService.getAccessibleGroups(userId);
 
-// Verify permission check
+
 const hasPermission = await GroupPermissionService.hasGroupPermission(userId, groupId, 'createLedger');
 
-// Check hierarchy
+
 const hierarchy = await GroupPermissionService.getGroupHierarchy(userId);
 
-// Check for sub-groups
+
 const hasSubGroups = await GroupPermissionService.hasSubGroups(groupId);
 
-// Get all sub-groups
+
 const allSubGroups = await GroupPermissionService.getAllSubGroups(groupId);
 ```
 

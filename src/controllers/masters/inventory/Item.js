@@ -3,7 +3,7 @@ const Item = db.Item;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 
-// A. Add Item
+
 
 
 const createItem = async (req, res) => {
@@ -44,7 +44,7 @@ const createItem = async (req, res) => {
     }
 }
 
-// B. Get All Items
+
 
 const getItems = async (req, res) => {
     try {
@@ -70,7 +70,7 @@ const getItems = async (req, res) => {
     }
 }
 
-// Get Items by id
+
 
 const getItemById = async (req, res) => {
   try {
@@ -92,7 +92,7 @@ const getItemById = async (req, res) => {
 
 
 
-// C. Update Item from Item Id
+
 
 const updateItem=async (req, res) => {
     try {
@@ -110,7 +110,7 @@ const updateItem=async (req, res) => {
 }
 
 
-// D. Delete Item from Item Id
+
 const deleteItem=async (req, res) => {
     try {
         const { id } = req.params;

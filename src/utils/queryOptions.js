@@ -6,7 +6,7 @@ function buildQueryOptions(query, searchableFields = ['name'], filterFields = []
   const offset = (page - 1) * limit;
   const order = query.order ? [query.order.split(',')] : [['id', 'DESC']];
 
-  // Search
+
   const search = query.search || '';
   const where = {};
 

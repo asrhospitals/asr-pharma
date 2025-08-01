@@ -23,9 +23,9 @@ const {
 
 const router = Router();
 
-//-------------------------------------Transaction Routes----------------------------------//
 
-// Transaction CRUD operations
+
+
 router.post('/transaction/v1/create', 
   validateCreateTransaction, 
   validateDifferentLedgers,
@@ -59,7 +59,7 @@ router.delete('/transaction/v1/:id',
   deleteTransaction
 );
 
-// Transaction workflow operations
+
 router.post('/transaction/v1/:id/post', 
   validateTransactionId, 
   handleValidationErrors, 
@@ -72,7 +72,7 @@ router.post('/transaction/v1/:id/cancel',
   cancelTransaction
 );
 
-// Transaction reporting
+
 router.get('/transaction/v1/stats/summary', 
   validateGetTransactionStats, 
   validateDateRange,

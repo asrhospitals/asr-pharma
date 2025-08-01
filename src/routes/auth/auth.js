@@ -11,7 +11,7 @@ const {
 
 const router = Router();
 
-// Create User (with enhanced security)
+
 router.route('/signup')
   .post(
     authLimiter,
@@ -19,7 +19,7 @@ router.route('/signup')
     register
   );
 
-// Log In User (with enhanced security)
+
 router.route('/signin')
   .post(
     authLimiter,
@@ -28,20 +28,20 @@ router.route('/signin')
     login
   );
 
-// Refresh Token
+
 router.route('/refresh')
   .post(
     authLimiter,
     refreshToken
   );
 
-// Logout
+
 router.route('/logout')
   .post(
     logout
   );
 
-// Health check for auth service
+
 router.route('/health')
   .get((req, res) => {
     res.json({

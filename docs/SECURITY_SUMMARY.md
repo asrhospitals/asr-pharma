@@ -198,10 +198,10 @@ LOG_LEVEL=info
 ```javascript
 const { getRouteSecurity } = require('./middleware/security');
 
-// Get security middleware for admin routes
+
 const adminSecurity = getRouteSecurity('admin');
 
-// Apply to route
+
 router.use('/admin', ...adminSecurity.security);
 ```
 

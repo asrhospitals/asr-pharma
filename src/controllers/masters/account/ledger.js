@@ -1,10 +1,9 @@
 const db = require("../../../database");
 const { Ledger, Group, Transaction } = db;
 const { Op } = require('sequelize');
+const DefaultLedgerService = require('../../../services/defaultLedgerService');
 
 const createLedger = async (req, res) => {
-  const t = await db.sequelize.transaction();
-  
   try {
     const {
       ledgerName,
@@ -15,7 +14,7 @@ const createLedger = async (req, res) => {
       sortOrder = 0
     } = req.body;
 
-    // Validate required fields
+
     if (!ledgerName || !acgroup) {
       return res.status(400).json({
         success: false,
@@ -23,7 +22,7 @@ const createLedger = async (req, res) => {
       });
     }
 
-    // Check if ledger name already exists
+
     const existingLedger = await Ledger.findOne({
       where: { ledgerName: { [Op.iLike]: ledgerName } }
     });
@@ -35,7 +34,7 @@ const createLedger = async (req, res) => {
       });
     }
 
-    // Validate group exists
+
     const group = await Group.findByPk(acgroup);
     if (!group) {
       return res.status(400).json({
@@ -44,7 +43,7 @@ const createLedger = async (req, res) => {
       });
     }
 
-    // Validate balance type
+
     if (!['Debit', 'Credit'].includes(balanceType)) {
       return res.status(400).json({
         success: false,
@@ -52,7 +51,7 @@ const createLedger = async (req, res) => {
       });
     }
 
-    // Validate opening balance
+
     if (isNaN(openingBalance) || openingBalance < 0) {
       return res.status(400).json({
         success: false,
@@ -71,13 +70,11 @@ const createLedger = async (req, res) => {
       status: 'Active'
     };
 
-    const ledger = await Ledger.create(ledgerData, { transaction: t });
-    await t.commit();
 
-    // Fetch created ledger with group information
-    const createdLedger = await Ledger.findByPk(ledger.id, {
-      include: [{ model: Group, as: 'group' }]
-    });
+    const ledger = await DefaultLedgerService.createCustomLedger(ledgerData, req.user.id);
+
+
+    const createdLedger = await DefaultLedgerService.getLedgerWithDefaultInfo(ledger.id);
 
     res.status(201).json({
       success: true,
@@ -86,7 +83,6 @@ const createLedger = async (req, res) => {
     });
 
   } catch (error) {
-    await t.rollback();
     console.error('Ledger creation error:', error);
     res.status(500).json({
       success: false,
@@ -105,17 +101,19 @@ const getLedger = async (req, res) => {
       search,
       status,
       isActive,
-      balanceType
+      balanceType,
+      isDefault
     } = req.query;
 
     const offset = (page - 1) * limit;
     const whereClause = {};
 
-    // Apply filters
+
     if (groupId) whereClause.acgroup = groupId;
     if (status) whereClause.status = status;
     if (isActive !== undefined) whereClause.isActive = isActive === 'true';
     if (balanceType) whereClause.balanceType = balanceType;
+    if (isDefault !== undefined) whereClause.isDefault = isDefault === 'true';
     if (search) {
       whereClause[Op.or] = [
         { ledgerName: { [Op.iLike]: `%${search}%` } },
@@ -126,14 +124,33 @@ const getLedger = async (req, res) => {
     const { count, rows } = await Ledger.findAndCountAll({
       where: whereClause,
       include: [{ model: Group, as: 'group' }],
-      order: [['sortOrder', 'ASC'], ['ledgerName', 'ASC']],
+      order: [
+        ['isDefault', 'DESC'],
+        ['sortOrder', 'ASC'], 
+        ['ledgerName', 'ASC']
+      ],
       limit: parseInt(limit),
       offset: parseInt(offset)
     });
 
+
+    const ledgersWithInfo = await Promise.all(
+      rows.map(async (ledger) => {
+        const editableFields = await DefaultLedgerService.getEditableFields(ledger.id);
+        const canDelete = await DefaultLedgerService.canDelete(ledger.id);
+
+        return {
+          ...ledger.toJSON(),
+          editableFields,
+          canDelete,
+          isDefaultLedger: ledger.isDefault
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
-      data: rows,
+      data: ledgersWithInfo,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(count / limit),
@@ -156,9 +173,7 @@ const getLedgerById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const ledger = await Ledger.findByPk(id, {
-      include: [{ model: Group, as: 'group' }]
-    });
+    const ledger = await DefaultLedgerService.getLedgerWithDefaultInfo(id);
 
     if (!ledger) {
       return res.status(404).json({
@@ -183,22 +198,19 @@ const getLedgerById = async (req, res) => {
 };
 
 const updateLedger = async (req, res) => {
-  const t = await db.sequelize.transaction();
-  
   try {
     const { id } = req.params;
     const updateData = req.body;
 
     const ledger = await Ledger.findByPk(id);
     if (!ledger) {
-      await t.rollback();
       return res.status(404).json({
         success: false,
         message: 'Ledger not found'
       });
     }
 
-    // Check if ledger name is being changed
+
     if (updateData.ledgerName && updateData.ledgerName !== ledger.ledgerName) {
       const existingLedger = await Ledger.findOne({
         where: { 
@@ -208,7 +220,6 @@ const updateLedger = async (req, res) => {
       });
 
       if (existingLedger) {
-        await t.rollback();
         return res.status(400).json({
           success: false,
           message: 'Ledger name already exists'
@@ -216,11 +227,10 @@ const updateLedger = async (req, res) => {
       }
     }
 
-    // Validate group if being updated
+
     if (updateData.acgroup) {
       const group = await Group.findByPk(updateData.acgroup);
       if (!group) {
-        await t.rollback();
         return res.status(400).json({
           success: false,
           message: 'Invalid group selected'
@@ -228,19 +238,17 @@ const updateLedger = async (req, res) => {
       }
     }
 
-    // Validate balance type if being updated
+
     if (updateData.balanceType && !['Debit', 'Credit'].includes(updateData.balanceType)) {
-      await t.rollback();
       return res.status(400).json({
         success: false,
         message: 'Invalid balance type. Must be Debit or Credit'
       });
     }
 
-    // Validate opening balance if being updated
+
     if (updateData.openingBalance !== undefined) {
       if (isNaN(updateData.openingBalance) || updateData.openingBalance < 0) {
-        await t.rollback();
         return res.status(400).json({
           success: false,
           message: 'Opening balance must be a non-negative number'
@@ -248,19 +256,17 @@ const updateLedger = async (req, res) => {
       }
     }
 
-    // Clean up data
+
     if (updateData.ledgerName) updateData.ledgerName = updateData.ledgerName.trim();
     if (updateData.description) updateData.description = updateData.description.trim();
     if (updateData.openingBalance !== undefined) updateData.openingBalance = parseFloat(updateData.openingBalance);
     if (updateData.sortOrder !== undefined) updateData.sortOrder = parseInt(updateData.sortOrder);
 
-    await ledger.update(updateData, { transaction: t });
-    await t.commit();
 
-    // Fetch updated ledger
-    const updatedLedger = await Ledger.findByPk(id, {
-      include: [{ model: Group, as: 'group' }]
-    });
+    await DefaultLedgerService.updateDefaultLedger(id, updateData, req.user.id);
+
+
+    const updatedLedger = await DefaultLedgerService.getLedgerWithDefaultInfo(id);
 
     res.status(200).json({
       success: true,
@@ -269,7 +275,6 @@ const updateLedger = async (req, res) => {
     });
 
   } catch (error) {
-    await t.rollback();
     console.error('Update ledger error:', error);
     res.status(500).json({
       success: false,
@@ -280,21 +285,18 @@ const updateLedger = async (req, res) => {
 };
 
 const deleteLedger = async (req, res) => {
-  const t = await db.sequelize.transaction();
-  
   try {
     const { id } = req.params;
 
     const ledger = await Ledger.findByPk(id);
     if (!ledger) {
-      await t.rollback();
       return res.status(404).json({
         success: false,
         message: 'Ledger not found'
       });
     }
 
-    // Check if ledger has transactions
+
     const transactionCount = await Transaction.count({
       where: {
         [Op.or]: [
@@ -305,15 +307,14 @@ const deleteLedger = async (req, res) => {
     });
 
     if (transactionCount > 0) {
-      await t.rollback();
       return res.status(400).json({
         success: false,
         message: `Cannot delete ledger. It has ${transactionCount} associated transactions.`
       });
     }
 
-    await ledger.destroy({ transaction: t });
-    await t.commit();
+
+    await DefaultLedgerService.deleteLedger(id, req.user.id);
 
     res.status(200).json({
       success: true,
@@ -321,7 +322,6 @@ const deleteLedger = async (req, res) => {
     });
 
   } catch (error) {
-    await t.rollback();
     console.error('Delete ledger error:', error);
     res.status(500).json({
       success: false,
@@ -347,7 +347,7 @@ const getLedgerBalance = async (req, res) => {
     let balance = parseFloat(ledger.openingBalance || 0);
     let transactions = [];
 
-    // Calculate balance from transactions
+
     const transactionWhere = {
       [Op.or]: [
         { debitLedgerId: id },
@@ -368,19 +368,19 @@ const getLedgerBalance = async (req, res) => {
       order: [['voucherDate', 'ASC']]
     });
 
-    // Calculate running balance
+
     transactions.forEach(transaction => {
       const amount = parseFloat(transaction.amount);
       
       if (transaction.debitLedgerId === parseInt(id)) {
-        // This ledger is debited
+
         if (ledger.balanceType === 'Debit') {
           balance += amount;
         } else {
           balance -= amount;
         }
       } else {
-        // This ledger is credited
+
         if (ledger.balanceType === 'Credit') {
           balance += amount;
         } else {
@@ -428,7 +428,7 @@ const getLedgerTransactions = async (req, res) => {
       ]
     };
 
-    // Apply filters
+
     if (startDate && endDate) {
       whereClause.voucherDate = {
         [Op.between]: [new Date(startDate), new Date(endDate)]
@@ -621,7 +621,7 @@ const updateOpeningBalance = async (req, res) => {
       });
     }
 
-    // Check if ledger has transactions
+
     const transactionCount = await Transaction.count({
       where: {
         [Op.or]: [
@@ -640,7 +640,7 @@ const updateOpeningBalance = async (req, res) => {
       });
     }
 
-    // Validate opening balance
+
     if (isNaN(openingBalance) || openingBalance < 0) {
       await t.rollback();
       return res.status(400).json({
@@ -649,7 +649,7 @@ const updateOpeningBalance = async (req, res) => {
       });
     }
 
-    // Validate balance type
+
     if (balanceType && !['Debit', 'Credit'].includes(balanceType)) {
       await t.rollback();
       return res.status(400).json({
@@ -686,6 +686,33 @@ const updateOpeningBalance = async (req, res) => {
   }
 };
 
+
+const getDefaultLedgers = async (req, res) => {
+  try {
+    const { groupId } = req.query;
+    
+    let defaultLedgers;
+    if (groupId) {
+      defaultLedgers = await DefaultLedgerService.getDefaultLedgersByGroup(groupId);
+    } else {
+      defaultLedgers = await DefaultLedgerService.getDefaultLedgers();
+    }
+
+    res.status(200).json({
+      success: true,
+      data: defaultLedgers
+    });
+
+  } catch (error) {
+    console.error('Get default ledgers error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch default ledgers',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createLedger,
   getLedger,
@@ -695,5 +722,6 @@ module.exports = {
   getLedgerBalance,
   getLedgerTransactions,
   getLedgerDetails,
-  updateOpeningBalance
+  updateOpeningBalance,
+  getDefaultLedgers
 };

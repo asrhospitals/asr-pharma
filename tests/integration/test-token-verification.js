@@ -6,7 +6,7 @@ async function testTokenVerification() {
   console.log('🧪 Testing Token Verification...\n');
 
   try {
-    // Step 1: Login to get a token
+
     console.log('1. Logging in to get access token...');
     const loginData = {
       uname: 'admin',
@@ -26,7 +26,7 @@ async function testTokenVerification() {
 
     console.log('');
 
-    // Step 2: Test protected route without token (should fail)
+
     console.log('2. Testing protected route without token...');
     try {
       await axios.get(`${BASE_URL}/pharmacy/admin/master/items`);
@@ -42,7 +42,7 @@ async function testTokenVerification() {
 
     console.log('');
 
-    // Step 3: Test protected route with token (should succeed)
+
     console.log('3. Testing protected route with token...');
     try {
       const protectedResponse = await axios.get(`${BASE_URL}/pharmacy/admin/master/items`, {
@@ -61,7 +61,7 @@ async function testTokenVerification() {
 
     console.log('');
 
-    // Step 4: Test user profile endpoint
+
     console.log('4. Testing user profile endpoint...');
     try {
       const profileResponse = await axios.get(`${BASE_URL}/pharmacy/auth/profile`, {
@@ -80,7 +80,7 @@ async function testTokenVerification() {
 
     console.log('');
 
-    // Step 5: Test with invalid token
+
     console.log('5. Testing with invalid token...');
     try {
       await axios.get(`${BASE_URL}/pharmacy/admin/master/items`, {
@@ -114,5 +114,5 @@ async function testTokenVerification() {
   }
 }
 
-// Run the test
+
 testTokenVerification(); 

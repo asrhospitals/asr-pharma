@@ -2,7 +2,7 @@ const db = require('../../../database/index');
 const HsnSac = db.HsnSac;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
-// Add HSN
+
 const addHSN = async (req, res) => {
     try {
         const newHSN = await HsnSac.create(req.body);
@@ -13,7 +13,7 @@ const addHSN = async (req, res) => {
 };
 
 
-// Get all HSNs
+
 const getAllHSN = async (req, res) => {
     try {
         const { where, offset, limit, order, page } = buildQueryOptions(
@@ -38,7 +38,7 @@ const getAllHSN = async (req, res) => {
     }
 };
 
-// Get HSN BY ID
+
 const getHSNById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -57,7 +57,7 @@ const getHSNById = async (req, res) => {
 };
 
 
-// Update HSN by ID
+
 const updateHSN = async (req, res) => {
     const { id } = req.params;
     try {
@@ -73,7 +73,7 @@ const updateHSN = async (req, res) => {
 };
 
 
-// Delete HSN by ID
+
 const deleteHSN = async (req, res) => {
     const { id } = req.params;
     try {

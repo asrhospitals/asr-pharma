@@ -3,7 +3,7 @@ const Rack = db.Rack;
 const Store = db.Store;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
-// A. Add Rack
+
 const createRack = async (req, res) => {
     try {
         const { storeid, rackname } = req.body;
@@ -40,7 +40,7 @@ const createRack = async (req, res) => {
     }
 };
 
-// B. Get All Racks
+
 const getRacks = async (req, res) => {
     try {
         const { where, offset, limit, order, page } = buildQueryOptions(
@@ -74,7 +74,7 @@ const getRacks = async (req, res) => {
     }
 };
 
-// C. Get Rack By Id
+
 
 const getRackId=async (req,res) => {
 
@@ -96,7 +96,7 @@ const getRackId=async (req,res) => {
 
 
 
-// D. Update Rack from Rack Id
+
 const updateRack = async (req, res) => {  
     
     const {id}=req.params;
@@ -132,7 +132,7 @@ const updateRack = async (req, res) => {
 };
 
 
-// E. Delete Rack from Rack Id
+
 const deleteRack = async (req, res) => {    
     const { id } = req.params;
     try {

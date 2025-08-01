@@ -3,7 +3,7 @@ const Bill = db.Bill;
 const BillItem = db.BillItem;
 const { buildQueryOptions } = require('../../utils/queryOptions');
 
-// Create a new bill
+
 const createBill = async (req, res) => {
   try {
     const { items, ...billData } = req.body;
@@ -20,7 +20,7 @@ const createBill = async (req, res) => {
   }
 };
 
-// Get all bills (paginated, searchable)
+
 const getAllBills = async (req, res) => {
   try {
     const { where, offset, limit, order, page } = buildQueryOptions(
@@ -46,7 +46,7 @@ const getAllBills = async (req, res) => {
   }
 };
 
-// Get bill by id
+
 const getBillById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -60,7 +60,7 @@ const getBillById = async (req, res) => {
   }
 };
 
-// Update bill by ID
+
 const updateBill = async (req, res) => {
   const { id } = req.params;
   if (!id) {
@@ -86,7 +86,7 @@ const updateBill = async (req, res) => {
   }
 };
 
-// Delete bill by ID
+
 const deleteBill = async (req, res) => {
   const { id } = req.params;
   try {

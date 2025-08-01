@@ -1,6 +1,6 @@
 const { body, param, query, validationResult } = require('express-validator');
 
-// Validation rules for transaction operations
+
 const validateCreateTransaction = [
   body('voucherType')
     .isIn(['Receipt', 'Payment', 'Journal', 'Contra', 'DebitNote', 'CreditNote'])
@@ -145,7 +145,7 @@ const validateGetTransactionStats = [
     .withMessage('endDate must be a valid ISO 8601 date')
 ];
 
-// Custom validation for debit and credit ledger difference
+
 const validateDifferentLedgers = (req, res, next) => {
   const { debitLedgerId, creditLedgerId } = req.body;
   
@@ -159,7 +159,7 @@ const validateDifferentLedgers = (req, res, next) => {
   next();
 };
 
-// Custom validation for date range
+
 const validateDateRange = (req, res, next) => {
   const { startDate, endDate } = req.query;
   
@@ -178,7 +178,7 @@ const validateDateRange = (req, res, next) => {
   next();
 };
 
-// Middleware to handle validation errors
+
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

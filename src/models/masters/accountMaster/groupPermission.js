@@ -4,7 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class GroupPermission extends Model {
     static associate(models) {
-      // Define associations here
+
       GroupPermission.belongsTo(models.Group, { foreignKey: 'groupId', as: 'group' });
       GroupPermission.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
     }
@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
       comment: 'Can view ledgers under this group'
     },
-    // Transaction permissions
+
     canCreateTransaction: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
@@ -73,7 +73,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
       comment: 'Can view transactions for ledgers in this group'
     },
-    // Report permissions
+
     canViewReport: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
@@ -84,7 +84,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
       comment: 'Can export reports for this group'
     },
-    // Balance permissions
+
     canViewBalance: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
@@ -95,13 +95,13 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
       comment: 'Can modify opening balance for ledgers in this group'
     },
-    // Opening balance permissions
+
     canSetOpeningBalance: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       comment: 'Can set opening balance for ledgers in this group'
     },
-    // Group management permissions
+
     canCreateSubGroup: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
@@ -117,7 +117,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
       comment: 'Can delete this group'
     },
-    // Special permissions
+
     isRestricted: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

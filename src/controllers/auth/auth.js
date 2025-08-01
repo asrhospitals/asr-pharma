@@ -8,12 +8,12 @@ const {
 } = require('../../middleware/security/enhancedAuth');
 const securityConfig = require('../../config/security');
 
-// A. Register A User including Role (Enhanced Security)
+
 const register = async (req, res) => {
   try {
     const { username, email, password, role, firstName, lastName, isActive = true } = req.body;
 
-    // Check if user already exists
+
     const existingUser = await User.findOne({
       where: { 
         $or: [
@@ -33,11 +33,11 @@ const register = async (req, res) => {
       });
     }
 
-    // Enhanced password hashing with higher salt rounds
+
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create user with enhanced security
+
     const newUser = await User.create({
       uname: username,
       email: email,
@@ -50,7 +50,7 @@ const register = async (req, res) => {
       updatedAt: new Date()
     });
 
-    // Generate tokens
+
     const accessToken = generateToken(newUser, 'access');
     const refreshToken = generateRefreshToken({
       ...newUser.toJSON(),
@@ -58,7 +58,7 @@ const register = async (req, res) => {
       ip: req.ip
     });
 
-    // Remove sensitive data from response
+
     const userResponse = {
       id: newUser.id,
       username: newUser.uname,
@@ -92,12 +92,12 @@ const register = async (req, res) => {
   }
 };
 
-// B. Login a User (Enhanced Security)
+
 const login = async (req, res) => {
   try {
     const { uname, pwd } = req.body;
 
-    // Find user by username
+
     const user = await User.findOne({
       where: { uname: uname }
     });
@@ -110,7 +110,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Check if user is active
+
     if (!user.isactive) {
       return res.status(401).json({
         success: false,
@@ -119,7 +119,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Verify password with timing attack protection
+
     const isPasswordValid = await bcrypt.compare(pwd, user.pwd);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -129,13 +129,13 @@ const login = async (req, res) => {
       });
     }
 
-    // Update last login
+
     await user.update({
       lastLoginAt: new Date(),
       updatedAt: new Date()
     });
 
-    // Generate tokens
+
     const accessToken = generateToken(user, 'access');
     const refreshToken = generateRefreshToken({
       ...user.toJSON(),
@@ -143,7 +143,7 @@ const login = async (req, res) => {
       ip: req.ip
     });
 
-    // Remove sensitive data from response
+
     const userResponse = {
       id: user.id,
       username: user.uname,
@@ -155,7 +155,7 @@ const login = async (req, res) => {
       lastLoginAt: user.lastLoginAt
     };
 
-    // Set secure cookie for refresh token (optional)
+
     if (process.env.NODE_ENV === 'production') {
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -187,7 +187,7 @@ const login = async (req, res) => {
   }
 };
 
-// C. Get Current User Profile
+
 const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -233,7 +233,7 @@ const getProfile = async (req, res) => {
   }
 };
 
-// D. Update User Profile
+
 const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -248,7 +248,7 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    // Check if email is already taken by another user
+
     if (email && email !== user.email) {
       const existingUser = await User.findOne({
         where: { email, id: { $ne: userId } }
@@ -263,7 +263,7 @@ const updateProfile = async (req, res) => {
       }
     }
 
-    // Update user
+
     await user.update({
       fname: firstName || user.fname,
       lname: lastName || user.lname,
@@ -299,7 +299,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// E. Change Password
+
 const changePassword = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -314,7 +314,7 @@ const changePassword = async (req, res) => {
       });
     }
 
-    // Verify current password
+
     const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.pwd);
     if (!isCurrentPasswordValid) {
       return res.status(401).json({
@@ -324,11 +324,11 @@ const changePassword = async (req, res) => {
       });
     }
 
-    // Hash new password
+
     const saltRounds = 12;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Update password
+
     await user.update({
       pwd: hashedNewPassword,
       updatedAt: new Date()

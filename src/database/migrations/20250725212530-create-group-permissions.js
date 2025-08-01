@@ -1,6 +1,6 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
+
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('group_permissions', {
@@ -29,7 +29,7 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      // Ledger permissions
+
       canCreateLedger: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
@@ -50,7 +50,7 @@ module.exports = {
         defaultValue: true,
         comment: 'Can view ledgers under this group'
       },
-      // Transaction permissions
+
       canCreateTransaction: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
@@ -71,7 +71,7 @@ module.exports = {
         defaultValue: true,
         comment: 'Can view transactions for ledgers in this group'
       },
-      // Report permissions
+
       canViewReport: {
         type: Sequelize.BOOLEAN,
         defaultValue: true,
@@ -82,7 +82,7 @@ module.exports = {
         defaultValue: false,
         comment: 'Can export reports for this group'
       },
-      // Balance permissions
+
       canViewBalance: {
         type: Sequelize.BOOLEAN,
         defaultValue: true,
@@ -93,13 +93,13 @@ module.exports = {
         defaultValue: false,
         comment: 'Can modify opening balance for ledgers in this group'
       },
-      // Opening balance permissions
+
       canSetOpeningBalance: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
         comment: 'Can set opening balance for ledgers in this group'
       },
-      // Group management permissions
+
       canCreateSubGroup: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
@@ -115,7 +115,7 @@ module.exports = {
         defaultValue: false,
         comment: 'Can delete this group'
       },
-      // Special permissions
+
       isRestricted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
@@ -152,7 +152,7 @@ module.exports = {
       }
     });
 
-    // Add indexes
+
     await queryInterface.addIndex('group_permissions', ['groupId', 'userId'], {
       unique: true
     });

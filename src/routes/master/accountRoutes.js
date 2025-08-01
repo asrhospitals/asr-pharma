@@ -8,7 +8,8 @@ const {
   getLedgerBalance,
   getLedgerTransactions,
   getLedgerDetails,
-  updateOpeningBalance
+  updateOpeningBalance,
+  getDefaultLedgers
 } = require('../../controllers/masters/account/ledger');
 
 const {
@@ -22,72 +23,95 @@ const {
   handleValidationErrors
 } = require('../../middleware/validation/ledgerValidation');
 
+const {
+  canCreateLedger,
+  canEditLedger,
+  canDeleteLedger,
+  canViewLedger,
+  canModifyBalance
+} = require('../../middleware/permissions/groupPermissionMiddleware');
+
 const transactionRoutes = require('./transactionRoutes');
 const reportRoutes = require('./reportRoutes');
 
 const router = Router();
 
-//-------------------------------------Ledger Master----------------------------------//
 
-// Ledger CRUD operations
+
+
 router.post('/ledger/v1/add-ledger', 
+  canCreateLedger,
   validateCreateLedger, 
   handleValidationErrors, 
   createLedger
 );
 
 router.get('/ledger/v1/get-ledger', 
+  canViewLedger,
   validateGetLedgers, 
   handleValidationErrors, 
   getLedger
 );
 
 router.get('/ledger/v1/get-ledger/:id', 
+  canViewLedger,
   validateLedgerId, 
   handleValidationErrors, 
   getLedgerById
 );
 
 router.put('/ledger/v1/update-ledger/:id', 
+  canEditLedger,
   validateUpdateLedger, 
   handleValidationErrors, 
   updateLedger
 );
 
 router.delete('/ledger/v1/delete-ledger/:id', 
+  canDeleteLedger,
   validateLedgerId, 
   handleValidationErrors, 
   deleteLedger
 );
 
 router.get('/ledger/v1/:id/balance', 
+  canViewLedger,
   validateGetLedgerBalance, 
   handleValidationErrors, 
   getLedgerBalance
 );
 
 router.get('/ledger/v1/:id/transactions', 
+  canViewLedger,
   validateGetLedgerTransactions, 
   handleValidationErrors, 
   getLedgerTransactions
 );
 
 router.get('/ledger/v1/:id/details', 
+  canViewLedger,
   validateGetLedgerTransactions, 
   handleValidationErrors, 
   getLedgerDetails
 );
 
 router.put('/ledger/v1/:id/opening-balance', 
+  canModifyBalance,
   validateUpdateOpeningBalance, 
   handleValidationErrors, 
   updateOpeningBalance
 );
 
-//-------------------------------------Transaction Routes----------------------------------//
+
+router.get('/ledger/v1/default-ledgers', 
+  canViewLedger,
+  getDefaultLedgers
+);
+
+
 router.use('/', transactionRoutes);
 
-//-------------------------------------Report Routes----------------------------------//
+
 router.use('/', reportRoutes);
 
 module.exports = router;

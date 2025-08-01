@@ -1,7 +1,7 @@
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
 
-// General API rate limiter
+
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
@@ -20,7 +20,7 @@ const generalLimiter = rateLimit({
   }
 });
 
-// Authentication rate limiter (stricter)
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // Limit each IP to 10 login attempts per windowMs (increased from 5)
@@ -40,7 +40,7 @@ const authLimiter = rateLimit({
   }
 });
 
-// Admin routes rate limiter
+
 const adminLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 50, // Limit each IP to 50 requests per windowMs
@@ -59,7 +59,7 @@ const adminLimiter = rateLimit({
   }
 });
 
-// Sales routes rate limiter
+
 const salesLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 30, // Limit each IP to 30 requests per windowMs
@@ -78,7 +78,7 @@ const salesLimiter = rateLimit({
   }
 });
 
-// Speed limiter for general requests
+
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 50, // Allow 50 requests per 15 minutes without delay
@@ -89,7 +89,7 @@ const speedLimiter = slowDown({
   validate: { delayMs: false } // Disable validation warning
 });
 
-// IP-based rate limiter for brute force protection
+
 const bruteForceLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 20, // Limit each IP to 20 failed attempts per hour (increased from 10)

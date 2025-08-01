@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const BASE_URL = 'http://localhost:3000/pharmacy';
 
-// Test data
+
 const testUser = {
   uname: 'admin',
   pwd: 'admin123'
@@ -33,7 +33,7 @@ async function testDeletePermissions() {
   try {
     console.log('\n🔍 Testing delete permissions...');
     
-    // First, get all groups to find one to test with
+
     const groupsResponse = await axios.get(`${BASE_URL}/api/groups`, {
       headers: { Authorization: `Bearer ${authToken}` }
     });
@@ -51,7 +51,7 @@ async function testDeletePermissions() {
       return;
     }
     
-    // Find a non-default group to test with
+
     const testGroup = groups.find(group => !group.isDefault && group.isDeletable);
     
     if (!testGroup) {
@@ -61,7 +61,7 @@ async function testDeletePermissions() {
     
     console.log(`🎯 Testing with group: ${testGroup.groupName} (ID: ${testGroup.id})`);
     
-    // Test delete permission check (this should not actually delete)
+
     const deleteResponse = await axios.delete(`${BASE_URL}/api/groups/${testGroup.id}`, {
       headers: { Authorization: `Bearer ${authToken}` }
     });
@@ -117,5 +117,5 @@ async function runTests() {
   console.log('\n✅ All tests completed!');
 }
 
-// Run the tests
+
 runTests().catch(console.error); 

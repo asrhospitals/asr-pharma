@@ -2,14 +2,14 @@ const db = require("../../../database");
 const { Transaction, Ledger, User, Group } = db;
 const { Op } = require('sequelize');
 
-// Generate unique voucher number
+
 const generateVoucherNumber = async (voucherType) => {
   const prefix = voucherType.substring(0, 3).toUpperCase();
   const date = new Date();
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   
-  // Get the last voucher number for this type and date
+
   const lastVoucher = await Transaction.findOne({
     where: {
       voucherNumber: {
@@ -28,11 +28,11 @@ const generateVoucherNumber = async (voucherType) => {
   return `${prefix}${year}${month}${String(sequence).padStart(4, '0')}`;
 };
 
-// Update ledger balances
+
 const updateLedgerBalances = async (transaction, isReversal = false) => {
   const multiplier = isReversal ? -1 : 1;
   
-  // Update debit ledger
+
   const debitLedger = await Ledger.findByPk(transaction.debitLedgerId);
   if (debitLedger) {
     const debitAmount = parseFloat(transaction.amount) * multiplier;
@@ -44,7 +44,7 @@ const updateLedgerBalances = async (transaction, isReversal = false) => {
     await debitLedger.save();
   }
 
-  // Update credit ledger
+
   const creditLedger = await Ledger.findByPk(transaction.creditLedgerId);
   if (creditLedger) {
     const creditAmount = parseFloat(transaction.amount) * multiplier;
@@ -57,7 +57,7 @@ const updateLedgerBalances = async (transaction, isReversal = false) => {
   }
 };
 
-// Create transaction
+
 const createTransaction = async (req, res) => {
   const t = await db.sequelize.transaction();
   
@@ -72,7 +72,7 @@ const createTransaction = async (req, res) => {
       voucherDate
     } = req.body;
 
-    // Validate required fields
+
     if (!voucherType || !amount || !debitLedgerId || !creditLedgerId) {
       return res.status(400).json({
         success: false,
@@ -80,7 +80,7 @@ const createTransaction = async (req, res) => {
       });
     }
 
-    // Validate amount
+
     if (parseFloat(amount) <= 0) {
       return res.status(400).json({
         success: false,
@@ -88,7 +88,7 @@ const createTransaction = async (req, res) => {
       });
     }
 
-    // Validate ledgers exist
+
     const [debitLedger, creditLedger] = await Promise.all([
       Ledger.findByPk(debitLedgerId),
       Ledger.findByPk(creditLedgerId)
@@ -101,7 +101,7 @@ const createTransaction = async (req, res) => {
       });
     }
 
-    // Validate ledgers are different
+
     if (debitLedgerId === creditLedgerId) {
       return res.status(400).json({
         success: false,
@@ -109,10 +109,10 @@ const createTransaction = async (req, res) => {
       });
     }
 
-    // Generate voucher number
+
     const voucherNumber = await generateVoucherNumber(voucherType);
 
-    // Create transaction
+
     const transactionData = {
       voucherNumber,
       voucherDate: voucherDate || new Date(),
@@ -128,7 +128,7 @@ const createTransaction = async (req, res) => {
 
     const transaction = await Transaction.create(transactionData, { transaction: t });
 
-    // If transaction should be posted immediately
+
     if (req.body.postImmediately) {
       await updateLedgerBalances(transaction, false);
       transaction.isPosted = true;
@@ -139,7 +139,7 @@ const createTransaction = async (req, res) => {
 
     await t.commit();
 
-    // Fetch transaction with associations
+
     const createdTransaction = await Transaction.findByPk(transaction.id, {
       include: [
         { model: Ledger, as: 'debitLedger' },
@@ -165,7 +165,7 @@ const createTransaction = async (req, res) => {
   }
 };
 
-// Get all transactions with pagination and filters
+
 const getTransactions = async (req, res) => {
   try {
     const {
@@ -183,7 +183,7 @@ const getTransactions = async (req, res) => {
     const offset = (page - 1) * limit;
     const whereClause = {};
 
-    // Apply filters
+
     if (voucherType) whereClause.voucherType = voucherType;
     if (status) whereClause.status = status;
     if (isPosted !== undefined) whereClause.isPosted = isPosted === 'true';
@@ -239,7 +239,7 @@ const getTransactions = async (req, res) => {
   }
 };
 
-// Get transaction by ID
+
 const getTransactionById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -275,7 +275,7 @@ const getTransactionById = async (req, res) => {
   }
 };
 
-// Update transaction
+
 const updateTransaction = async (req, res) => {
   const t = await db.sequelize.transaction();
   
@@ -292,7 +292,7 @@ const updateTransaction = async (req, res) => {
       });
     }
 
-    // Check if transaction is posted
+
     if (transaction.isPosted) {
       await t.rollback();
       return res.status(400).json({
@@ -301,7 +301,7 @@ const updateTransaction = async (req, res) => {
       });
     }
 
-    // Validate ledgers if being updated
+
     if (updateData.debitLedgerId || updateData.creditLedgerId) {
       const debitId = updateData.debitLedgerId || transaction.debitLedgerId;
       const creditId = updateData.creditLedgerId || transaction.creditLedgerId;
@@ -315,13 +315,13 @@ const updateTransaction = async (req, res) => {
       }
     }
 
-    // Update transaction
+
     updateData.updatedBy = req.user.id;
     await transaction.update(updateData, { transaction: t });
 
     await t.commit();
 
-    // Fetch updated transaction
+
     const updatedTransaction = await Transaction.findByPk(id, {
       include: [
         { model: Ledger, as: 'debitLedger' },
@@ -348,7 +348,7 @@ const updateTransaction = async (req, res) => {
   }
 };
 
-// Post transaction
+
 const postTransaction = async (req, res) => {
   const t = await db.sequelize.transaction();
   
@@ -372,10 +372,10 @@ const postTransaction = async (req, res) => {
       });
     }
 
-    // Update ledger balances
+
     await updateLedgerBalances(transaction, false);
 
-    // Mark as posted
+
     transaction.isPosted = true;
     transaction.postedDate = new Date();
     transaction.status = 'Posted';
@@ -401,7 +401,7 @@ const postTransaction = async (req, res) => {
   }
 };
 
-// Cancel transaction
+
 const cancelTransaction = async (req, res) => {
   const t = await db.sequelize.transaction();
   
@@ -425,12 +425,12 @@ const cancelTransaction = async (req, res) => {
       });
     }
 
-    // If posted, reverse the ledger balances
+
     if (transaction.isPosted) {
       await updateLedgerBalances(transaction, true);
     }
 
-    // Mark as cancelled
+
     transaction.status = 'Cancelled';
     transaction.updatedBy = req.user.id;
     await transaction.save({ transaction: t });
@@ -454,7 +454,7 @@ const cancelTransaction = async (req, res) => {
   }
 };
 
-// Delete transaction
+
 const deleteTransaction = async (req, res) => {
   const t = await db.sequelize.transaction();
   
@@ -497,7 +497,7 @@ const deleteTransaction = async (req, res) => {
   }
 };
 
-// Get transaction statistics
+
 const getTransactionStats = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;

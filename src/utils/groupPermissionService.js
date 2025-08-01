@@ -491,6 +491,72 @@ class GroupPermissionService {
   static async canCreateSubGroup(userId, groupId) {
     return await this.hasGroupPermission(userId, groupId, 'createSubGroup');
   }
+
+  static async hasAnyGroupPermission(userId, action) {
+    try {
+      const user = await User.findByPk(userId);
+      if (user && user.role === 'admin') {
+        return true;
+      }
+
+      const permissions = await GroupPermission.findAll({
+        where: {
+          userId,
+          status: 'Active'
+        }
+      });
+
+      if (permissions.length === 0) {
+        return false;
+      }
+
+      const now = new Date();
+      const actionMap = {
+        'view': 'canViewLedger',
+        'create': 'canCreateLedger',
+        'edit': 'canEditLedger',
+        'delete': 'canDeleteLedger',
+        'createTransaction': 'canCreateTransaction',
+        'editTransaction': 'canEditTransaction',
+        'deleteTransaction': 'canDeleteTransaction',
+        'viewTransaction': 'canViewTransaction',
+        'viewReport': 'canViewReport',
+        'exportReport': 'canExportReport',
+        'viewBalance': 'canViewBalance',
+        'modifyBalance': 'canModifyBalance',
+        'setOpeningBalance': 'canSetOpeningBalance',
+        'createSubGroup': 'canCreateSubGroup',
+        'editGroup': 'canEditGroup',
+        'deleteGroup': 'canDeleteGroup'
+      };
+
+      const permissionField = actionMap[action];
+      if (!permissionField) {
+        return false;
+      }
+
+
+      for (const permission of permissions) {
+        if (permission.effectiveFrom && permission.effectiveFrom > now) {
+          continue;
+        }
+        if (permission.effectiveTo && permission.effectiveTo < now) {
+          continue;
+        }
+        if (permission.isRestricted) {
+          continue;
+        }
+        if (permission[permissionField]) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error checking any group permission:', error);
+      return false;
+    }
+  }
 }
 
 module.exports = GroupPermissionService; 

@@ -2,7 +2,7 @@ const helmet = require('helmet');
 const hpp = require('hpp');
 const xss = require('xss-clean');
 
-// Configure Helmet with security headers
+
 const helmetConfig = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -35,22 +35,22 @@ const helmetConfig = helmet({
   xssFilter: true
 });
 
-// Custom security headers middleware
+
 const customSecurityHeaders = (req, res, next) => {
-  // Remove server information
+
   res.removeHeader('X-Powered-By');
   
-  // Add custom security headers
+
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   
-  // Add request ID for tracking
+
   res.setHeader('X-Request-ID', req.headers['x-request-id'] || generateRequestId());
   
-  // Add cache control headers for sensitive endpoints
+
   if (req.path.includes('/auth') || req.path.includes('/admin')) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
@@ -60,15 +60,15 @@ const customSecurityHeaders = (req, res, next) => {
   next();
 };
 
-// Generate unique request ID
+
 const generateRequestId = () => {
   return 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 };
 
-// CORS configuration
+
 const corsConfig = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
@@ -99,15 +99,15 @@ const corsConfig = {
   maxAge: 86400 // 24 hours
 };
 
-// HPP (HTTP Parameter Pollution) protection
+
 const hppConfig = hpp({
   whitelist: ['filter', 'sort', 'page', 'limit'] // Allow these parameters to be duplicated
 });
 
-// XSS protection
+
 const xssConfig = xss();
 
-// Content type validation middleware
+
 const validateContentType = (req, res, next) => {
   if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
     const contentType = req.headers['content-type'];
@@ -121,7 +121,7 @@ const validateContentType = (req, res, next) => {
   next();
 };
 
-// Request size limiter
+
 const requestSizeLimiter = (req, res, next) => {
   const contentLength = parseInt(req.headers['content-length'] || '0');
   const maxSize = 10 * 1024 * 1024; // 10MB
@@ -135,11 +135,11 @@ const requestSizeLimiter = (req, res, next) => {
   next();
 };
 
-// Security logging middleware
+
 const securityLogger = (req, res, next) => {
   const start = Date.now();
   
-  // Log suspicious activities
+
   const suspiciousPatterns = [
     /\.\.\//, // Directory traversal
     /<script/i, // XSS attempts
@@ -152,7 +152,7 @@ const securityLogger = (req, res, next) => {
   const url = req.url;
   const method = req.method;
   
-  // Check for suspicious patterns
+
   const isSuspicious = suspiciousPatterns.some(pattern => 
     pattern.test(url) || pattern.test(userAgent) || pattern.test(JSON.stringify(req.body))
   );
@@ -167,7 +167,7 @@ const securityLogger = (req, res, next) => {
     });
   }
   
-  // Log response time for performance monitoring
+
   res.on('finish', () => {
     const duration = Date.now() - start;
     if (duration > 5000) { // Log slow requests (>5s)

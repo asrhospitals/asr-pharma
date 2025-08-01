@@ -6,38 +6,38 @@ async function testApiLogger() {
   console.log('🧪 Testing API Logger Functionality...\n');
 
   try {
-    // Test 1: Check current logging configuration
+
     console.log('1. Checking current logging configuration...');
     const configResponse = await axios.get(`${BASE_URL}/pharmacy/logs/config`);
     console.log('✅ Current config:', configResponse.data.data);
     console.log('');
 
-    // Test 2: Enable logging
+
     console.log('2. Enabling API logging...');
     const enableResponse = await axios.post(`${BASE_URL}/pharmacy/logs/enable`);
     console.log('✅', enableResponse.data.message);
     console.log('');
 
-    // Test 3: Make some API calls to generate logs
+
     console.log('3. Making API calls to generate logs...');
     
-    // Test main endpoint
+
     await axios.get(`${BASE_URL}/`);
     console.log('✅ Called main endpoint');
     
-    // Test security health endpoint
+
     await axios.get(`${BASE_URL}/pharmacy/security/health`);
     console.log('✅ Called security health endpoint');
     
-    // Test logs config endpoint
+
     await axios.get(`${BASE_URL}/pharmacy/logs/config`);
     console.log('✅ Called logs config endpoint');
     
-    // Test logs stats endpoint
+
     await axios.get(`${BASE_URL}/pharmacy/logs/stats`);
     console.log('✅ Called logs stats endpoint');
     
-    // Test a 404 endpoint to see error logging
+
     try {
       await axios.get(`${BASE_URL}/nonexistent`);
     } catch (error) {
@@ -46,19 +46,19 @@ async function testApiLogger() {
     
     console.log('');
 
-    // Test 4: Check logs statistics
+
     console.log('4. Checking logs statistics...');
     const statsResponse = await axios.get(`${BASE_URL}/pharmacy/logs/stats`);
     console.log('✅ Log stats:', statsResponse.data.data);
     console.log('');
 
-    // Test 5: Disable logging
+
     console.log('5. Disabling API logging...');
     const disableResponse = await axios.post(`${BASE_URL}/pharmacy/logs/disable`);
     console.log('✅', disableResponse.data.message);
     console.log('');
 
-    // Test 6: Make another call (should not be logged)
+
     console.log('6. Making API call with logging disabled...');
     await axios.get(`${BASE_URL}/`);
     console.log('✅ Called main endpoint (logging disabled)');
@@ -101,5 +101,5 @@ async function testApiLogger() {
   }
 }
 
-// Run the test
+
 testApiLogger(); 

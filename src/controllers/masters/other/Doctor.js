@@ -11,7 +11,7 @@ const createDoctor = async (req, res) => {
         message: 'name and mobileNo are required',
       });
     }
-    // Check for duplicate mobileNo
+
     const existingDoctor = await Doctor.findOne({ where: { mobileNo } });
     if (existingDoctor) {
       return res.status(400).json({

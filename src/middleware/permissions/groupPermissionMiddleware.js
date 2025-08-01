@@ -147,7 +147,7 @@ const canDeleteGroup = async (req, res, next) => {
       });
     }
 
-    // Check user permissions
+
     const hasPermission = await GroupPermissionService.canDeleteGroup(userId, groupId);
     if (!hasPermission) {
       return res.status(403).json({
@@ -258,15 +258,23 @@ const canDeleteLedger = async (req, res, next) => {
 
 const canViewLedger = async (req, res, next) => {
   try {
-    const groupId = req.params.id || req.params.groupId || req.body.groupId;
+    const groupId = req.params.id || req.params.groupId || req.body.groupId || req.query.groupId;
     const userId = req.user.id;
 
+
+
     if (!groupId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Group ID is required'
-      });
+
+      const hasAnyPermission = await GroupPermissionService.hasAnyGroupPermission(userId, 'view');
+      if (!hasAnyPermission) {
+        return res.status(403).json({
+          success: false,
+          message: 'You do not have permission to view ledgers'
+        });
+      }
+      return next();
     }
+
 
     const hasPermission = await GroupPermissionService.hasGroupPermission(userId, groupId, 'view');
     if (!hasPermission) {
@@ -286,6 +294,156 @@ const canViewLedger = async (req, res, next) => {
   }
 };
 
+const canModifyBalance = async (req, res, next) => {
+  try {
+    const groupId = req.params.id || req.params.groupId || req.body.groupId;
+    const userId = req.user.id;
+
+    if (!groupId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Group ID is required'
+      });
+    }
+
+    const hasPermission = await GroupPermissionService.hasGroupPermission(userId, groupId, 'modifyBalance');
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to modify balances in this group'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error checking balance modification permissions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error while checking balance modification permissions'
+    });
+  }
+};
+
+const canCreateTransaction = async (req, res, next) => {
+  try {
+    const groupId = req.params.id || req.params.groupId || req.body.groupId;
+    const userId = req.user.id;
+
+    if (!groupId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Group ID is required'
+      });
+    }
+
+    const hasPermission = await GroupPermissionService.hasGroupPermission(userId, groupId, 'createTransaction');
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to create transactions in this group'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error checking transaction create permissions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error while checking transaction create permissions'
+    });
+  }
+};
+
+const canViewTransaction = async (req, res, next) => {
+  try {
+    const groupId = req.params.id || req.params.groupId || req.body.groupId;
+    const userId = req.user.id;
+
+    if (!groupId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Group ID is required'
+      });
+    }
+
+    const hasPermission = await GroupPermissionService.hasGroupPermission(userId, groupId, 'viewTransaction');
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to view transactions in this group'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error checking transaction view permissions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error while checking transaction view permissions'
+    });
+  }
+};
+
+const canEditTransaction = async (req, res, next) => {
+  try {
+    const groupId = req.params.id || req.params.groupId || req.body.groupId;
+    const userId = req.user.id;
+
+    if (!groupId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Group ID is required'
+      });
+    }
+
+    const hasPermission = await GroupPermissionService.hasGroupPermission(userId, groupId, 'editTransaction');
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to edit transactions in this group'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error checking transaction edit permissions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error while checking transaction edit permissions'
+    });
+  }
+};
+
+const canDeleteTransaction = async (req, res, next) => {
+  try {
+    const groupId = req.params.id || req.params.groupId || req.body.groupId;
+    const userId = req.user.id;
+
+    if (!groupId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Group ID is required'
+      });
+    }
+
+    const hasPermission = await GroupPermissionService.hasGroupPermission(userId, groupId, 'deleteTransaction');
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to delete transactions in this group'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error checking transaction delete permissions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error while checking transaction delete permissions'
+    });
+  }
+};
+
 module.exports = {
   canViewGroup,
   canCreateGroup,
@@ -294,5 +452,10 @@ module.exports = {
   canCreateLedger,
   canEditLedger,
   canDeleteLedger,
-  canViewLedger
+  canViewLedger,
+  canModifyBalance,
+  canCreateTransaction,
+  canViewTransaction,
+  canEditTransaction,
+  canDeleteTransaction
 }; 

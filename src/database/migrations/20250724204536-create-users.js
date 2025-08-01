@@ -43,7 +43,7 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('users');
-    // Clean up ENUMs (PostgreSQL keeps ENUMs globally)
+
     await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_users_role";');
     await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_users_isactive";');
   }

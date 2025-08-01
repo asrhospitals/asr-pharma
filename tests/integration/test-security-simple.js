@@ -1,13 +1,13 @@
 const express = require('express');
 const { applySecurityMiddleware } = require('./middleware/security');
 
-// Create a test app
+
 const app = express();
 
-// Apply security middleware
+
 applySecurityMiddleware(app, 'development');
 
-// Test routes
+
 app.get('/test', (req, res) => {
   res.json({ 
     message: 'Test endpoint working',
@@ -28,11 +28,11 @@ app.post('/test', (req, res) => {
   });
 });
 
-// Test security features
+
 function testSecurityFeatures() {
   console.log('🔒 Testing Security Features...\n');
 
-  // Test 1: Check if security middleware is applied
+
   console.log('1. Security Middleware Application...');
   console.log('✅ Security middleware successfully applied');
   console.log('   - Helmet security headers configured');
@@ -43,7 +43,7 @@ function testSecurityFeatures() {
   console.log('   - HPP protection enabled');
   console.log('');
 
-  // Test 2: Check rate limiting configuration
+
   console.log('2. Rate Limiting Configuration...');
   console.log('✅ Rate limiting configured:');
   console.log('   - General: 100 requests per 15 minutes');
@@ -54,7 +54,7 @@ function testSecurityFeatures() {
   console.log('   - Speed limiting: 50 requests without delay');
   console.log('');
 
-  // Test 3: Check security headers configuration
+
   console.log('3. Security Headers Configuration...');
   console.log('✅ Security headers configured:');
   console.log('   - X-Content-Type-Options: nosniff');
@@ -65,7 +65,7 @@ function testSecurityFeatures() {
   console.log('   - X-Request-ID: Auto-generated for tracking');
   console.log('');
 
-  // Test 4: Check CORS configuration
+
   console.log('4. CORS Configuration...');
   console.log('✅ CORS protection configured:');
   console.log('   - Allowed origins: localhost variants');
@@ -74,7 +74,7 @@ function testSecurityFeatures() {
   console.log('   - Headers: Controlled exposure');
   console.log('');
 
-  // Test 5: Check input validation
+
   console.log('5. Input Validation Configuration...');
   console.log('✅ Input validation ready:');
   console.log('   - User registration validation');
@@ -88,7 +88,7 @@ function testSecurityFeatures() {
   console.log('   - ID parameter validation');
   console.log('');
 
-  // Test 6: Check authentication enhancements
+
   console.log('6. Enhanced Authentication...');
   console.log('✅ Authentication security enhanced:');
   console.log('   - JWT tokens with 15-minute expiry');
@@ -99,7 +99,7 @@ function testSecurityFeatures() {
   console.log('   - Timing attack protection');
   console.log('');
 
-  // Test 7: Check request security
+
   console.log('7. Request Security...');
   console.log('✅ Request security configured:');
   console.log('   - Request size limit: 10MB');
@@ -108,7 +108,7 @@ function testSecurityFeatures() {
   console.log('   - XSS sanitization');
   console.log('');
 
-  // Test 8: Check error handling
+
   console.log('8. Security Error Handling...');
   console.log('✅ Security error handling configured:');
   console.log('   - Rate limit error responses');
@@ -118,7 +118,7 @@ function testSecurityFeatures() {
   console.log('   - Generic error sanitization');
   console.log('');
 
-  // Test 9: Check logging and monitoring
+
   console.log('9. Security Logging & Monitoring...');
   console.log('✅ Security monitoring configured:');
   console.log('   - Suspicious activity detection');
@@ -156,10 +156,10 @@ function testSecurityFeatures() {
   console.log('🚀 Ready to start the server with enhanced security!');
 }
 
-// Run the test
+
 testSecurityFeatures();
 
-// Start a simple server to test
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`\n🧪 Test server running on http://localhost:${PORT}`);

@@ -1,5 +1,5 @@
 module.exports = {
-  // JWT Configuration
+
   jwt: {
     secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production',
     accessTokenExpiry: 24 * 60 * 60,
@@ -32,7 +32,7 @@ module.exports = {
     }
   },
 
-  // Session Configuration
+
   session: {
     maxAge: 30 * 24 * 60 * 60 * 1000,
     maxInactivity: 24 * 60 * 60 * 1000,

@@ -40,25 +40,25 @@ Your frontend should automatically:
 The `apiBase.js` file provides a centralized way to handle token expiration for all API calls:
 
 ```javascript
-// Enhanced base query with token expiration handling
+
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
   
-  // Check if the response indicates token expiration
+
   if (result.error && result.error.status === 401) {
     const errorData = result.error.data;
     
-    // Check for specific token expiration error
+
     if (errorData?.code === 'TOKEN_EXPIRED' || 
         errorData?.code === 'INVALID_TOKEN' ||
         errorData?.code === 'TOKEN_MISSING' ||
         errorData?.message?.includes('expired') ||
         result.error.statusText === 'Unauthorized') {
       
-      // Dispatch logout action to clear user state
+
       api.dispatch(logout());
       
-      // Redirect to login page
+
       window.location.href = '/';
       
       return result;
@@ -83,7 +83,7 @@ const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
 export const groupApi = createApi({
   reducerPath: "groupApi",
   baseQuery: createBaseQueryWithAuth(baseUrl), // This handles token expiration
-  // ... rest of your API configuration
+
 });
 ```
 
@@ -122,7 +122,7 @@ All API calls should use the same base query to ensure consistent token expirati
 ### 2. User-Friendly Messages
 When redirecting to login, consider showing a toast notification:
 ```javascript
-// In your toast system
+
 showToast({
   type: 'warning',
   message: 'Your session has expired. Please login again.',
@@ -139,10 +139,10 @@ Consider implementing automatic token refresh before expiration:
 ### 4. Remember User's Last Page
 You could store the current page in localStorage before redirecting:
 ```javascript
-// Before redirecting
+
 localStorage.setItem('lastPage', window.location.pathname);
 
-// After login, redirect back
+
 const lastPage = localStorage.getItem('lastPage');
 if (lastPage) {
   navigate(lastPage);

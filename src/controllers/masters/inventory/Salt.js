@@ -5,26 +5,26 @@ const sequelize = db.sequelize;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 
-// A. Create Salt
+
 
 const createSalt = async (req, res) => {
   const { saltData, variationData } = req.body;
 
   try {
     const result = await sequelize.transaction(async (t) => {
-      // Step 1: Create the salt entry
+
       const salt = await Salt.create(saltData, { transaction: t });
 
-      // Step 2: Attach salt_id to each variation
+
       const variations = variationData.map((variation) => ({
         ...variation,
         salt_id: salt.id,
       }));
 
-      // Step 3: Bulk create all variations linked to the salt
+
       await SaltVariation.bulkCreate(variations, { transaction: t });
 
-      // Step 4: Return the complete nested salt with variations
+
       const fullSalt = await Salt.findOne({
         where: { id: salt.id },
         include: [
@@ -54,7 +54,7 @@ const createSalt = async (req, res) => {
 };
 
 
-// B. Get All salt
+
 
 const getSalt = async (req, res) => {
   try {
@@ -85,7 +85,7 @@ const getSalt = async (req, res) => {
   }
 };
 
-// C. Get Slats by Id
+
 
 const getSaltById = async (req, res) => {
   try {
@@ -110,7 +110,7 @@ const getSaltById = async (req, res) => {
   }
 };
 
-// D. Update Salt
+
 
 const updateSalt = async (req, res) => {
   const { id } = req.params;
@@ -145,7 +145,7 @@ const updateSalt = async (req, res) => {
   }
 };
 
-// E. Delete Salt
+
 
 const deleteSalt = async (req, res) => {
   const { id } = req.params;

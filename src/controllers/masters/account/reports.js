@@ -2,13 +2,13 @@ const db = require("../../../database");
 const { Ledger, Transaction, Group, User } = db;
 const { Op } = require('sequelize');
 
-// Get ledger balance sheet
+
 const getBalanceSheet = async (req, res) => {
   try {
     const { asOfDate } = req.query;
     const dateFilter = asOfDate ? { [Op.lte]: new Date(asOfDate) } : {};
 
-    // Get all ledgers with their groups
+
     const ledgers = await Ledger.findAll({
       include: [{ model: Group, as: 'group' }],
       where: { isActive: true },
@@ -23,7 +23,7 @@ const getBalanceSheet = async (req, res) => {
     };
 
     for (const ledger of ledgers) {
-      // Calculate current balance
+
       let balance = parseFloat(ledger.openingBalance || 0);
       
       const transactions = await Transaction.findAll({
@@ -39,7 +39,7 @@ const getBalanceSheet = async (req, res) => {
         order: [['voucherDate', 'ASC']]
       });
 
-      // Calculate running balance
+
       transactions.forEach(transaction => {
         const amount = parseFloat(transaction.amount);
         
@@ -67,7 +67,7 @@ const getBalanceSheet = async (req, res) => {
         balanceType: ledger.balanceType
       };
 
-      // Categorize by group type
+
       switch (ledger.group.groupType) {
         case 'Asset':
           balanceSheet.assets.push(ledgerData);
@@ -81,7 +81,7 @@ const getBalanceSheet = async (req, res) => {
       }
     }
 
-    // Calculate totals
+
     const totalAssets = balanceSheet.assets.reduce((sum, item) => sum + item.currentBalance, 0);
     const totalLiabilities = balanceSheet.liabilities.reduce((sum, item) => sum + item.currentBalance, 0);
     const totalEquity = balanceSheet.equity.reduce((sum, item) => sum + item.currentBalance, 0);
@@ -109,7 +109,7 @@ const getBalanceSheet = async (req, res) => {
   }
 };
 
-// Get profit and loss statement
+
 const getProfitAndLoss = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -125,7 +125,7 @@ const getProfitAndLoss = async (req, res) => {
       [Op.between]: [new Date(startDate), new Date(endDate)]
     };
 
-    // Get income and expense ledgers
+
     const ledgers = await Ledger.findAll({
       include: [{ model: Group, as: 'group' }],
       where: {
@@ -156,7 +156,7 @@ const getProfitAndLoss = async (req, res) => {
         }
       });
 
-      // Calculate period balance
+
       transactions.forEach(transaction => {
         const amount = parseFloat(transaction.amount);
         
@@ -189,7 +189,7 @@ const getProfitAndLoss = async (req, res) => {
       }
     }
 
-    // Calculate totals
+
     const totalIncome = profitLoss.income.reduce((sum, item) => sum + item.amount, 0);
     const totalExpenses = profitLoss.expenses.reduce((sum, item) => sum + item.amount, 0);
     const netProfit = totalIncome - totalExpenses;
@@ -216,7 +216,7 @@ const getProfitAndLoss = async (req, res) => {
   }
 };
 
-// Get trial balance
+
 const getTrialBalance = async (req, res) => {
   try {
     const { asOfDate } = req.query;
@@ -245,7 +245,7 @@ const getTrialBalance = async (req, res) => {
         }
       });
 
-      // Calculate running balance
+
       transactions.forEach(transaction => {
         const amount = parseFloat(transaction.amount);
         
@@ -300,7 +300,7 @@ const getTrialBalance = async (req, res) => {
   }
 };
 
-// Get cash flow statement
+
 const getCashFlow = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -316,7 +316,7 @@ const getCashFlow = async (req, res) => {
       [Op.between]: [new Date(startDate), new Date(endDate)]
     };
 
-    // Get cash and bank ledgers
+
     const cashLedgers = await Ledger.findAll({
       include: [{ model: Group, as: 'group' }],
       where: {
@@ -340,7 +340,7 @@ const getCashFlow = async (req, res) => {
       period: { startDate, endDate }
     };
 
-    // Analyze transactions for cash flow categorization
+
     const transactions = await Transaction.findAll({
       where: {
         isPosted: true,
@@ -368,7 +368,7 @@ const getCashFlow = async (req, res) => {
         type: transaction.voucherType
       };
 
-      // Categorize based on voucher type and ledgers involved
+
       switch (transaction.voucherType) {
         case 'Receipt':
           cashFlow.operatingActivities.push({ ...cashFlowItem, category: 'Cash Inflow' });
@@ -377,7 +377,7 @@ const getCashFlow = async (req, res) => {
           cashFlow.operatingActivities.push({ ...cashFlowItem, category: 'Cash Outflow' });
           break;
         case 'Journal':
-          // Determine if it's operating, investing, or financing based on ledgers
+
           if (transaction.description && transaction.description.toLowerCase().includes('investment')) {
             cashFlow.investingActivities.push(cashFlowItem);
           } else if (transaction.description && transaction.description.toLowerCase().includes('loan')) {
@@ -391,7 +391,7 @@ const getCashFlow = async (req, res) => {
       }
     });
 
-    // Calculate totals
+
     const totalOperating = cashFlow.operatingActivities.reduce((sum, item) => sum + item.amount, 0);
     const totalInvesting = cashFlow.investingActivities.reduce((sum, item) => sum + item.amount, 0);
     const totalFinancing = cashFlow.financingActivities.reduce((sum, item) => sum + item.amount, 0);
@@ -419,7 +419,7 @@ const getCashFlow = async (req, res) => {
   }
 };
 
-// Get ledger summary report
+
 const getLedgerSummary = async (req, res) => {
   try {
     const { groupId, startDate, endDate } = req.query;

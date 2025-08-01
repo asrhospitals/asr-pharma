@@ -168,10 +168,10 @@ The security configuration is centralized in `config/security.js` and includes:
 ```javascript
 const { getRouteSecurity } = require('./middleware/security');
 
-// Get security middleware for admin routes
+
 const adminSecurity = getRouteSecurity('admin');
 
-// Apply to route
+
 router.use('/admin', ...adminSecurity.security);
 ```
 

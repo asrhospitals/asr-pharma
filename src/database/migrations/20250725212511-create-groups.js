@@ -1,6 +1,6 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
+
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('groups', {
@@ -79,7 +79,7 @@ module.exports = {
       }
     });
 
-    // Add indexes
+
     await queryInterface.addIndex('groups', ['parentGroupId']);
     await queryInterface.addIndex('groups', ['groupType']);
     await queryInterface.addIndex('groups', ['isDefault']);

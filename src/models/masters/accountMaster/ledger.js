@@ -82,6 +82,27 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id'
       },
       comment: 'Station of the ledger'
+    },
+
+    isDefault: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      comment: 'Whether this is a default system ledger'
+    },
+    isEditable: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      comment: 'Whether this ledger can be edited'
+    },
+    isDeletable: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      comment: 'Whether this ledger can be deleted'
+    },
+    editableFields: {
+      type: DataTypes.JSON,
+      defaultValue: ['openingBalance', 'balanceType', 'description', 'address', 'isActive', 'status', 'station'],
+      comment: 'Array of field names that can be edited for this ledger'
     }
   }, {
     sequelize,
@@ -101,6 +122,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       {
         fields: ['status']
+      },
+      {
+        fields: ['isDefault']
       }
     ]
   });

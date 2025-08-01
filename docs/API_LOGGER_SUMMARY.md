@@ -91,10 +91,10 @@ DELETE /pharmacy/logs/clear
 ```javascript
 const { setLoggingEnabled, getLogConfig } = require('./middleware/apiLogger');
 
-// Enable logging
+
 setLoggingEnabled(true);
 
-// Get configuration
+
 const config = getLogConfig();
 ```
 

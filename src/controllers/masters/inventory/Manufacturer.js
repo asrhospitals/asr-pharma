@@ -2,7 +2,7 @@ const db = require('../../../database/index');
 const Manufacturer = db.Manufacturer;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
-// A. Create a new manufacturer
+
 const addManufacturer = async (req, res) => {
   try {
     const newManufacturer = await Manufacturer.create(req.body);
@@ -12,7 +12,7 @@ const addManufacturer = async (req, res) => {
   }
 };
 
-// B. Get all manufacturers
+
 const getAllManufacturers = async (req, res) => {
   try {
     const { where, offset, limit, order, page } = buildQueryOptions(
@@ -38,7 +38,7 @@ const getAllManufacturers = async (req, res) => {
 };
 
 
-// Get Manufactures By ID
+
 
 const getManuById = async (req, res) => {
   try {
@@ -61,7 +61,7 @@ const getManuById = async (req, res) => {
 
 
 
-// C. Update a manufacturer by ID
+
 const updateManufacturer = async (req, res) => {
   const { id } = req.params;
   if (!id)
@@ -80,7 +80,7 @@ const updateManufacturer = async (req, res) => {
 };
 
 
-// D. Delete a manufacturer by ID
+
 const deleteManufacturer = async (req, res) => {
   const { id } = req.params;
   if (!id)

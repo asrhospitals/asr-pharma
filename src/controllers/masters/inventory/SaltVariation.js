@@ -1,7 +1,7 @@
 const db = require('../../../database/index');
 const SaltVariation = db.SaltVariation;
 
-// A. Create Salt Variations
+
 const addVariations = async (req, res) => {
   try {
     const variation = await SaltVariation.create(req.body);
@@ -11,7 +11,7 @@ const addVariations = async (req, res) => {
   }
 };
 
-// B. Get Salt Variations
+
 
 const getVariations = async (req, res) => {
   try {
@@ -22,7 +22,7 @@ const getVariations = async (req, res) => {
   }
 };
 
-// C. Update Salt Variations
+
 
 const updateVariation = async (req, res) => {
   try {

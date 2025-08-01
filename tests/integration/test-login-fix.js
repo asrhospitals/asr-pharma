@@ -6,7 +6,7 @@ async function testLoginFix() {
   console.log('🧪 Testing Login Fix with Username Field...\n');
 
   try {
-    // Test 1: Try login with username (should work now)
+
     console.log('1. Testing login with username field...');
     const loginData = {
       username: 'admin', // or whatever username you have
@@ -31,7 +31,7 @@ async function testLoginFix() {
 
     console.log('');
 
-    // Test 2: Try login with email (should also work)
+
     console.log('2. Testing login with email field...');
     const loginDataEmail = {
       username: 'admin@example.com', // or whatever email you have
@@ -56,7 +56,7 @@ async function testLoginFix() {
 
     console.log('');
 
-    // Test 3: Try login with invalid field (should fail validation)
+
     console.log('3. Testing login with invalid field (should fail validation)...');
     const invalidData = {
       email: 'admin@example.com', // old field name
@@ -89,5 +89,5 @@ async function testLoginFix() {
   }
 }
 
-// Run the test
+
 testLoginFix(); 

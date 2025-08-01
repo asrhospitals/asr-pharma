@@ -29,7 +29,7 @@ Your backend login endpoint returns this exact structure:
 ### **1. Login Request**
 
 ```javascript
-// Login function
+
 const login = async (credentials) => {
   try {
     const response = await fetch('/pharmacy/auth/signin', {
@@ -46,14 +46,14 @@ const login = async (credentials) => {
     const result = await response.json();
 
     if (result.success) {
-      // Store tokens
+
       localStorage.setItem('accessToken', result.data.accessToken);
       localStorage.setItem('refreshToken', result.data.refreshToken);
       
-      // Store user info
+
       localStorage.setItem('user', JSON.stringify(result.data.user));
       
-      // Store token expiry
+
       const expiryTime = Date.now() + (result.data.expiresIn * 1000);
       localStorage.setItem('tokenExpiry', expiryTime);
       
@@ -70,7 +70,7 @@ const login = async (credentials) => {
 ### **2. API Request Helper**
 
 ```javascript
-// API request helper with automatic token handling
+
 const apiRequest = async (url, options = {}) => {
   const token = localStorage.getItem('accessToken');
   
@@ -90,16 +90,16 @@ const apiRequest = async (url, options = {}) => {
   try {
     const response = await fetch(url, config);
     
-    // Handle 401 Unauthorized
+
     if (response.status === 401) {
-      // Try to refresh token
+
       const refreshResult = await refreshToken();
       if (refreshResult.success) {
-        // Retry the original request with new token
+
         config.headers.Authorization = `Bearer ${refreshResult.accessToken}`;
         return await fetch(url, config);
       } else {
-        // Refresh failed, redirect to login
+
         localStorage.clear();
         window.location.href = '/login';
         throw new Error('Session expired');
@@ -116,7 +116,7 @@ const apiRequest = async (url, options = {}) => {
 ### **3. Token Refresh Function**
 
 ```javascript
-// Refresh token function
+
 const refreshToken = async () => {
   try {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -138,7 +138,7 @@ const refreshToken = async () => {
     const result = await response.json();
 
     if (result.success) {
-      // Update stored tokens
+
       localStorage.setItem('accessToken', result.data.accessToken);
       localStorage.setItem('refreshToken', result.data.refreshToken);
       
@@ -158,7 +158,7 @@ const refreshToken = async () => {
 ### **4. Logout Function**
 
 ```javascript
-// Logout function
+
 const logout = async () => {
   try {
     const token = localStorage.getItem('accessToken');
@@ -175,7 +175,7 @@ const logout = async () => {
   } catch (error) {
     console.error('Logout error:', error);
   } finally {
-    // Clear all stored data
+
     localStorage.clear();
     window.location.href = '/login';
   }
@@ -185,7 +185,7 @@ const logout = async () => {
 ### **5. Authentication Context (React)**
 
 ```javascript
-// AuthContext.js
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -195,17 +195,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on app start
+
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('accessToken');
     const tokenExpiry = localStorage.getItem('tokenExpiry');
 
     if (storedUser && token && tokenExpiry) {
-      // Check if token is expired
+
       if (Date.now() < parseInt(tokenExpiry)) {
         setUser(JSON.parse(storedUser));
       } else {
-        // Token expired, try to refresh
+
         refreshToken().then(result => {
           if (result.success) {
             setUser(JSON.parse(localStorage.getItem('user')));
@@ -244,7 +244,7 @@ export const useAuth = () => useContext(AuthContext);
 ### **6. Protected Route Component**
 
 ```javascript
-// ProtectedRoute.js
+
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
@@ -273,15 +273,15 @@ export default ProtectedRoute;
 ### **7. API Service Examples**
 
 ```javascript
-// apiService.js
+
 export const apiService = {
-  // Get items
+
   getItems: async () => {
     const response = await apiRequest('/pharmacy/admin/master/items');
     return response.json();
   },
 
-  // Create item
+
   createItem: async (itemData) => {
     const response = await apiRequest('/pharmacy/admin/master/items', {
       method: 'POST',
@@ -290,7 +290,7 @@ export const apiService = {
     return response.json();
   },
 
-  // Update item
+
   updateItem: async (id, itemData) => {
     const response = await apiRequest(`/pharmacy/admin/master/items/${id}`, {
       method: 'PUT',
@@ -299,7 +299,7 @@ export const apiService = {
     return response.json();
   },
 
-  // Delete item
+
   deleteItem: async (id) => {
     const response = await apiRequest(`/pharmacy/admin/master/items/${id}`, {
       method: 'DELETE'
@@ -328,7 +328,7 @@ headers: {
 if (response.status === 401) {
   const refreshResult = await refreshToken();
   if (refreshResult.success) {
-    // Retry request with new token
+
   }
 }
 ```

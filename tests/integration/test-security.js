@@ -2,13 +2,13 @@ const request = require('supertest');
 const express = require('express');
 const { applySecurityMiddleware } = require('./middleware/security');
 
-// Create a test app
+
 const app = express();
 
-// Apply security middleware
+
 applySecurityMiddleware(app, 'development');
 
-// Test routes
+
 app.get('/test', (req, res) => {
   res.json({ message: 'Test endpoint working' });
 });
@@ -17,11 +17,11 @@ app.post('/test', (req, res) => {
   res.json({ message: 'POST test endpoint working', body: req.body });
 });
 
-// Test security features
+
 async function testSecurityFeatures() {
   console.log('🔒 Testing Security Features...\n');
 
-  // Test 1: Check if security headers are present
+
   console.log('1. Testing Security Headers...');
   const response1 = await request(app)
     .get('/test')
@@ -35,7 +35,7 @@ async function testSecurityFeatures() {
   console.log(`   - X-Request-ID: ${headers['x-request-id'] ? 'Present' : 'Missing'}`);
   console.log('');
 
-  // Test 2: Check rate limiting (this would require multiple requests in a real scenario)
+
   console.log('2. Rate Limiting Configuration...');
   console.log('✅ Rate limiting middleware applied');
   console.log('   - General: 100 requests per 15 minutes');
@@ -43,7 +43,7 @@ async function testSecurityFeatures() {
   console.log('   - Admin: 50 requests per 15 minutes');
   console.log('');
 
-  // Test 3: Check CORS configuration
+
   console.log('3. CORS Configuration...');
   console.log('✅ CORS middleware applied');
   console.log('   - Allowed origins configured');
@@ -51,7 +51,7 @@ async function testSecurityFeatures() {
   console.log('   - Methods restricted');
   console.log('');
 
-  // Test 4: Test content type validation
+
   console.log('4. Content Type Validation...');
   try {
     await request(app)
@@ -65,7 +65,7 @@ async function testSecurityFeatures() {
   }
   console.log('');
 
-  // Test 5: Test request size limiting
+
   console.log('5. Request Size Limiting...');
   const largeData = 'x'.repeat(11 * 1024 * 1024); // 11MB
   try {
@@ -97,5 +97,5 @@ async function testSecurityFeatures() {
   console.log('🔐 Your application is now secured with enterprise-level security features!');
 }
 
-// Run the test
+
 testSecurityFeatures().catch(console.error);

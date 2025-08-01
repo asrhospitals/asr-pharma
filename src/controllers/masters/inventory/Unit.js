@@ -2,7 +2,7 @@ const db = require('../../../database/index');
 const Unit = db.Unit;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
-// Add Unit
+
 
 const addUnit = async (req, res) => {
     try {
@@ -13,7 +13,7 @@ const addUnit = async (req, res) => {
     }
 };
 
-// Get All Units
+
 const getAllUnits = async (req, res) => {
     try {
         const { where, offset, limit, order, page } = buildQueryOptions(
@@ -38,7 +38,7 @@ const getAllUnits = async (req, res) => {
     }
 };
 
-// Get Units By id
+
 
 const getUnitById=async (req,res) => {
 
@@ -55,7 +55,7 @@ const getUnitById=async (req,res) => {
 
 
 
-// Update Unit
+
 const updateUnit = async (req, res) => {
 
     try {
@@ -70,7 +70,7 @@ const updateUnit = async (req, res) => {
     }
 };
 
-// Delete Unit
+
 const deleteUnit = async (req, res) => {
     try {
         const {id} = req.params;

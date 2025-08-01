@@ -6,7 +6,7 @@ async function testLoginWithUnamePwd() {
   console.log('🧪 Testing Login with uname and pwd fields...\n');
 
   try {
-    // Test 1: Try login with uname and pwd (exact user payload format)
+
     console.log('1. Testing login with uname and pwd fields...');
     const loginData = {
       uname: 'admin',
@@ -32,7 +32,7 @@ async function testLoginWithUnamePwd() {
 
     console.log('');
 
-    // Test 2: Try login with email as uname (should also work)
+
     console.log('2. Testing login with email as uname...');
     const loginDataEmail = {
       uname: 'admin@example.com', // or whatever email you have
@@ -57,7 +57,7 @@ async function testLoginWithUnamePwd() {
 
     console.log('');
 
-    // Test 3: Try login with old field names (should fail validation)
+
     console.log('3. Testing login with old field names (should fail validation)...');
     const invalidData = {
       username: 'admin',
@@ -78,7 +78,7 @@ async function testLoginWithUnamePwd() {
 
     console.log('');
 
-    // Test 4: Try login with missing fields (should fail validation)
+
     console.log('4. Testing login with missing pwd field...');
     const missingPwdData = {
       uname: 'admin'
@@ -117,5 +117,5 @@ async function testLoginWithUnamePwd() {
   }
 }
 
-// Run the test
+
 testLoginWithUnamePwd(); 
