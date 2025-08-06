@@ -41,6 +41,9 @@ jobs:
             JWT_SECRET=my-secret-key
             EOT
 
+            echo "📋 Verifying .env file contents..."
+            cat .env
+
             echo "🔧 Running database migrations..."
             npx sequelize-cli db:migrate --env production
 
