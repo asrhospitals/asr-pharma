@@ -20,11 +20,15 @@ jobs:
 
       - name: Deploy via SSH and Run Migrations
         run: |
-           ssh -o StrictHostKeyChecking=no root@213.210.37.3 'cd /root/pharmacy/asr-pharma && git pull origin main'
+          ssh -o StrictHostKeyChecking=no root@213.210.37.3 << 'EOF'
+            cd /root/pharmacy/asr-pharma
 
+            echo "📦 Pulling latest code..."
+            git stash
+            git pull origin main
+            git stash pop || true
 
-
-            echo "📦 Installing dependencies...."
+            echo "📦 Installing dependencies..."
             npm install
 
             echo "🌍 Creating .env file..."
