@@ -1,4 +1,20 @@
-require('dotenv').config();
+// Load environment variables at the very beginning
+const path = require('path');
+const dotenv = require('dotenv');
+
+// Try to load .env file from the project root
+const envPath = path.resolve(process.cwd(), '.env');
+const result = dotenv.config({ path: envPath });
+
+if (result.error) {
+  console.log('⚠️  .env file not found or error loading:', result.error.message);
+  console.log('🔍 Looking for .env file at:', envPath);
+} else {
+  console.log('✅ .env file loaded successfully from:', envPath);
+}
+
+console.log('🌍 Current NODE_ENV:', process.env.NODE_ENV || 'development');
+
 const express = require("express");
 const db = require("./database/index");
 const sequelize = db.sequelize;
@@ -88,6 +104,45 @@ app.get('/', async (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     security: 'enabled',
     logging: getLogConfig().enabled ? 'enabled' : 'disabled'
+  });
+});
+
+app.get('/debug/env', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  
+  const envPath = path.join(process.cwd(), '.env');
+  const envExists = fs.existsSync(envPath);
+  
+  let envContent = null;
+  if (envExists) {
+    try {
+      envContent = fs.readFileSync(envPath, 'utf8');
+    } catch (error) {
+      envContent = `Error reading .env file: ${error.message}`;
+    }
+  }
+  
+  res.json({
+    success: true,
+    data: {
+      currentWorkingDirectory: process.cwd(),
+      envFileExists: envExists,
+      envFilePath: envPath,
+      envFileContent: envContent,
+      environmentVariables: {
+        NODE_ENV: process.env.NODE_ENV,
+        DB_USER: process.env.DB_USER,
+        DB_PASSWORD: process.env.DB_PASSWORD ? '[HIDDEN]' : 'NOT SET',
+        DB_NAME: process.env.DB_NAME,
+        DB_HOST: process.env.DB_HOST,
+        DB_PORT: process.env.DB_PORT,
+        JWT_SECRET: process.env.JWT_SECRET ? '[HIDDEN]' : 'NOT SET'
+      },
+      processEnv: {
+        NODE_ENV: process.env.NODE_ENV || 'development'
+      }
+    }
   });
 });
 

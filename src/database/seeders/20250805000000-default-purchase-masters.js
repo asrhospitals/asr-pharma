@@ -13,13 +13,15 @@ module.exports = {
       return;
     }
 
-    await queryInterface.bulkDelete('purchase_masters', null, { truncate: true, cascade: true, restartIdentity: true });
-    console.log('Deleted all existing purchase masters');
-
     const ledgers = await queryInterface.sequelize.query(
       `SELECT id, "ledgerName" FROM ledgers WHERE "isDefault" = true`,
       { type: Sequelize.QueryTypes.SELECT }
     );
+
+    if(ledgers.length === 0) {
+      console.log('No ledgers found, skipping creation of default purchase masters.');
+      return;
+    }
 
     const findLedger = (name) => {
       const ledger = ledgers.find(l => l.ledgerName.toLowerCase().includes(name.toLowerCase()));
