@@ -34,14 +34,14 @@ jobs:
 
             echo "🌍 Writing .env..."
             cat <<EOT > .env
-          NODE_ENV=production
-          DB_USER=pharmacyuser
-          DB_PASSWORD=pharmacypassword
-          DB_NAME=pharmacydb
-          DB_HOST=213.210.37.3
-          DB_PORT=5432
-          JWT_SECRET=my-secret-key
-          EOT
+            NODE_ENV=production
+            DB_USER=pharmacyuser
+            DB_PASSWORD=pharmacypassword
+            DB_NAME=pharmacydb
+            DB_HOST=213.210.37.3
+            DB_PORT=5432
+            JWT_SECRET=my-secret-key
+            EOT
 
             echo "🔧 Running migrations..."
             npx sequelize-cli db:migrate --env production --config src/config/config.js
