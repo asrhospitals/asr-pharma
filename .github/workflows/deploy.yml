@@ -31,19 +31,21 @@ jobs:
             echo "📦 Installing dependencies..."
             npm install
 
-            echo "🌍 Setting environment..."
-            export NODE_ENV=production
-            export DB_USER=pharmacyuser
-            export DB_PASSWORD=pharmacypassword
-            export DB_NAME=pharmacydb
-            export DB_HOST=213.210.37.3
-            export DB_PORT=5432
-            export JWT_SECRET=my-secret-key
+            echo "🌍 Creating .env file..."
+            cat <<EOT > .env
+            NODE_ENV=production
+            DB_USER=pharmacyuser
+            DB_PASSWORD=pharmacypassword
+            DB_NAME=pharmacydb
+            DB_HOST=213.210.37.3
+            DB_PORT=5432
+            JWT_SECRET=my-secret-key
+            EOT
 
-            echo "🔧 Running migrations..."
+            echo "🔧 Running database migrations..."
             npx sequelize-cli db:migrate --env production
 
-            echo "🌱 Running seeders..."
+            echo "🌱 Running database seeders..."
             npx sequelize-cli db:seed:all --env production
 
             echo "✅ Deployment completed."
