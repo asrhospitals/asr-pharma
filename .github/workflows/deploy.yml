@@ -33,6 +33,11 @@ jobs:
 
             echo "🌍 Setting environment..."
             export NODE_ENV=production
+            export DB_USER=pharmacyuser
+            export DB_PASSWORD=pharmacypassword
+            export DB_NAME=pharmacydb
+            export DB_HOST=213.210.37.3
+            export DB_PORT=5432
             export JWT_SECRET=my-secret-key
 
             echo "🔧 Running migrations..."
