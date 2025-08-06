@@ -28,6 +28,7 @@ const salesBillRoutes = require('./routes/sales/billRoutes');
 const accountRoutes = require('./routes/master/accountRoutes');
 const groupRoutes = require('./routes/master/groupRoutes');
 const ledgerEntryRoutes = require('./routes/master/ledgerEntryRoutes');
+const purchaseMasterRoutes = require('./routes/master/purchaseMasterRoutes');
 
 const app = express();
 
@@ -101,6 +102,8 @@ app.use("/pharmacy/api", verifyToken, groupRoutes);
 app.use('/pharmacy/sales/bills/v1', verifyToken, salesBillRoutes);
 
 app.use('/pharmacy/admin/master', verifyToken, authorizeRole('admin'), ledgerEntryRoutes);
+
+app.use('/pharmacy/admin/master', verifyToken, authorizeRole('admin'), purchaseMasterRoutes);
 
 app.use('*', (req, res) => {
   res.status(404).json({

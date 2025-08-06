@@ -17,10 +17,10 @@
     "dialect": "postgres"
   },
   "production": {
-    "username": "postgres",
-    "password": "Parivesh@09",
+    "username": "pharmacyuser",
+    "password": "pharmacypassword",
     "database": "pharmacydb",
-    "host": "localhost",
+    "host": "213.210.37.3",
     "port": 5432,
     "dialect": "postgres"
   }

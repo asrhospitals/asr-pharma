@@ -13,6 +13,7 @@ const SaltVariationController = require("../../controllers/masters/inventory/Sal
 const PatientController = require("../../controllers/masters/other/Patient");
 const DoctorController = require("../../controllers/masters/other/Doctor");
 const PrescriptionController = require("../../controllers/masters/other/Prescription");
+const StationController = require("../../controllers/masters/other/Station");
 const BillController = require("../../controllers/sales/BillController");
 
 const GroupController = require("../../controllers/masters/account/group");
@@ -96,6 +97,12 @@ router.get("/other/prescription/v1/get-prescription", PrescriptionController.get
 router.get("/other/prescription/v1/get-prescriptions/:id", PrescriptionController.getPrescriptionById);
 router.put("/other/prescription/v1/update-prescription/:id", PrescriptionController.updatePrescription);
 router.delete("/other/prescription/v1/delete-prescription/:id", PrescriptionController.deletePrescription);
+
+router.post("/other/station/v1/add-station", StationController.createStation);
+router.get("/other/station/v1/get-station", StationController.getStations);
+router.get("/other/station/v1/get-stations/:id", StationController.getStationById);
+router.put("/other/station/v1/update-station/:id", StationController.updateStation);
+router.delete("/other/station/v1/delete-station/:id", StationController.deleteStation);
 
 router.post("/groups", canCreateGroup, GroupController.createGroup);
 router.get("/groups", GroupController.getAllGroups);

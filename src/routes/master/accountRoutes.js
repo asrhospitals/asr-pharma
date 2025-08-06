@@ -34,6 +34,7 @@ const {
 const transactionRoutes = require('./transactionRoutes');
 const reportRoutes = require('./reportRoutes');
 const saleMasterRoutes = require('./saleMasterRoutes');
+const purchaseMasterRoutes = require('./purchaseMasterRoutes');
 
 const router = Router();
 
@@ -117,5 +118,7 @@ router.use('/', reportRoutes);
 
 
 router.use('/', saleMasterRoutes);
+
+router.use('/', purchaseMasterRoutes);
 
 module.exports = router;

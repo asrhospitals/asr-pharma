@@ -170,7 +170,7 @@ const getTransactions = async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 10,
+      limit,
       voucherType,
       status,
       isPosted,

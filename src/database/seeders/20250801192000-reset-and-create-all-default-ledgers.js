@@ -3,244 +3,45 @@
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('ledgers', {}, {});
+    await queryInterface.bulkDelete('ledgers', null, { truncate: true, cascade: true, restartIdentity: true });
     console.log('Deleted all existing ledgers');
 
-    await queryInterface.sequelize.query('ALTER SEQUENCE ledgers_id_seq RESTART WITH 1');
+    await queryInterface.sequelize.query(`
+      SELECT setval(pg_get_serial_sequence('"ledgers"', 'id'), 1, false);
+    `);
     console.log('Reset ledger ID sequence to start from 1');
 
-    const requiredGroups = [
-      {
-        groupName: 'Capital Account',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Income',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Capital Account',
-        sortOrder: 1,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Cash-in-Hand',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Asset',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Cash-in-Hand',
-        sortOrder: 2,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Bank Accounts',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Asset',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Bank Accounts',
-        sortOrder: 3,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Sales Accounts',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Income',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Sales Accounts',
-        sortOrder: 4,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Purchase Accounts',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Expense',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Purchase Accounts',
-        sortOrder: 5,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Indirect Expenses',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Expense',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Indirect Expenses',
-        sortOrder: 6,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Indirect Incomes',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Income',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Indirect Incomes',
-        sortOrder: 7,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Duties & Taxes',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Liability',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Duties & Taxes',
-        sortOrder: 8,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Sundry Debtors',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Asset',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Sundry Debtors',
-        sortOrder: 9,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Sundry Creditors',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Liability',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Sundry Creditors',
-        sortOrder: 10,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Secured Loans',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Liability',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Secured Loans',
-        sortOrder: 11,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Unsecured Loans',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Liability',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Unsecured Loans',
-        sortOrder: 12,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupName: 'Loans & Advances (Asset)',
-        undergroup: 'Primary',
-        parentGroupId: null,
-        groupType: 'Asset',
-        isDefault: true,
-        isEditable: false,
-        isDeletable: false,
-        prohibit: 'No',
-        description: 'Default group: Loans & Advances (Asset)',
-        sortOrder: 13,
-        status: 'Active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
-
-    const existingGroups = await queryInterface.sequelize.query(
-      'SELECT id, "groupName" FROM groups WHERE "groupName" IN (?)',
-      {
-        replacements: [requiredGroups.map(g => g.groupName)],
-        type: Sequelize.QueryTypes.SELECT
-      }
-    );
-
-    const existingGroupNames = existingGroups.map(g => g.groupName);
-    const newGroups = requiredGroups.filter(group => !existingGroupNames.includes(group.groupName));
-
-    if (newGroups.length > 0) {
-      await queryInterface.bulkInsert('groups', newGroups, {});
-    }
-
-    const groups = await queryInterface.sequelize.query(
-      'SELECT id, "groupName" FROM groups WHERE "groupName" IN (?)',
-      {
-        replacements: [requiredGroups.map(g => g.groupName)],
-        type: Sequelize.QueryTypes.SELECT
-      }
+    const allGroups = await queryInterface.sequelize.query(
+      'SELECT id, "groupName", "parentGroupId" FROM groups',
+      { type: Sequelize.QueryTypes.SELECT }
     );
 
     const groupMap = {};
-    groups.forEach(group => {
-      groupMap[group.groupName] = group.id;
+    allGroups.forEach(group => {
+      if (!groupMap[group.groupName]) groupMap[group.groupName] = [];
+      groupMap[group.groupName].push(group);
     });
 
+    function getGroupId(groupName, parentGroupName = null) {
+      const groups = groupMap[groupName];
+      if (!groups) return null;
+      if (parentGroupName) {
+        const parentGroups = groupMap[parentGroupName] || [];
+        for (const group of groups) {
+          if (parentGroups.some(pg => pg.id === group.parentGroupId)) {
+            return group.id;
+          }
+        }
+        return groups[0].id;
+      }
+      return groups[0].id;
+    }
 
-
+    // Define all ledgers with correct group mapping
     const defaultLedgers = [
       {
         ledgerName: 'Capital Account',
-        acgroup: groupMap['Capital Account'],
+        acgroup: getGroupId('Capital Account'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -250,13 +51,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Drawings',
-        acgroup: groupMap['Capital Account'],
+        acgroup: getGroupId('Capital Account'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -266,13 +68,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 2,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Cash',
-        acgroup: groupMap['Cash-in-Hand'],
+        acgroup: getGroupId('Cash-in-Hand'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -282,13 +85,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 3,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Bank Account',
-        acgroup: groupMap['Bank Accounts'],
+        acgroup: getGroupId('Bank Accounts'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -298,13 +102,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 4,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Sales',
-        acgroup: groupMap['Sales Accounts'],
+        acgroup: getGroupId('Sales Accounts'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -314,13 +119,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 5,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Purchase',
-        acgroup: groupMap['Purchase Accounts'],
+        acgroup: getGroupId('Purchase Accounts'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -330,13 +136,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 6,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Salaries',
-        acgroup: groupMap['Indirect Expenses'],
+        acgroup: getGroupId('Indirect Expense'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -346,13 +153,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 7,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Rent Paid',
-        acgroup: groupMap['Indirect Expenses'],
+        acgroup: getGroupId('Indirect Expense'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -362,13 +170,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 8,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Telephone Expenses',
-        acgroup: groupMap['Indirect Expenses'],
+        acgroup: getGroupId('Indirect Expense'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -378,13 +187,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 9,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Electricity Charges',
-        acgroup: groupMap['Indirect Expenses'],
+        acgroup: getGroupId('Indirect Expense'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -394,13 +204,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 10,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Commission Received',
-        acgroup: groupMap['Indirect Incomes'],
+        acgroup: getGroupId('Indirect Income'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -410,13 +221,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 11,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Discount Received',
-        acgroup: groupMap['Indirect Incomes'],
+        acgroup: getGroupId('Indirect Income'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -426,13 +238,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 12,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'CGST Input',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -442,13 +255,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 13,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'SGST Input',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -458,13 +272,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 14,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'IGST Input',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -474,13 +289,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 15,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'CGST Input (RCM)',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -490,13 +306,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 16,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'SGST Input (RCM)',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -506,13 +323,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 17,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'IGST Input (RCM)',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -522,13 +340,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 18,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'CGST Output',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -538,13 +357,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 19,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'SGST Output',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -554,13 +374,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 20,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'IGST Output',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -570,13 +391,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 21,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Sundry Debtors',
-        acgroup: groupMap['Sundry Debtors'],
+        acgroup: getGroupId('Sundry Debtors'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -586,13 +408,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
-        sortOrder: 22,
+        isDefault: true,
+          sortOrder: 22,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Sundry Creditors',
-        acgroup: groupMap['Sundry Creditors'],
+        acgroup: getGroupId('Sundry Creditors'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -602,13 +425,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 23,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Sales Return',
-        acgroup: groupMap['Sales Accounts'],
+        acgroup: getGroupId('Sales Accounts'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -618,13 +442,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 24,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Purchase Return',
-        acgroup: groupMap['Purchase Accounts'],
+        acgroup: getGroupId('Purchase Accounts'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -634,13 +459,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 25,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Loan from Bank',
-        acgroup: groupMap['Secured Loans'],
+        acgroup: getGroupId('Secured Loans'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -650,13 +476,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 26,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Loan from Friends',
-        acgroup: groupMap['Unsecured Loans'],
+        acgroup: getGroupId('Unsecured Loans'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -666,13 +493,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 27,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Depreciation',
-        acgroup: groupMap['Indirect Expenses'],
+        acgroup: getGroupId('Indirect Expense'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -682,13 +510,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 28,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Income Tax',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -698,13 +527,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 29,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'TDS Receivable',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -714,13 +544,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 30,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'TDS Payable',
-        acgroup: groupMap['Duties & Taxes'],
+        acgroup: getGroupId('Duties & Taxes'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -730,13 +561,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 31,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Advance to Staff',
-        acgroup: groupMap['Loans & Advances (Asset)'],
+        acgroup: getGroupId('Loans & Advances (Asset)'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -746,13 +578,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 32,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Interest Received',
-        acgroup: groupMap['Indirect Incomes'],
+        acgroup: getGroupId('Indirect Income'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -762,13 +595,14 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 33,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Interest Paid',
-        acgroup: groupMap['Indirect Expenses'],
+        acgroup: getGroupId('Indirect Expense'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -778,13 +612,14 @@ module.exports = {
         balanceType: 'Debit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 34,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         ledgerName: 'Rounding Off',
-        acgroup: groupMap['Indirect Incomes'],
+        acgroup: getGroupId('Indirect Income'),
         isDefault: true,
         isEditable: true,
         isDeletable: false,
@@ -794,17 +629,23 @@ module.exports = {
         balanceType: 'Credit',
         isActive: true,
         status: 'Active',
+        isDefault: true,
         sortOrder: 35,
         createdAt: new Date(),
         updatedAt: new Date()
       }
     ];
 
-    const validLedgers = defaultLedgers.filter(ledger => ledger.acgroup);
+    defaultLedgers.forEach(ledger => {
+      if (!ledger.acgroup) {
+        console.warn('Missing group for ledger:', ledger.ledgerName);
+      }
+    });
 
+    const validLedgers = defaultLedgers.filter(ledger => ledger.acgroup);
     if (validLedgers.length > 0) {
       await queryInterface.bulkInsert('ledgers', validLedgers, {});
-      console.log(`Successfully created ${validLedgers.length} default ledgers with clean IDs starting from 1`);
+      console.log(`Successfully created ${validLedgers.length} default ledgers with group mapping`);
     }
   },
 

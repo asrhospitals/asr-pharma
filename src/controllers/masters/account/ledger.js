@@ -96,7 +96,7 @@ const getLedger = async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 10,
+      limit,
       groupId,
       search,
       status,
@@ -414,7 +414,7 @@ const getLedgerTransactions = async (req, res) => {
     const { id } = req.params;
     const {
       page = 1,
-      limit = 10,
+      limit,
       startDate,
       endDate,
       voucherType

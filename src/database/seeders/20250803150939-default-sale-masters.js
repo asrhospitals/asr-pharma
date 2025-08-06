@@ -3,19 +3,16 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    // First, let's get the default ledgers that should exist
     const ledgers = await queryInterface.sequelize.query(
       `SELECT id, "ledgerName" FROM ledgers WHERE "isDefault" = true`,
       { type: Sequelize.QueryTypes.SELECT }
     );
 
-    // Find specific ledgers by name
     const findLedger = (name) => {
       const ledger = ledgers.find(l => l.ledgerName.toLowerCase().includes(name.toLowerCase()));
       return ledger ? ledger.id : null;
     };
 
-    // Get default ledgers
     const salesLedgerId = findLedger('sales') || ledgers[0]?.id;
     const igstOutputLedgerId = findLedger('igst output') || ledgers[0]?.id;
     const cgstOutputLedgerId = findLedger('cgst output') || ledgers[0]?.id;
@@ -239,6 +236,7 @@ module.exports = {
         sortOrder: 10,
         status: 'Active',
         description: 'GST Deemed Export (Exempted)',
+        isDefault: true,
         createdAt: new Date(),
         updatedAt: new Date()
       },

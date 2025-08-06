@@ -1,18 +1,18 @@
 const db = require("../../../database");
-const { SaleMaster, Ledger } = db;
+const { PurchaseMaster, Ledger } = db;
 const { Op } = require('sequelize');
 
-const createSaleMaster = async (req, res) => {
+const createPurchaseMaster = async (req, res) => {
   try {
     const {
-      salesType,
-      localSalesLedgerId,
-      centralSalesLedgerId,
+      purchaseType,
+      localPurchaseLedgerId,
+      centralPurchaseLedgerId,
       igstPercentage = 0,
       cgstPercentage = 0,
       sgstPercentage = 0,
       cessPercentage = 0,
-      natureOfTransaction = 'Sales',
+      natureOfTransaction = 'Purchase',
       taxability = 'Taxable',
       igstLedgerId,
       cgstLedgerId,
@@ -22,7 +22,7 @@ const createSaleMaster = async (req, res) => {
       sortOrder = 0
     } = req.body;
 
-    if (!salesType || !localSalesLedgerId || !centralSalesLedgerId || 
+    if (!purchaseType || !localPurchaseLedgerId || !centralPurchaseLedgerId || 
         !igstLedgerId || !cgstLedgerId || !sgstLedgerId || !cessLedgerId) {
       return res.status(400).json({
         success: false,
@@ -30,18 +30,18 @@ const createSaleMaster = async (req, res) => {
       });
     }
 
-    const existingSaleMaster = await SaleMaster.findOne({
-      where: { salesType: { [Op.iLike]: salesType } }
+    const existingPurchaseMaster = await PurchaseMaster.findOne({
+      where: { purchaseType: { [Op.iLike]: purchaseType } }
     });
 
-    if (existingSaleMaster) {
+    if (existingPurchaseMaster) {
       return res.status(400).json({
         success: false,
-        message: 'Sale type already exists'
+        message: 'Purchase type already exists'
       });
     }
 
-    const ledgerIds = [localSalesLedgerId, centralSalesLedgerId, igstLedgerId, cgstLedgerId, sgstLedgerId, cessLedgerId];
+    const ledgerIds = [localPurchaseLedgerId, centralPurchaseLedgerId, igstLedgerId, cgstLedgerId, sgstLedgerId, cessLedgerId];
     const ledgers = await Ledger.findAll({
       where: { id: { [Op.in]: ledgerIds } }
     });
@@ -63,11 +63,11 @@ const createSaleMaster = async (req, res) => {
       }
     }
 
-    // Enforce Sales only for this module
-    if (natureOfTransaction !== 'Sales') {
+    // Enforce Purchase only for this module
+    if (natureOfTransaction !== 'Purchase') {
       return res.status(400).json({
         success: false,
-        message: 'This module only supports Sales transactions. Purchase transactions should be handled separately.'
+        message: 'This module only supports Purchase transactions. Sales transactions should be handled separately.'
       });
     }
 
@@ -78,10 +78,10 @@ const createSaleMaster = async (req, res) => {
       });
     }
 
-    const saleMasterData = {
-      salesType: salesType.trim(),
-      localSalesLedgerId,
-      centralSalesLedgerId,
+    const purchaseMasterData = {
+      purchaseType: purchaseType.trim(),
+      localPurchaseLedgerId,
+      centralPurchaseLedgerId,
       igstPercentage: parseFloat(igstPercentage),
       cgstPercentage: parseFloat(cgstPercentage),
       sgstPercentage: parseFloat(sgstPercentage),
@@ -98,12 +98,12 @@ const createSaleMaster = async (req, res) => {
       status: 'Active'
     };
 
-    const saleMaster = await SaleMaster.create(saleMasterData);
+    const purchaseMaster = await PurchaseMaster.create(purchaseMasterData);
 
-    const createdSaleMaster = await SaleMaster.findByPk(saleMaster.id, {
+    const createdPurchaseMaster = await PurchaseMaster.findByPk(purchaseMaster.id, {
       include: [
-        { model: Ledger, as: 'localSalesLedger', attributes: ['id', 'ledgerName'] },
-        { model: Ledger, as: 'centralSalesLedger', attributes: ['id', 'ledgerName'] },
+        { model: Ledger, as: 'localPurchaseLedger', attributes: ['id', 'ledgerName'] },
+        { model: Ledger, as: 'centralPurchaseLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'igstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'cgstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'sgstLedger', attributes: ['id', 'ledgerName'] },
@@ -113,25 +113,25 @@ const createSaleMaster = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Sale master created successfully',
-      data: createdSaleMaster
+      message: 'Purchase master created successfully',
+      data: createdPurchaseMaster
     });
 
   } catch (error) {
-    console.error('Sale master creation error:', error);
+    console.error('Purchase master creation error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to create sale master',
+      message: 'Failed to create purchase master',
       error: error.message
     });
   }
 };
 
-const getSaleMaster = async (req, res) => {
+const getPurchaseMaster = async (req, res) => {
   try {
     const {
       page = 1,
-      limit,
+      limit=10,
       search = '',
       taxability,
       status,
@@ -140,13 +140,13 @@ const getSaleMaster = async (req, res) => {
 
     const offset = (page - 1) * limit;
     const whereClause = {
-      natureOfTransaction: 'Sales'
+      natureOfTransaction: 'Purchase'
     };
 
     if (search) {
       whereClause[Op.and] = [
-        { natureOfTransaction: 'Sales' },
-        { salesType: { [Op.iLike]: `%${search}%` } }
+        { natureOfTransaction: 'Purchase' },
+        { purchaseType: { [Op.iLike]: `%${search}%` } }
       ];
     }
 
@@ -162,17 +162,17 @@ const getSaleMaster = async (req, res) => {
       whereClause.isActive = isActive === 'true';
     }
 
-    const { count, rows } = await SaleMaster.findAndCountAll({
+    const { count, rows } = await PurchaseMaster.findAndCountAll({
       where: whereClause,
       include: [
-        { model: Ledger, as: 'localSalesLedger', attributes: ['id', 'ledgerName'] },
-        { model: Ledger, as: 'centralSalesLedger', attributes: ['id', 'ledgerName'] },
+        { model: Ledger, as: 'localPurchaseLedger', attributes: ['id', 'ledgerName'] },
+        { model: Ledger, as: 'centralPurchaseLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'igstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'cgstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'sgstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'cessLedger', attributes: ['id', 'ledgerName'] }
       ],
-      order: [['sortOrder', 'ASC'], ['salesType', 'ASC']],
+      order: [['sortOrder', 'ASC'], ['purchaseType', 'ASC']],
       limit: parseInt(limit),
       offset: parseInt(offset)
     });
@@ -181,7 +181,7 @@ const getSaleMaster = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Sale masters retrieved successfully',
+      message: 'Purchase masters retrieved successfully',
       data: rows,
       pagination: {
         currentPage: parseInt(page),
@@ -192,23 +192,23 @@ const getSaleMaster = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get sale masters error:', error);
+    console.error('Get purchase masters error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to retrieve sale masters',
+      message: 'Failed to retrieve purchase masters',
       error: error.message
     });
   }
 };
 
-const getSaleMasterById = async (req, res) => {
+const getPurchaseMasterById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const saleMaster = await SaleMaster.findByPk(id, {
+    const purchaseMaster = await PurchaseMaster.findByPk(id, {
       include: [
-        { model: Ledger, as: 'localSalesLedger', attributes: ['id', 'ledgerName'] },
-        { model: Ledger, as: 'centralSalesLedger', attributes: ['id', 'ledgerName'] },
+        { model: Ledger, as: 'localPurchaseLedger', attributes: ['id', 'ledgerName'] },
+        { model: Ledger, as: 'centralPurchaseLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'igstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'cgstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'sgstLedger', attributes: ['id', 'ledgerName'] },
@@ -216,36 +216,36 @@ const getSaleMasterById = async (req, res) => {
       ]
     });
 
-    if (!saleMaster) {
+    if (!purchaseMaster) {
       return res.status(404).json({
         success: false,
-        message: 'Sale master not found'
+        message: 'Purchase master not found'
       });
     }
 
     res.json({
       success: true,
-      message: 'Sale master retrieved successfully',
-      data: saleMaster
+      message: 'Purchase master retrieved successfully',
+      data: purchaseMaster
     });
 
   } catch (error) {
-    console.error('Get sale master by ID error:', error);
+    console.error('Get purchase master by ID error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to retrieve sale master',
+      message: 'Failed to retrieve purchase master',
       error: error.message
     });
   }
 };
 
-const updateSaleMaster = async (req, res) => {
+const updatePurchaseMaster = async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      salesType,
-      localSalesLedgerId,
-      centralSalesLedgerId,
+      purchaseType,
+      localPurchaseLedgerId,
+      centralPurchaseLedgerId,
       igstPercentage,
       cgstPercentage,
       sgstPercentage,
@@ -262,46 +262,46 @@ const updateSaleMaster = async (req, res) => {
       status
     } = req.body;
 
-    const saleMaster = await SaleMaster.findByPk(id);
-    if (!saleMaster) {
+    const purchaseMaster = await PurchaseMaster.findByPk(id);
+    if (!purchaseMaster) {
       return res.status(404).json({
         success: false,
-        message: 'Sale master not found'
+        message: 'Purchase master not found'
       });
     }
 
-    if (saleMaster.isDefault) {
+    if (purchaseMaster.isDefault) {
       return res.status(403).json({
         success: false,
-        message: 'Default sale masters cannot be edited'
+        message: 'Default purchase masters cannot be edited'
       });
     }
 
-    if (salesType && salesType !== saleMaster.salesType) {
-      const existingSaleMaster = await SaleMaster.findOne({
+    if (purchaseType && purchaseType !== purchaseMaster.purchaseType) {
+      const existingPurchaseMaster = await PurchaseMaster.findOne({
         where: { 
-          salesType: { [Op.iLike]: salesType },
+          purchaseType: { [Op.iLike]: purchaseType },
           id: { [Op.ne]: id }
         }
       });
 
-      if (existingSaleMaster) {
+      if (existingPurchaseMaster) {
         return res.status(400).json({
           success: false,
-          message: 'Sale type already exists'
+          message: 'Purchase type already exists'
         });
       }
     }
 
-    if (localSalesLedgerId || centralSalesLedgerId || igstLedgerId || 
+    if (localPurchaseLedgerId || centralPurchaseLedgerId || igstLedgerId || 
         cgstLedgerId || sgstLedgerId || cessLedgerId) {
       const ledgerIds = [
-        localSalesLedgerId || saleMaster.localSalesLedgerId,
-        centralSalesLedgerId || saleMaster.centralSalesLedgerId,
-        igstLedgerId || saleMaster.igstLedgerId,
-        cgstLedgerId || saleMaster.cgstLedgerId,
-        sgstLedgerId || saleMaster.sgstLedgerId,
-        cessLedgerId || saleMaster.cessLedgerId
+        localPurchaseLedgerId || purchaseMaster.localPurchaseLedgerId,
+        centralPurchaseLedgerId || purchaseMaster.centralPurchaseLedgerId,
+        igstLedgerId || purchaseMaster.igstLedgerId,
+        cgstLedgerId || purchaseMaster.cgstLedgerId,
+        sgstLedgerId || purchaseMaster.sgstLedgerId,
+        cessLedgerId || purchaseMaster.cessLedgerId
       ];
 
       const ledgers = await Ledger.findAll({
@@ -326,10 +326,10 @@ const updateSaleMaster = async (req, res) => {
       }
     }
 
-    if (natureOfTransaction && natureOfTransaction !== 'Sales') {
+    if (natureOfTransaction && natureOfTransaction !== 'Purchase') {
       return res.status(400).json({
         success: false,
-        message: 'This module only supports Sales transactions. Purchase transactions should be handled separately.'
+        message: 'This module only supports Purchase transactions. Sales transactions should be handled separately.'
       });
     }
 
@@ -349,9 +349,9 @@ const updateSaleMaster = async (req, res) => {
 
     const updateData = {};
     
-    if (salesType !== undefined) updateData.salesType = salesType.trim();
-    if (localSalesLedgerId !== undefined) updateData.localSalesLedgerId = localSalesLedgerId;
-    if (centralSalesLedgerId !== undefined) updateData.centralSalesLedgerId = centralSalesLedgerId;
+    if (purchaseType !== undefined) updateData.purchaseType = purchaseType.trim();
+    if (localPurchaseLedgerId !== undefined) updateData.localPurchaseLedgerId = localPurchaseLedgerId;
+    if (centralPurchaseLedgerId !== undefined) updateData.centralPurchaseLedgerId = centralPurchaseLedgerId;
     if (igstPercentage !== undefined) updateData.igstPercentage = parseFloat(igstPercentage);
     if (cgstPercentage !== undefined) updateData.cgstPercentage = parseFloat(cgstPercentage);
     if (sgstPercentage !== undefined) updateData.sgstPercentage = parseFloat(sgstPercentage);
@@ -367,12 +367,12 @@ const updateSaleMaster = async (req, res) => {
     if (isActive !== undefined) updateData.isActive = isActive;
     if (status !== undefined) updateData.status = status;
 
-    await saleMaster.update(updateData);
+    await purchaseMaster.update(updateData);
 
-    const updatedSaleMaster = await SaleMaster.findByPk(id, {
+    const updatedPurchaseMaster = await PurchaseMaster.findByPk(id, {
       include: [
-        { model: Ledger, as: 'localSalesLedger', attributes: ['id', 'ledgerName'] },
-        { model: Ledger, as: 'centralSalesLedger', attributes: ['id', 'ledgerName'] },
+        { model: Ledger, as: 'localPurchaseLedger', attributes: ['id', 'ledgerName'] },
+        { model: Ledger, as: 'centralPurchaseLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'igstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'cgstLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'sgstLedger', attributes: ['id', 'ledgerName'] },
@@ -382,60 +382,60 @@ const updateSaleMaster = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Sale master updated successfully',
-      data: updatedSaleMaster
+      message: 'Purchase master updated successfully',
+      data: updatedPurchaseMaster
     });
 
   } catch (error) {
-    console.error('Update sale master error:', error);
+    console.error('Update purchase master error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update sale master',
+      message: 'Failed to update purchase master',
       error: error.message
     });
   }
 };
 
-const deleteSaleMaster = async (req, res) => {
+const deletePurchaseMaster = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const saleMaster = await SaleMaster.findByPk(id);
-    if (!saleMaster) {
+    const purchaseMaster = await PurchaseMaster.findByPk(id);
+    if (!purchaseMaster) {
       return res.status(404).json({
         success: false,
-        message: 'Sale master not found'
+        message: 'Purchase master not found'
       });
     }
 
-    if (saleMaster.isDefault) {
+    if (purchaseMaster.isDefault) {
       return res.status(403).json({
         success: false,
-        message: 'Default sale masters cannot be deleted'
+        message: 'Default purchase masters cannot be deleted'
       });
     }
 
-    await saleMaster.destroy();
+    await purchaseMaster.destroy();
 
     res.json({
       success: true,
-      message: 'Sale master deleted successfully'
+      message: 'Purchase master deleted successfully'
     });
 
   } catch (error) {
-    console.error('Delete sale master error:', error);
+    console.error('Delete purchase master error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to delete sale master',
+      message: 'Failed to delete purchase master',
       error: error.message
     });
   }
 };
 
 module.exports = {
-  createSaleMaster,
-  getSaleMaster,
-  getSaleMasterById,
-  updateSaleMaster,
-  deleteSaleMaster
+  createPurchaseMaster,
+  getPurchaseMaster,
+  getPurchaseMasterById,
+  updatePurchaseMaster,
+  deletePurchaseMaster
 }; 
