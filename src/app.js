@@ -31,7 +31,7 @@ const ledgerEntryRoutes = require('./routes/master/ledgerEntryRoutes');
 const purchaseMasterRoutes = require('./routes/master/purchaseMasterRoutes');
 
 const app = express();
-// comments for testing
+// comments for testing and deployment
 applySecurityMiddleware(app, process.env.NODE_ENV || 'development');
 
 app.use(apiLogger);
