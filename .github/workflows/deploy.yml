@@ -21,6 +21,7 @@ jobs:
       - name: Deploy via SSH and Run Migrations
         run: |
           ssh -o StrictHostKeyChecking=no root@213.210.37.3 << 'EOF'
+            set -e
             cd /root/pharmacy/asr-pharma
 
             echo "🧹 Resetting local changes and pulling latest from main..."
@@ -31,15 +32,13 @@ jobs:
             npm install
 
             echo "🌍 Creating .env file..."
-            cat <<EOT > .env
-            NODE_ENV=production
-            DB_USER=pharmacyuser
-            DB_PASSWORD=pharmacypassword
-            DB_NAME=pharmacydb
-            DB_HOST=213.210.37.3
-            DB_PORT=5432
-            JWT_SECRET=my-secret-key
-            EOT
+            echo "NODE_ENV=production" > .env
+            echo "DB_USER=pharmacyuser" >> .env
+            echo "DB_PASSWORD=pharmacypassword" >> .env
+            echo "DB_NAME=pharmacydb" >> .env
+            echo "DB_HOST=213.210.37.3" >> .env
+            echo "DB_PORT=5432" >> .env
+            echo "JWT_SECRET=my-secret-key" >> .env
 
             echo "📋 Verifying .env file contents..."
             cat .env
