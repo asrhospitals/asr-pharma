@@ -3,6 +3,16 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const existingGroups = await queryInterface.sequelize.query(
+      'SELECT COUNT(*) as count FROM groups WHERE "isDefault" = true',
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+
+    if (existingGroups[0].count > 0) {
+      console.log('Default groups already exist, skipping creation.');
+      return;
+    }
+
     await queryInterface.bulkDelete('groups', null, { truncate: true, cascade: true, restartIdentity: true });
     console.log('Deleted all existing groups');
     await queryInterface.sequelize.query(`

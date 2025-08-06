@@ -1,11 +1,17 @@
 'use strict';
 const bcrypt = require('bcrypt');
-const db = require('../../database');
-const User = db.User;
+
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const existingAdmin = await User.findOne({ where: { uname: 'admin' } });
-    if (existingAdmin) {
+    const existingAdmin = await queryInterface.sequelize.query(
+      'SELECT COUNT(*) as count FROM users WHERE uname = :uname',
+      {
+        replacements: { uname: 'admin' },
+        type: Sequelize.QueryTypes.SELECT
+      }
+    );
+
+    if (existingAdmin[0].count > 0) {
       console.log("Admin user already exists, skipping creation.");
       return;
     }
@@ -18,8 +24,11 @@ module.exports = {
       module: ['all'],
       fname: 'Admin',
       lname: 'Admin',
-      isactive: 'active'
+      isactive: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date()
     }]);
+    console.log("Admin user created successfully.");
   },
 
   async down (queryInterface, Sequelize) {

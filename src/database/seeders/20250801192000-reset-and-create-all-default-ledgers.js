@@ -3,6 +3,16 @@
 
 module.exports = {
   async up (queryInterface, Sequelize) {
+    const existingLedgers = await queryInterface.sequelize.query(
+      'SELECT COUNT(*) as count FROM ledgers WHERE "isDefault" = true',
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+
+    if (existingLedgers[0].count > 0) {
+      console.log('Default ledgers already exist, skipping creation.');
+      return;
+    }
+
     await queryInterface.bulkDelete('ledgers', null, { truncate: true, cascade: true, restartIdentity: true });
     console.log('Deleted all existing ledgers');
 
@@ -37,7 +47,6 @@ module.exports = {
       return groups[0].id;
     }
 
-    // Define all ledgers with correct group mapping
     const defaultLedgers = [
       {
         ledgerName: 'Capital Account',

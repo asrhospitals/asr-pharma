@@ -3,6 +3,16 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
+    const existingPurchaseMasters = await queryInterface.sequelize.query(
+      'SELECT COUNT(*) as count FROM purchase_masters WHERE "isDefault" = true',
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+
+    if (existingPurchaseMasters[0].count > 0) {
+      console.log('Default purchase masters already exist, skipping creation.');
+      return;
+    }
+
     await queryInterface.bulkDelete('purchase_masters', null, { truncate: true, cascade: true, restartIdentity: true });
     console.log('Deleted all existing purchase masters');
 
