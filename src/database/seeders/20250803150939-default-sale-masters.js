@@ -8,6 +8,21 @@ module.exports = {
       { type: Sequelize.QueryTypes.SELECT }
     );
 
+    if (ledgers.length === 0) {
+      console.log('No ledgers found, skipping creation of default sale masters.');
+      return;
+    }
+
+    const existingSaleMasters = await queryInterface.sequelize.query(
+      'SELECT COUNT(*) as count FROM sale_masters WHERE "isDefault" = true',
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+    
+    if(existingSaleMasters[0].count > 0) {
+      console.log('Default sale masters already exist, skipping creation.');
+      return;
+    }
+
     const findLedger = (name) => {
       const ledger = ledgers.find(l => l.ledgerName.toLowerCase().includes(name.toLowerCase()));
       return ledger ? ledger.id : null;
