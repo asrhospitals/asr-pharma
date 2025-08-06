@@ -53,6 +53,7 @@ module.exports = {
       'http://localhost:3000',
       'http://localhost:5173',
       'http://localhost:4173',
+      'https://asrpharma.asrhospitalindia.in/',
       process.env.FRONTEND_URL,
       process.env.ALLOWED_ORIGIN
     ].filter(Boolean),
