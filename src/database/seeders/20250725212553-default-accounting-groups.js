@@ -3,6 +3,13 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    await queryInterface.bulkDelete('groups', null, { truncate: true, cascade: true, restartIdentity: true });
+    console.log('Deleted all existing groups');
+    await queryInterface.sequelize.query(`
+      SELECT setval(pg_get_serial_sequence('"groups"', 'id'), 1, false);
+    `);
+    console.log('Reset group ID sequence to start from 1');
+
     const groups = [
       {
         id: 1,
