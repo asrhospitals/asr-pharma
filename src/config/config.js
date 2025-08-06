@@ -1,5 +1,4 @@
-require('dotenv').config(); // only if needed (for local dev)
-
+require('dotenv').config();
 module.exports = {
   development: {
     username: "postgres",
