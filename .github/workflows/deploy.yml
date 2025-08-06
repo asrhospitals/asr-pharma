@@ -23,10 +23,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no root@213.210.37.3 << 'EOF'
             cd /root/pharmacy/asr-pharma
 
-            echo "📦 Pulling latest code..."
-            git stash
+            echo "🧹 Resetting local changes and pulling latest from main..."
+            git fetch --all
+            git reset --hard origin/main
             git pull origin main
-            git stash pop || true
 
             echo "📦 Installing dependencies..."
             npm install
