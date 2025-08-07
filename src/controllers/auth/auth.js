@@ -182,6 +182,7 @@ const login = async (req, res) => {
       success: false,
       message: "Login failed",
       code: 'LOGIN_ERROR',
+      error:error,
       ...(process.env.NODE_ENV !== 'production' && { error: error.message })
     });
   }
