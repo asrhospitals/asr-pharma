@@ -25,8 +25,8 @@ module.exports = {
       fname: 'Admin',
       lname: 'Admin',
       isactive: 'active',
-      createdAt: new Date(),
-      updatedAt: new Date()
+      // createdAt: new Date(),
+      // updatedAt: new Date()
     }]);
     console.log("Admin user created successfully.");
   },
