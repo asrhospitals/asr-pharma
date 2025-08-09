@@ -16,6 +16,12 @@ module.exports = (sequelize, DataTypes) => {
       });
       Item.belongsTo(models.Salt, { as: "SaltDetail", foreignKey: "salt" });
       Item.belongsTo(models.Rack, { as: "RackDetail", foreignKey: "rack" });
+      Item.belongsTo(models.PurchaseMaster, {
+        as: "TaxCategoryDetail",
+        foreignKey: "taxcategory",
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+      });
     }
   }
 
@@ -35,16 +41,23 @@ module.exports = (sequelize, DataTypes) => {
       },
       packing: { type: DataTypes.STRING },
       unit1: { type: DataTypes.INTEGER, allowNull: false },
-      unit2: { type: DataTypes.INTEGER, allowNull: false },
-      conversion: { type: DataTypes.INTEGER, allowNull: false },
+      unit2: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
       unitindecimal: { type: DataTypes.STRING, defaultValue: "No" },
       hsnsac: { type: DataTypes.INTEGER, allowNull: false },
-      taxcategory: { type: DataTypes.STRING, allowNull: false },
+      taxcategory: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "purchase_masters",
+          key: "id",
+        },
+      },
       company: { type: DataTypes.INTEGER, allowNull: false },
       salt: { type: DataTypes.INTEGER },
       rack: { type: DataTypes.INTEGER },
       price: { type: DataTypes.FLOAT, defaultValue: 0.0 },
       purchasePrice: { type: DataTypes.FLOAT, defaultValue: 0.0 },
+      conversion: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 1 },
       cost: { type: DataTypes.FLOAT, defaultValue: 0.0 },
       salerate: { type: DataTypes.FLOAT, defaultValue: 0.0 },
       narcotic: { type: DataTypes.STRING, defaultValue: "No" },

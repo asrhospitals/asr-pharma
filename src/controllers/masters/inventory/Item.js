@@ -12,21 +12,21 @@ const createItem = async (req, res) => {
             productname, unit1, unit2, hsnsac, taxcategory, company, price, purchasePrice, cost, salerate
         } = req.body;
         
-        if (!productname || !unit1 || !unit2 || !hsnsac || !taxcategory || !company) {
+        if (!productname || !unit1 || !hsnsac || !taxcategory || !company) {
             return res.status(400).json({
                 success: false,
-                message: 'productname, unit1, unit2, hsnsac, taxcategory, and company are required',
+                message: 'productname, unit1, hsnsac, taxcategory, and company are required',
             });
         }
         
         const unit1Exists = await db.Unit.findByPk(unit1);
-        const unit2Exists = await db.Unit.findByPk(unit2);
+        const unit2Exists = unit2 ? await db.Unit.findByPk(unit2) : null;
         const hsnsacExists = await db.HsnSac.findByPk(hsnsac);
         const companyExists = await db.Company.findByPk(company);
-        if (!unit1Exists || !unit2Exists || !hsnsacExists || !companyExists) {
+        if (!unit1Exists  || !hsnsacExists || !companyExists) {
             return res.status(400).json({
                 success: false,
-                message: 'One or more foreign keys (unit1, unit2, hsnsac, company) do not exist',
+                message: 'One or more foreign keys (unit1, hsnsac, company) do not exist',
             });
         }
         

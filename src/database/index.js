@@ -50,7 +50,7 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
-// console.log("models loaded", db);
+console.log("models loaded", db);
 
 
 db.sequelize = sequelize;
