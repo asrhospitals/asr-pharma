@@ -188,13 +188,32 @@ const login = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await TokenBlacklist.create({ userId });
+
+    res.status(200).json({
+      success: true,
+      message: "Logout successful"
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      message: "Logout failed",
+      code: 'LOGOUT_ERROR',
+      ...(process.env.NODE_ENV !== 'production' && { error: error.message })
+    });
+  }
+};
 
 const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     
     const user = await User.findByPk(userId, {
-      attributes: { exclude: ['pwd'] } // Exclude password
+      attributes: { exclude: ['pwd'] }
     });
 
     if (!user) {
@@ -356,5 +375,6 @@ module.exports = {
   login,
   getProfile,
   updateProfile,
-  changePassword
+  changePassword,
+  logout
 };

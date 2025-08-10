@@ -35,7 +35,7 @@ async function testLoginWithUnamePwd() {
 
     console.log('2. Testing login with email as uname...');
     const loginDataEmail = {
-      uname: 'admin@example.com', // or whatever email you have
+      uname: 'admin@example.com',
       pwd: 'admin123'
     };
 

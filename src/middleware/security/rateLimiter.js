@@ -3,14 +3,14 @@ const slowDown = require('express-slow-down');
 
 
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: {
     error: 'Too many requests from this IP, please try again later.',
     retryAfter: '15 minutes'
   },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
   handler: (req, res) => {
     res.status(429).json({
       success: false,
@@ -22,9 +22,9 @@ const generalLimiter = rateLimit({
 
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 login attempts per windowMs (increased from 5)
-  skipSuccessfulRequests: true, // Don't count successful requests
+  windowMs: 15 * 60 * 1000,
+  max: 10, 
+  skipSuccessfulRequests: true,
   message: {
     error: 'Too many authentication attempts, please try again later.',
     retryAfter: '15 minutes'
@@ -42,8 +42,8 @@ const authLimiter = rateLimit({
 
 
 const adminLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Limit each IP to 50 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 50,
   message: {
     error: 'Too many admin requests from this IP, please try again later.',
     retryAfter: '15 minutes'
@@ -61,8 +61,8 @@ const adminLimiter = rateLimit({
 
 
 const salesLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // Limit each IP to 30 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 30,
   message: {
     error: 'Too many sales requests from this IP, please try again later.',
     retryAfter: '15 minutes'
@@ -80,19 +80,19 @@ const salesLimiter = rateLimit({
 
 
 const speedLimiter = slowDown({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 50, // Allow 50 requests per 15 minutes without delay
-  delayMs: () => 500, // Fixed delay of 500ms per request after delayAfter
-  maxDelayMs: 20000, // Maximum delay of 20 seconds
-  skipSuccessfulRequests: true, // Don't slow down successful requests
-  skipFailedRequests: false, // Do slow down failed requests
-  validate: { delayMs: false } // Disable validation warning
+  windowMs: 15 * 60 * 1000,
+  delayAfter: 50,
+  delayMs: () => 500,
+  maxDelayMs: 20000,
+  skipSuccessfulRequests: true,
+  skipFailedRequests: false,
+  validate: { delayMs: false }
 });
 
 
 const bruteForceLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 20, // Limit each IP to 20 failed attempts per hour (increased from 10)
+  windowMs: 60 * 60 * 1000,
+  max: 20,
   skipSuccessfulRequests: true,
   message: {
     error: 'Too many failed attempts, please try again later.',

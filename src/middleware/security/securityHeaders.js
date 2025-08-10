@@ -17,7 +17,7 @@ const helmetConfig = helmet({
       upgradeInsecureRequests: []
     }
   },
-  crossOriginEmbedderPolicy: false, // Set to false for development, true for production
+  crossOriginEmbedderPolicy: false,
   crossOriginOpenerPolicy: { policy: "same-origin" },
   crossOriginResourcePolicy: { policy: "cross-origin" },
   dnsPrefetchControl: { allow: false },
@@ -96,12 +96,12 @@ const corsConfig = {
     'X-Request-ID'
   ],
   exposedHeaders: ['X-Request-ID', 'X-Total-Count'],
-  maxAge: 86400 // 24 hours
+  maxAge: 86400
 };
 
 
 const hppConfig = hpp({
-  whitelist: ['filter', 'sort', 'page', 'limit'] // Allow these parameters to be duplicated
+  whitelist: ['filter', 'sort', 'page', 'limit']
 });
 
 
@@ -111,6 +111,8 @@ const xssConfig = xss();
 const validateContentType = (req, res, next) => {
   if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
     const contentType = req.headers['content-type'];
+    console.log('Content-Type:', contentType);
+
     if (!contentType || !contentType.includes('application/json')) {
       return res.status(400).json({
         success: false,
@@ -124,7 +126,7 @@ const validateContentType = (req, res, next) => {
 
 const requestSizeLimiter = (req, res, next) => {
   const contentLength = parseInt(req.headers['content-length'] || '0');
-  const maxSize = 10 * 1024 * 1024; // 10MB
+  const maxSize = 10 * 1024 * 1024;
   
   if (contentLength > maxSize) {
     return res.status(413).json({
@@ -141,11 +143,11 @@ const securityLogger = (req, res, next) => {
   
 
   const suspiciousPatterns = [
-    /\.\.\//, // Directory traversal
-    /<script/i, // XSS attempts
-    /union\s+select/i, // SQL injection
-    /eval\s*\(/i, // Code injection
-    /javascript:/i // JavaScript protocol
+    /\.\.\//,
+    /<script/i,
+    /union\s+select/i,
+    /eval\s*\(/i,
+    /javascript:/i
   ];
   
   const userAgent = req.headers['user-agent'] || '';
@@ -170,7 +172,7 @@ const securityLogger = (req, res, next) => {
 
   res.on('finish', () => {
     const duration = Date.now() - start;
-    if (duration > 5000) { // Log slow requests (>5s)
+    if (duration > 5000) {
       console.warn(`[PERFORMANCE] Slow request: ${method} ${url} took ${duration}ms`);
     }
   });

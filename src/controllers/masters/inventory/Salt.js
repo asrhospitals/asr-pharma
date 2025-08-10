@@ -30,7 +30,7 @@ const createSalt = async (req, res) => {
         include: [
           {
             model: SaltVariation,
-            as: "saltvariations", // make sure this matches your association alias
+            as: "saltvariations",
           },
         ],
         transaction: t,

@@ -12,7 +12,7 @@ class DefaultLedgerService {
     const ledger = await Ledger.findByPk(ledgerId);
     if (!ledger) return false;
     
-    if (!ledger.isDefault) return true; // Non-default ledgers are fully editable
+    if (!ledger.isDefault) return true;
     
     return ledger.editableFields && ledger.editableFields.includes(fieldName);
   }
@@ -41,7 +41,7 @@ class DefaultLedgerService {
     }
 
     if (!ledger.isDefault) {
-      return true; // Non-default ledgers can be fully updated
+      return true;
     }
 
     const editableFields = await this.getEditableFields(ledgerId);

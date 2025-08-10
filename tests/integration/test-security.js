@@ -67,7 +67,7 @@ async function testSecurityFeatures() {
 
 
   console.log('5. Request Size Limiting...');
-  const largeData = 'x'.repeat(11 * 1024 * 1024); // 11MB
+  const largeData = 'x'.repeat(11 * 1024 * 1024);
   try {
     await request(app)
       .post('/test')
