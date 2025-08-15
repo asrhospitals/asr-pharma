@@ -1,8 +1,8 @@
-// Load environment variables at the very beginning
+
 const path = require('path');
 const dotenv = require('dotenv');
 
-// Try to load .env file from the project root
+
 const envPath = path.resolve(process.cwd(), '.env');
 const result = dotenv.config({ path: envPath });
 
@@ -47,7 +47,7 @@ const ledgerEntryRoutes = require('./routes/master/ledgerEntryRoutes');
 const purchaseMasterRoutes = require('./routes/master/purchaseMasterRoutes');
 
 const app = express();
-// comments for testing and deployment
+
 applySecurityMiddleware(app, process.env.NODE_ENV || 'development');
 
 app.use(apiLogger);
@@ -148,17 +148,17 @@ app.get('/debug/env', (req, res) => {
 
 app.use("/pharmacy/auth", AuthRoutes);
 
-app.use("/pharmacy/admin/master", verifyToken, authorizeRole('admin'), MasterRoutes);
+app.use("/pharmacy/admin/master", verifyToken, authorizeRole('user'), MasterRoutes);
 
-app.use("/pharmacy/admin/master", verifyToken, authorizeRole('admin'), accountRoutes);
+app.use("/pharmacy/admin/master", verifyToken, authorizeRole('user'), accountRoutes);
 
 app.use("/pharmacy/api", verifyToken, groupRoutes);
 
 app.use('/pharmacy/sales/bills/v1', verifyToken, salesBillRoutes);
 
-app.use('/pharmacy/admin/master', verifyToken, authorizeRole('admin'), ledgerEntryRoutes);
+app.use('/pharmacy/admin/master', verifyToken, authorizeRole('user'), ledgerEntryRoutes);
 
-app.use('/pharmacy/admin/master', verifyToken, authorizeRole('admin'), purchaseMasterRoutes);
+app.use('/pharmacy/admin/master', verifyToken, authorizeRole('user'), purchaseMasterRoutes);
 
 app.use('*', (req, res) => {
   res.status(404).json({

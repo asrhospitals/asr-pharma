@@ -123,7 +123,7 @@ const getLedger = async (req, res) => {
 
     const { count, rows } = await Ledger.findAndCountAll({
       where: whereClause,
-      include: [{ model: Group, as: 'group' }],
+      include: [{ model: Group, as: 'accountGroup' }],
       order: [
         ['isDefault', 'DESC'],
         ['sortOrder', 'ASC'], 
@@ -147,6 +147,9 @@ const getLedger = async (req, res) => {
         };
       })
     );
+
+    console.log(`Fetched`, JSON.stringify(ledgersWithInfo) );
+    
 
     res.status(200).json({
       success: true,
@@ -480,7 +483,7 @@ const getLedgerDetails = async (req, res) => {
     } = req.query;
 
     const ledger = await Ledger.findByPk(id, {
-      include: [{ model: Group, as: 'group' }]
+      include: [{ model: Group, as: 'accountGroup' }]
     });
 
     if (!ledger) {

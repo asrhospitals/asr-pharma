@@ -72,7 +72,7 @@ class DefaultLedgerService {
       where: { isDefault: true },
       include: [{
         model: Group,
-        as: 'group',
+        as: 'accountGroup',
         attributes: ['id', 'groupName', 'groupType']
       }],
       order: [['sortOrder', 'ASC']]
@@ -88,7 +88,7 @@ class DefaultLedgerService {
       },
       include: [{
         model: Group,
-        as: 'group',
+        as: 'accountGroup',
         attributes: ['id', 'groupName', 'groupType']
       }]
     });
@@ -103,7 +103,7 @@ class DefaultLedgerService {
       },
       include: [{
         model: Group,
-        as: 'group',
+        as: 'accountGroup',
         attributes: ['id', 'groupName', 'groupType']
       }],
       order: [['sortOrder', 'ASC']]
@@ -196,7 +196,7 @@ class DefaultLedgerService {
     const ledger = await Ledger.findByPk(ledgerId, {
       include: [{
         model: Group,
-        as: 'group',
+        as: 'accountGroup',
         attributes: ['id', 'groupName', 'groupType']
       }]
     });
@@ -220,7 +220,7 @@ class DefaultLedgerService {
     const ledgers = await Ledger.findAll({
       include: [{
         model: Group,
-        as: 'group',
+        as: 'accountGroup',
         attributes: ['id', 'groupName', 'groupType']
       }],
       order: [

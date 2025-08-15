@@ -25,6 +25,17 @@ module.exports = {
         onDelete: 'RESTRICT',
         comment: 'Foreign key to groups table'
       },
+      companyId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'companies',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT',
+        comment: 'Foreign key to companies table'
+      },
       openingBalance: {
         type: Sequelize.DECIMAL(15, 2),
         defaultValue: 0.00,

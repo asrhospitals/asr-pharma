@@ -1,6 +1,6 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
+
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('purchase_masters', {
@@ -147,7 +147,7 @@ module.exports = {
       }
     });
 
-    // Add indexes
+    
     await queryInterface.addIndex('purchase_masters', ['purchaseType']);
     await queryInterface.addIndex('purchase_masters', ['natureOfTransaction']);
     await queryInterface.addIndex('purchase_masters', ['taxability']);

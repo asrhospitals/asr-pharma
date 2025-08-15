@@ -32,6 +32,19 @@ module.exports = {
       groupMap[group.groupName].push(group);
     });
 
+    
+    const [company] = await queryInterface.sequelize.query(
+      'SELECT id FROM companies WHERE "companyName" = :companyName',
+      {
+        replacements: { companyName: 'Default Company' },
+        type: Sequelize.QueryTypes.SELECT
+      }
+    );
+    if (!company) {
+      throw new Error('Default company not found');
+    }
+    const companyId = company.id;
+
     function getGroupId(groupName, parentGroupName = null) {
       const groups = groupMap[groupName];
       if (!groups) return null;

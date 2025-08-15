@@ -10,7 +10,7 @@ const getBalanceSheet = async (req, res) => {
 
 
     const ledgers = await Ledger.findAll({
-      include: [{ model: Group, as: 'group' }],
+      include: [{ model: Group, as: 'accountGroup' }],
       where: { isActive: true },
       order: [['sortOrder', 'ASC'], ['ledgerName', 'ASC']]
     });
@@ -127,10 +127,10 @@ const getProfitAndLoss = async (req, res) => {
 
 
     const ledgers = await Ledger.findAll({
-      include: [{ model: Group, as: 'group' }],
+      include: [{ model: Group, as: 'accountGroup' }],
       where: {
         isActive: true,
-        '$group.groupType$': { [Op.in]: ['Income', 'Expense'] }
+        '$accountGroup.groupType$': { [Op.in]: ['Income', 'Expense'] }
       },
       order: [['sortOrder', 'ASC'], ['ledgerName', 'ASC']]
     });
@@ -223,7 +223,7 @@ const getTrialBalance = async (req, res) => {
     const dateFilter = asOfDate ? { [Op.lte]: new Date(asOfDate) } : {};
 
     const ledgers = await Ledger.findAll({
-      include: [{ model: Group, as: 'group' }],
+      include: [{ model: Group, as: 'accountGroup' }],
       where: { isActive: true },
       order: [['sortOrder', 'ASC'], ['ledgerName', 'ASC']]
     });
@@ -318,7 +318,7 @@ const getCashFlow = async (req, res) => {
 
 
     const cashLedgers = await Ledger.findAll({
-      include: [{ model: Group, as: 'group' }],
+      include: [{ model: Group, as: 'accountGroup' }],
       where: {
         isActive: true,
         ledgerName: { [Op.iLike]: '%cash%' }
@@ -326,7 +326,7 @@ const getCashFlow = async (req, res) => {
     });
 
     const bankLedgers = await Ledger.findAll({
-      include: [{ model: Group, as: 'group' }],
+      include: [{ model: Group, as: 'accountGroup' }],
       where: {
         isActive: true,
         ledgerName: { [Op.iLike]: '%bank%' }
@@ -431,7 +431,7 @@ const getLedgerSummary = async (req, res) => {
 
     const ledgers = await Ledger.findAll({
       where: whereClause,
-      include: [{ model: Group, as: 'group' }],
+      include: [{ model: Group, as: 'accountGroup' }],
       order: [['sortOrder', 'ASC'], ['ledgerName', 'ASC']]
     });
 

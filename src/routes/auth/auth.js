@@ -1,5 +1,16 @@
 const Router = require("express");
-const { register, login } = require("../../controllers/auth/auth");
+const { 
+  sendPhoneOTP,
+  verifyPhoneOTP,
+  register, 
+  verifyEmail,
+  login,
+  getProfile,
+  updateProfile,
+  changePassword,
+  switchCompany,
+  resendEmailVerification
+} = require("../../controllers/auth/auth");
 const { 
   authLimiter, 
   bruteForceLimiter,
@@ -8,8 +19,22 @@ const {
   refreshToken,
   logout
 } = require("../../middleware/security");
+const { verifyToken } = require("../../middleware/security/enhancedAuth");
 
 const router = Router();
+
+
+router.route('/send-otp')
+  .post(
+    authLimiter,
+    sendPhoneOTP
+  );
+
+router.route('/verify-otp')
+  .post(
+    authLimiter,
+    verifyPhoneOTP
+  );
 
 
 router.route('/signup')
@@ -17,6 +42,18 @@ router.route('/signup')
     authLimiter,
     validateUserRegistration,
     register
+  );
+
+router.route('/verify-email')
+  .post(
+    authLimiter,
+    verifyEmail
+  );
+
+router.route('/resend-verification')
+  .post(
+    authLimiter,
+    resendEmailVerification
   );
 
 
@@ -28,27 +65,40 @@ router.route('/signin')
     login
   );
 
-
 router.route('/refresh')
   .post(
     authLimiter,
     refreshToken
   );
 
-
 router.route('/logout')
   .post(
+    verifyToken,
     logout
   );
 
 
-router.route('/health')
-  .get((req, res) => {
-    res.json({
-      success: true,
-      message: 'Authentication service is healthy',
-      timestamp: new Date().toISOString()
-    });
-  });
+router.route('/profile')
+  .get(
+    verifyToken,
+    getProfile
+  )
+  .put(
+    verifyToken,
+    updateProfile
+  );
+
+router.route('/change-password')
+  .post(
+    verifyToken,
+    changePassword
+  );
+
+
+router.route('/switch-company')
+  .post(
+    verifyToken,
+    switchCompany
+  );
 
 module.exports = router;

@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
   class Bill extends Model {
     static associate(models) {
       Bill.hasMany(models.BillItem, {
-        foreignKey: 'billId',
-        as: 'billItems'
+        foreignKey: "billId",
+        as: "billItems",
       });
     }
   }
@@ -35,4 +35,4 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   return Bill;
-}; 
+};

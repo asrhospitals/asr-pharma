@@ -165,4 +165,4 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   return GroupPermission;
-}; 
+};

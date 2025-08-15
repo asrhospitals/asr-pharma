@@ -15,8 +15,9 @@ const DoctorController = require("../../controllers/masters/other/Doctor");
 const PrescriptionController = require("../../controllers/masters/other/Prescription");
 const StationController = require("../../controllers/masters/other/Station");
 const BillController = require("../../controllers/sales/BillController");
-
+const { verifyToken } = require("../../middleware/security");
 const GroupController = require("../../controllers/masters/account/group");
+
 
 const {
   canEditGroup,
@@ -46,11 +47,17 @@ router.get("/inventory/rack/v1/get-racks/:id", RackController.getRackId);
 router.put("/inventory/rack/v1/update-rack/:id", RackController.updateRack);
 router.delete("/inventory/rack/v1/delete-rack/:id", RackController.deleteRack);
 
-router.post("/inventory/company/v1/add-company", CompanyController.createCompany);
-router.get("/inventory/company/v1/get-companies", CompanyController.getAllCompanies);
-router.get("/inventory/company/v1/get-companys/:id", CompanyController.getCompanyById);
-router.put("/inventory/company/v1/update-company/:id", CompanyController.updateCompany);
-router.delete("/inventory/company/v1/delete-company/:id", CompanyController.deleteCompany);
+// Company routes
+router.post("/inventory/company/v1/add-company", verifyToken, CompanyController.createCompany);
+router.get("/inventory/company/v1/get-companies", verifyToken, CompanyController.getAllCompanies);
+router.get("/inventory/company/v1/get-user-companies", verifyToken, CompanyController.getUserCompanies);
+router.get("/inventory/company/v1/get-company/:id", verifyToken, CompanyController.getCompanyById);
+router.put("/inventory/company/v1/update-company/:id", verifyToken, CompanyController.updateCompany);
+router.delete("/inventory/company/v1/delete-company/:id", verifyToken, CompanyController.deleteCompany);
+
+// Company user management
+router.post("/inventory/company/v1/:companyId/add-user", verifyToken, CompanyController.addUserToCompany);
+router.delete("/inventory/company/v1/:companyId/remove-user/:userId", verifyToken, CompanyController.removeUserFromCompany);
 
 router.post("/inventory/salt/v1/add-salt", SaltController.createSalt);
 router.get("/inventory/salt/v1/get-salt", SaltController.getSalt);
@@ -104,18 +111,18 @@ router.get("/other/station/v1/get-stations/:id", StationController.getStationByI
 router.put("/other/station/v1/update-station/:id", StationController.updateStation);
 router.delete("/other/station/v1/delete-station/:id", StationController.deleteStation);
 
-router.post("/groups", canCreateGroup, GroupController.createGroup);
-router.get("/groups", GroupController.getAllGroups);
-router.get("/groups/hierarchy", GroupController.getGroupHierarchy);
-router.get("/groups/accessible", GroupController.getAllGroups);
-router.get("/groups/type/:type", GroupController.getGroupsByType);
-router.get("/groups/parent/:parentId", GroupController.getGroupsByParent);
-router.get("/groups/available-parents", GroupController.getAvailableParents);
-router.get("/groups/:id", GroupController.getGroupById);
-router.put("/groups/:id", canEditGroup, GroupController.updateGroup);
-router.delete("/groups/:id", canDeleteGroup, GroupController.deleteGroup);
+// router.post("/groups", canCreateGroup, GroupController.createGroup);
+// router.get("/groups", GroupController.getAllGroups);
+// router.get("/groups/hierarchy", GroupController.getGroupHierarchy);
+// router.get("/groups/accessible", GroupController.getAllGroups);
+// router.get("/groups/type/:type", GroupController.getGroupsByType);
+// router.get("/groups/parent/:parentId", GroupController.getGroupsByParent);
+// router.get("/groups/available-parents", GroupController.getAvailableParents);
+// router.get("/groups/:id", GroupController.getGroupById);
+// router.put("/groups/:id", canEditGroup, GroupController.updateGroup);
+// router.delete("/groups/:id", canDeleteGroup, GroupController.deleteGroup);
 
-router.get("/groups/:id/permissions", GroupController.getGroupPermissions);
-router.post("/groups/:id/permissions", GroupController.setGroupPermission);
+// router.get("/groups/:id/permissions", GroupController.getGroupPermissions);
+// router.post("/groups/:id/permissions", GroupController.setGroupPermission);
 
 module.exports = router;

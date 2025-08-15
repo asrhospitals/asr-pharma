@@ -1,12 +1,11 @@
-const db = require('../database');
+const db = require("../database");
 const { Group, GroupPermission, User } = db;
 
 class GroupPermissionService {
-  
   static async hasGroupPermission(userId, groupId, action) {
     try {
       const user = await User.findByPk(userId);
-      if (user && user.role === 'admin') {
+      if (user && (user.role === "user" || user.role === "admin")) {
         return true;
       }
 
@@ -14,8 +13,8 @@ class GroupPermissionService {
         where: {
           userId,
           groupId,
-          status: 'Active'
-        }
+          status: "Active",
+        },
       });
 
       if (!permission) {
@@ -29,28 +28,28 @@ class GroupPermissionService {
       if (permission.effectiveTo && permission.effectiveTo < now) {
         return false;
       }
-      
+
       if (permission.isRestricted) {
         return false;
       }
 
       const actionMap = {
-        'createLedger': 'canCreateLedger',
-        'editLedger': 'canEditLedger',
-        'deleteLedger': 'canDeleteLedger',
-        'viewLedger': 'canViewLedger',
-        'createTransaction': 'canCreateTransaction',
-        'editTransaction': 'canEditTransaction',
-        'deleteTransaction': 'canDeleteTransaction',
-        'viewTransaction': 'canViewTransaction',
-        'viewReport': 'canViewReport',
-        'exportReport': 'canExportReport',
-        'viewBalance': 'canViewBalance',
-        'modifyBalance': 'canModifyBalance',
-        'setOpeningBalance': 'canSetOpeningBalance',
-        'createSubGroup': 'canCreateSubGroup',
-        'editGroup': 'canEditGroup',
-        'deleteGroup': 'canDeleteGroup'
+        createLedger: "canCreateLedger",
+        editLedger: "canEditLedger",
+        deleteLedger: "canDeleteLedger",
+        viewLedger: "canViewLedger",
+        createTransaction: "canCreateTransaction",
+        editTransaction: "canEditTransaction",
+        deleteTransaction: "canDeleteTransaction",
+        viewTransaction: "canViewTransaction",
+        viewReport: "canViewReport",
+        exportReport: "canExportReport",
+        viewBalance: "canViewBalance",
+        modifyBalance: "canModifyBalance",
+        setOpeningBalance: "canSetOpeningBalance",
+        createSubGroup: "canCreateSubGroup",
+        editGroup: "canEditGroup",
+        deleteGroup: "canDeleteGroup",
       };
 
       const permissionField = actionMap[action];
@@ -60,8 +59,8 @@ class GroupPermissionService {
 
       return permission[permissionField] || false;
     } catch (error) {
-      console.error('Error checking group permission:', error);
-      return false; 
+      console.error("Error checking group permission:", error);
+      return false;
     }
   }
 
@@ -70,20 +69,27 @@ class GroupPermissionService {
       const permissions = await GroupPermission.findAll({
         where: {
           userId,
-          status: 'Active'
+          status: "Active",
         },
         include: [
           {
             model: Group,
-            as: 'group',
-            attributes: ['id', 'groupName', 'groupType', 'isDefault', 'isEditable', 'isDeletable']
-          }
-        ]
+            as: "group",
+            attributes: [
+              "id",
+              "groupName",
+              "groupType",
+              "isDefault",
+              "isEditable",
+              "isDeletable",
+            ],
+          },
+        ],
       });
 
       return permissions;
     } catch (error) {
-      console.error('Error getting user group permissions:', error);
+      console.error("Error getting user group permissions:", error);
       return [];
     }
   }
@@ -93,20 +99,20 @@ class GroupPermissionService {
       const permissions = await GroupPermission.findAll({
         where: {
           groupId,
-          status: 'Active'
+          status: "Active",
         },
         include: [
           {
             model: User,
-            as: 'user',
-            attributes: ['id', 'uname', 'fname', 'lname', 'role']
-          }
-        ]
+            as: "user",
+            attributes: ["id", "uname", "fname", "lname", "role"],
+          },
+        ],
       });
 
       return permissions;
     } catch (error) {
-      console.error('Error getting group permissions:', error);
+      console.error("Error getting group permissions:", error);
       return [];
     }
   }
@@ -116,12 +122,12 @@ class GroupPermissionService {
       const [permission, created] = await GroupPermission.findOrCreate({
         where: {
           userId,
-          groupId
+          groupId,
         },
         defaults: {
           ...permissions,
-          status: 'Active'
-        }
+          status: "Active",
+        },
       });
 
       if (!created) {
@@ -130,7 +136,7 @@ class GroupPermissionService {
 
       return permission;
     } catch (error) {
-      console.error('Error setting group permission:', error);
+      console.error("Error setting group permission:", error);
       throw error;
     }
   }
@@ -140,13 +146,13 @@ class GroupPermissionService {
       const result = await GroupPermission.destroy({
         where: {
           userId,
-          groupId
-        }
+          groupId,
+        },
       });
 
       return result > 0;
     } catch (error) {
-      console.error('Error removing group permission:', error);
+      console.error("Error removing group permission:", error);
       return false;
     }
   }
@@ -162,9 +168,9 @@ class GroupPermissionService {
         return false;
       }
 
-      return await this.hasGroupPermission(userId, groupId, 'editGroup');
+      return await this.hasGroupPermission(userId, groupId, "editGroup");
     } catch (error) {
-      console.error('Error checking if group can be edited:', error);
+      console.error("Error checking if group can be edited:", error);
       return false;
     }
   }
@@ -186,13 +192,18 @@ class GroupPermissionService {
       try {
         const { Ledger } = db;
         if (Ledger) {
-          const ledgerCount = await Ledger.count({ where: { acgroup: groupId } });
+          const ledgerCount = await Ledger.count({
+            where: { acgroup: groupId },
+          });
           if (ledgerCount > 0) {
             return false;
           }
         }
       } catch (error) {
-        console.log('Ledger model not available, skipping ledger count check:', error.message);
+        console.log(
+          "Ledger model not available, skipping ledger count check:",
+          error.message
+        );
       }
 
       const hasSubGroups = await this.hasSubGroups(groupId);
@@ -200,22 +211,22 @@ class GroupPermissionService {
         return false;
       }
 
-      return await this.hasGroupPermission(userId, groupId, 'deleteGroup');
+      return await this.hasGroupPermission(userId, groupId, "deleteGroup");
     } catch (error) {
-      console.error('Error checking if group can be deleted:', error);
-      return false; 
+      console.error("Error checking if group can be deleted:", error);
+      return false;
     }
   }
 
   static async hasSubGroups(groupId) {
     try {
-      const subGroups = await Group.findAll({ 
-        where: { 
+      const subGroups = await Group.findAll({
+        where: {
           parentGroupId: groupId,
-          status: 'Active'
-        } 
+          status: "Active",
+        },
       });
-      
+
       if (subGroups.length > 0) {
         return true;
       }
@@ -229,7 +240,7 @@ class GroupPermissionService {
 
       return false;
     } catch (error) {
-      console.error('Error checking for sub-groups:', error);
+      console.error("Error checking for sub-groups:", error);
       return false;
     }
   }
@@ -237,31 +248,43 @@ class GroupPermissionService {
   static async getAccessibleGroups(userId) {
     try {
       const user = await User.findByPk(userId);
-      if (user && user.role === 'admin') {
+      if (user && user.role === "user") {
         return await Group.findAll({
-          where: { status: 'Active' },
-          order: [['sortOrder', 'ASC'], ['groupName', 'ASC']]
+          where: { status: "Active" },
+          order: [
+            ["sortOrder", "ASC"],
+            ["groupName", "ASC"],
+          ],
         });
       }
 
       const permissions = await GroupPermission.findAll({
         where: {
           userId,
-          status: 'Active'
+          status: "Active",
         },
         include: [
           {
             model: Group,
-            as: 'group',
-            where: { status: 'Active' },
-            attributes: ['id', 'groupName', 'groupType', 'isDefault', 'isEditable', 'isDeletable', 'parentGroupId', 'sortOrder']
-          }
-        ]
+            as: "group",
+            where: { status: "Active" },
+            attributes: [
+              "id",
+              "groupName",
+              "groupType",
+              "isDefault",
+              "isEditable",
+              "isDeletable",
+              "parentGroupId",
+              "sortOrder",
+            ],
+          },
+        ],
       });
 
-      return permissions.map(p => p.group);
+      return permissions.map((p) => p.group);
     } catch (error) {
-      console.error('Error getting accessible groups:', error);
+      console.error("Error getting accessible groups:", error);
       return [];
     }
   }
@@ -269,27 +292,29 @@ class GroupPermissionService {
   static async getGroupHierarchy(userId) {
     try {
       const accessibleGroups = await this.getAccessibleGroups(userId);
-      
+
       const buildHierarchy = (groups, parentId = null, level = 0) => {
         return groups
-          .filter(group => group.parentGroupId === parentId)
-          .map(group => ({
+          .filter((group) => group.parentGroupId === parentId)
+          .map((group) => ({
             ...group.toJSON(),
             level,
-            children: buildHierarchy(groups, group.id, level + 1)
+            children: buildHierarchy(groups, group.id, level + 1),
           }));
       };
 
       return buildHierarchy(accessibleGroups);
     } catch (error) {
-      console.error('Error getting group hierarchy:', error);
+      console.error("Error getting group hierarchy:", error);
       return [];
     }
   }
 
   static async getAllSubGroups(groupId) {
     try {
-      const subGroups = await Group.findAll({ where: { parentGroupId: groupId } });
+      const subGroups = await Group.findAll({
+        where: { parentGroupId: groupId },
+      });
       let allSubGroups = [...subGroups];
 
       for (const subGroup of subGroups) {
@@ -299,7 +324,7 @@ class GroupPermissionService {
 
       return allSubGroups;
     } catch (error) {
-      console.error('Error getting all sub-groups:', error);
+      console.error("Error getting all sub-groups:", error);
       return [];
     }
   }
@@ -319,7 +344,7 @@ class GroupPermissionService {
       const parentGroups = await this.getAllParentGroups(group.parentGroupId);
       return [parentGroup, ...parentGroups];
     } catch (error) {
-      console.error('Error getting all parent groups:', error);
+      console.error("Error getting all parent groups:", error);
       return [];
     }
   }
@@ -327,20 +352,24 @@ class GroupPermissionService {
   static async setDefaultPermissions(userId, userRole) {
     try {
       const groups = await Group.findAll({
-        where: { isDefault: true, status: 'Active' }
+        where: { isDefault: true, status: "Active" },
       });
 
       const defaultPermissions = this.getDefaultPermissionsByRole(userRole);
       const createdPermissions = [];
 
       for (const group of groups) {
-        const permission = await this.setGroupPermission(userId, group.id, defaultPermissions);
+        const permission = await this.setGroupPermission(
+          userId,
+          group.id,
+          defaultPermissions
+        );
         createdPermissions.push(permission);
       }
 
       return createdPermissions;
     } catch (error) {
-      console.error('Error setting default permissions:', error);
+      console.error("Error setting default permissions:", error);
       throw error;
     }
   }
@@ -350,8 +379,8 @@ class GroupPermissionService {
       const parentPermissions = await GroupPermission.findAll({
         where: {
           groupId: parentGroupId,
-          status: 'Active'
-        }
+          status: "Active",
+        },
       });
 
       const inheritedPermissions = [];
@@ -375,12 +404,12 @@ class GroupPermissionService {
           canEditGroup: parentPermission.canEditGroup,
           canDeleteGroup: parentPermission.canDeleteGroup,
           isRestricted: parentPermission.isRestricted,
-          status: 'Active'
+          status: "Active",
         };
 
         const permission = await this.setGroupPermission(
-          parentPermission.userId, 
-          newGroupId, 
+          parentPermission.userId,
+          newGroupId,
           inheritedPermission
         );
         inheritedPermissions.push(permission);
@@ -388,7 +417,7 @@ class GroupPermissionService {
 
       return inheritedPermissions;
     } catch (error) {
-      console.error('Error inheriting permissions from parent:', error);
+      console.error("Error inheriting permissions from parent:", error);
       throw error;
     }
   }
@@ -412,11 +441,12 @@ class GroupPermissionService {
       canEditGroup: false,
       canDeleteGroup: false,
       isRestricted: false,
-      status: 'Active'
+      status: "Active",
     };
 
     switch (role) {
-      case 'admin':
+      case "user":
+      case "admin":
         return {
           ...basePermissions,
           canCreateLedger: true,
@@ -430,10 +460,10 @@ class GroupPermissionService {
           canSetOpeningBalance: true,
           canCreateSubGroup: true,
           canEditGroup: true,
-          canDeleteGroup: true
+          canDeleteGroup: true,
         };
-      
-      case 'manager':
+
+      case "manager":
         return {
           ...basePermissions,
           canCreateLedger: true,
@@ -444,10 +474,10 @@ class GroupPermissionService {
           canModifyBalance: true,
           canSetOpeningBalance: true,
           canCreateSubGroup: true,
-          canEditGroup: true
+          canEditGroup: true,
         };
-      
-      case 'accountant':
+
+      case "accountant":
         return {
           ...basePermissions,
           canCreateLedger: true,
@@ -456,54 +486,56 @@ class GroupPermissionService {
           canEditTransaction: true,
           canExportReport: true,
           canModifyBalance: true,
-          canSetOpeningBalance: true
+          canSetOpeningBalance: true,
         };
-      
-      case 'viewer':
+
+      case "viewer":
         return basePermissions;
-      
+
       default:
         return basePermissions;
     }
   }
 
-
   static async canCreateLedger(userId, groupId) {
-    return await this.hasGroupPermission(userId, groupId, 'createLedger');
+    return await this.hasGroupPermission(userId, groupId, "createLedger");
   }
 
-  
   static async canEditLedger(userId, groupId) {
-    return await this.hasGroupPermission(userId, groupId, 'editLedger');
+    return await this.hasGroupPermission(userId, groupId, "editLedger");
   }
 
-  
   static async canDeleteLedger(userId, groupId) {
-    return await this.hasGroupPermission(userId, groupId, 'deleteLedger');
+    return await this.hasGroupPermission(userId, groupId, "deleteLedger");
   }
 
-  
   static async canViewLedger(userId, groupId) {
-    return await this.hasGroupPermission(userId, groupId, 'viewLedger');
+    return await this.hasGroupPermission(userId, groupId, "viewLedger");
   }
-
 
   static async canCreateSubGroup(userId, groupId) {
-    return await this.hasGroupPermission(userId, groupId, 'createSubGroup');
+    return await this.hasGroupPermission(userId, groupId, "createSubGroup");
   }
 
   static async hasAnyGroupPermission(userId, action) {
     try {
-      const user = await User.findByPk(userId);
-      if (user && user.role === 'admin') {
+      if (!userId || !action) {
+        throw new Error("User ID and action are required");
+      }
+      console.log("use id in hasAnyGroupPermission:", userId);
+
+      const user = await User.findOne({ id: userId });
+      console.log("user:", user);
+
+      if (user && (user.role === "user" || user.role === "admin")) {
         return true;
       }
 
       const permissions = await GroupPermission.findAll({
         where: {
           userId,
-          status: 'Active'
-        }
+          status: "Active",
+        },
       });
 
       if (permissions.length === 0) {
@@ -512,29 +544,28 @@ class GroupPermissionService {
 
       const now = new Date();
       const actionMap = {
-        'view': 'canViewLedger',
-        'create': 'canCreateLedger',
-        'edit': 'canEditLedger',
-        'delete': 'canDeleteLedger',
-        'createTransaction': 'canCreateTransaction',
-        'editTransaction': 'canEditTransaction',
-        'deleteTransaction': 'canDeleteTransaction',
-        'viewTransaction': 'canViewTransaction',
-        'viewReport': 'canViewReport',
-        'exportReport': 'canExportReport',
-        'viewBalance': 'canViewBalance',
-        'modifyBalance': 'canModifyBalance',
-        'setOpeningBalance': 'canSetOpeningBalance',
-        'createSubGroup': 'canCreateSubGroup',
-        'editGroup': 'canEditGroup',
-        'deleteGroup': 'canDeleteGroup'
+        view: "canViewLedger",
+        create: "canCreateLedger",
+        edit: "canEditLedger",
+        delete: "canDeleteLedger",
+        createTransaction: "canCreateTransaction",
+        editTransaction: "canEditTransaction",
+        deleteTransaction: "canDeleteTransaction",
+        viewTransaction: "canViewTransaction",
+        viewReport: "canViewReport",
+        exportReport: "canExportReport",
+        viewBalance: "canViewBalance",
+        modifyBalance: "canModifyBalance",
+        setOpeningBalance: "canSetOpeningBalance",
+        createSubGroup: "canCreateSubGroup",
+        editGroup: "canEditGroup",
+        deleteGroup: "canDeleteGroup",
       };
 
       const permissionField = actionMap[action];
       if (!permissionField) {
         return false;
       }
-
 
       for (const permission of permissions) {
         if (permission.effectiveFrom && permission.effectiveFrom > now) {
@@ -553,10 +584,10 @@ class GroupPermissionService {
 
       return false;
     } catch (error) {
-      console.error('Error checking any group permission:', error);
+      console.error("Error checking any group permission:", error);
       return false;
     }
   }
 }
 
-module.exports = GroupPermissionService; 
+module.exports = GroupPermissionService;

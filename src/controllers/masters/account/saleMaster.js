@@ -63,7 +63,7 @@ const createSaleMaster = async (req, res) => {
       }
     }
 
-    // Enforce Sales only for this module
+    
     if (natureOfTransaction !== 'Sales') {
       return res.status(400).json({
         success: false,

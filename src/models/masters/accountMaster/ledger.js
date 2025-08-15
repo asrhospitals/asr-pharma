@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Ledger.belongsTo(models.Group, { 
         foreignKey: 'acgroup', 
-        as: 'group',
+        as: 'accountGroup',
         onDelete: 'RESTRICT',
         onUpdate: 'CASCADE'
       });

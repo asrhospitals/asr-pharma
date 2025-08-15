@@ -63,7 +63,7 @@ const createPurchaseMaster = async (req, res) => {
       }
     }
 
-    // Enforce Purchase only for this module
+    
     if (natureOfTransaction !== 'Purchase') {
       return res.status(400).json({
         success: false,
