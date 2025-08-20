@@ -1,5 +1,5 @@
 const db = require('../../../database/index');
-const HsnSac = db.HsnSac;
+const HsnSac = db.HSN;
 const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 

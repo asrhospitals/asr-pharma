@@ -5,6 +5,7 @@ const ItemController = require("../../controllers/masters/inventory/Item");
 const StoreController = require("../../controllers/masters/inventory/Store");
 const RackController = require("../../controllers/masters/inventory/Rack");
 const CompanyController = require("../../controllers/masters/inventory/Company");
+const UserCompanyController = require('../../controllers/auth/userCompany')
 const SaltController = require("../../controllers/masters/inventory/Salt");
 const HSNController = require("../../controllers/masters/inventory/HSN");
 const UnitController = require("../../controllers/masters/inventory/Unit");
@@ -50,14 +51,15 @@ router.delete("/inventory/rack/v1/delete-rack/:id", RackController.deleteRack);
 // Company routes
 router.post("/inventory/company/v1/add-company", verifyToken, CompanyController.createCompany);
 router.get("/inventory/company/v1/get-companies", verifyToken, CompanyController.getAllCompanies);
-router.get("/inventory/company/v1/get-user-companies", verifyToken, CompanyController.getUserCompanies);
 router.get("/inventory/company/v1/get-company/:id", verifyToken, CompanyController.getCompanyById);
 router.put("/inventory/company/v1/update-company/:id", verifyToken, CompanyController.updateCompany);
 router.delete("/inventory/company/v1/delete-company/:id", verifyToken, CompanyController.deleteCompany);
 
 // Company user management
-router.post("/inventory/company/v1/:companyId/add-user", verifyToken, CompanyController.addUserToCompany);
-router.delete("/inventory/company/v1/:companyId/remove-user/:userId", verifyToken, CompanyController.removeUserFromCompany);
+router.get("/inventory/userCompany/v1/get-UserCompanies/:userId", verifyToken, UserCompanyController.getUserCompanies);
+router.post("/inventory/userCompany/v1/add-UserCompanies/:userId", verifyToken, UserCompanyController.createUserCompany);
+router.delete("/inventory/userCompany/v1/:companyId/delete-UserCompany/:userId", verifyToken, UserCompanyController.deleteCompany);
+router.get("/inventory/userCompany/v1/get-all-user-companies", verifyToken, UserCompanyController.getAllCompanies);
 
 router.post("/inventory/salt/v1/add-salt", SaltController.createSalt);
 router.get("/inventory/salt/v1/get-salt", SaltController.getSalt);

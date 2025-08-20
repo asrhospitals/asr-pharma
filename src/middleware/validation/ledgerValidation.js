@@ -120,6 +120,12 @@ const validateGetLedgers = [
     .withMessage('Balance type must be either Debit or Credit')
 ];
 
+const validateGetLedgerByCompanyId = [
+  param('companyId')
+    .isInt({ min: 1 })
+    .withMessage('Company ID must be a valid positive integer')
+];
+
 const validateLedgerId = [
   param('id')
     .isInt({ min: 1 })
@@ -204,6 +210,7 @@ module.exports = {
   validateCreateLedger,
   validateUpdateLedger,
   validateGetLedgers,
+  validateGetLedgerByCompanyId,
   validateLedgerId,
   validateUpdateOpeningBalance,
   validateGetLedgerBalance,

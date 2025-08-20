@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "hsnsac",
       });
       Item.belongsTo(models.Company, {
-        as: "CompanyDetail",
+        as: "CompanyDetails",
         foreignKey: "company",
       });
       Item.belongsTo(models.Salt, { as: "SaltDetail", foreignKey: "salt" });

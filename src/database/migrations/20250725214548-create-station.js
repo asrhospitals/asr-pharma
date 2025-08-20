@@ -28,7 +28,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.sequelize.transaction(async (transaction) => {
-      await queryInterface.removeConstraint('ledgers', 'ledgers_station_fkey', { transaction });
+      // await queryInterface.removeConstraint('ledgers', 'ledgers_station_fkey', { transaction });
       await queryInterface.dropTable('stations', { transaction });
     });
   }

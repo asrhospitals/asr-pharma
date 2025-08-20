@@ -9,17 +9,27 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
-      groupName: {
+      group_name: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
-      undergroup: {
+      company_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'user_companies',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      under_group: {
         type: Sequelize.STRING,
         allowNull: false,
         comment: 'Parent group name for hierarchy'
       },
-      parentGroupId: {
+      parent_group_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -29,22 +39,22 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
       },
-      groupType: {
+      group_type: {
         type: Sequelize.ENUM('Asset', 'Liability', 'Income', 'Expense', 'Capital'),
         allowNull: false,
         comment: 'Type of account group'
       },
-      isDefault: {
+      is_default: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
         comment: 'Whether this is a default system group'
       },
-      isEditable: {
+      is_editable: {
         type: Sequelize.BOOLEAN,
         defaultValue: true,
         comment: 'Whether this group can be edited'
       },
-      isDeletable: {
+      is_deletable: {
         type: Sequelize.BOOLEAN,
         defaultValue: true,
         comment: 'Whether this group can be deleted'
@@ -58,7 +68,7 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true
       },
-      sortOrder: {
+      sort_order: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
         comment: 'Order for display purposes'
@@ -67,12 +77,12 @@ module.exports = {
         type: Sequelize.ENUM('Active', 'Inactive'),
         defaultValue: 'Active'
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
@@ -80,13 +90,17 @@ module.exports = {
     });
 
 
-    await queryInterface.addIndex('groups', ['parentGroupId']);
-    await queryInterface.addIndex('groups', ['groupType']);
-    await queryInterface.addIndex('groups', ['isDefault']);
+    await queryInterface.addIndex('groups', ['parent_group_id']);
+    await queryInterface.addIndex('groups', ['group_type']);
+    await queryInterface.addIndex('groups', ['is_default']);
     await queryInterface.addIndex('groups', ['status']);
   },
 
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('groups');
+    await queryInterface.removeIndex('groups', ['parent_group_id']);
+    await queryInterface.removeIndex('groups', ['group_type']);
+    await queryInterface.removeIndex('groups', ['is_default']);
+    await queryInterface.removeIndex('groups', ['status']);
   }
 };

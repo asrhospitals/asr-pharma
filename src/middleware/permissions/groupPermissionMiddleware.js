@@ -261,9 +261,6 @@ const canViewLedger = async (req, res, next) => {
     const groupId = req.params.id || req.params.groupId || req.body.groupId || req.query.groupId;
     const userId = req.user.id;
 
-  console.log('Checking ledger view permissions for user:', userId, 'in group:', groupId);
-
-
     if (!groupId) {
 
       const hasAnyPermission = await GroupPermissionService.hasAnyGroupPermission(userId, 'view');

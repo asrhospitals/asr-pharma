@@ -110,8 +110,8 @@ class DefaultLedgerService {
     });
   }
 
-  
-  static async updateDefaultLedger(ledgerId, updateData, userId) {
+
+  static async updateDefaultLedger(ledgerId, updateData, userId, companyId) {
     const transaction = await db.sequelize.transaction();
     
     try {
@@ -168,8 +168,8 @@ class DefaultLedgerService {
     }
   }
 
-  
-  static async deleteLedger(ledgerId, userId) {
+
+  static async deleteLedger(ledgerId, userId, companyId) {
     const transaction = await db.sequelize.transaction();
     
     try {
@@ -179,7 +179,7 @@ class DefaultLedgerService {
       }
 
       const result = await Ledger.destroy({
-        where: { id: ledgerId },
+        where: { id: ledgerId, companyId },
         transaction
       });
 
@@ -191,9 +191,10 @@ class DefaultLedgerService {
     }
   }
 
-  
-  static async getLedgerWithDefaultInfo(ledgerId) {
+
+  static async getLedgerWithDefaultInfo(ledgerId, companyId) {
     const ledger = await Ledger.findByPk(ledgerId, {
+      where: { companyId },
       include: [{
         model: Group,
         as: 'accountGroup',

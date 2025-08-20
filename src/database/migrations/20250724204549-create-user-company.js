@@ -2,14 +2,23 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("companies", {
+    await queryInterface.createTable("user_companies", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "users",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
 
-      
       companyName: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -33,7 +42,6 @@ module.exports = {
         allowNull: false,
       },
 
-      
       branchCode: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -71,7 +79,6 @@ module.exports = {
         defaultValue: "GST",
       },
 
-      
       phone: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -85,7 +92,6 @@ module.exports = {
         allowNull: true,
       },
 
-      
       companyRegType: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -95,19 +101,16 @@ module.exports = {
         allowNull: true,
       },
 
-      
       logoUrl: {
         type: Sequelize.STRING,
         allowNull: true,
       },
 
-      
       status: {
-        type: Sequelize.ENUM("active", "inactive", "suspended", "Continue", "Discontinue"),
+        type: Sequelize.ENUM("active", "inactive", "suspended"),
         defaultValue: "active",
       },
 
-      
       printremark: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -144,8 +147,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 1,
       },
-
-      
+      isActive: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      },
+      isPrimary: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -160,12 +169,20 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("companies");
+    // await queryInterface.removeConstraint("groups", "groups_company_id_fkey");
+    await queryInterface.dropTable("user_companies");
 
-    
-    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_companies_businessType";');
-    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_companies_calendarType";');
-    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_companies_status";');
-    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_companies_prohibited";');
+    await queryInterface.sequelize.query(
+      'DROP TYPE IF EXISTS "enum_user_companies_businessType";'
+    );
+    await queryInterface.sequelize.query(
+      'DROP TYPE IF EXISTS "enum_user_companies_calendarType";'
+    );
+    await queryInterface.sequelize.query(
+      'DROP TYPE IF EXISTS "enum_user_companies_status";'
+    );
+    await queryInterface.sequelize.query(
+      'DROP TYPE IF EXISTS "enum_user_companies_prohibited";'
+    );
   },
 };

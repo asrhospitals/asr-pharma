@@ -245,12 +245,12 @@ class GroupPermissionService {
     }
   }
 
-  static async getAccessibleGroups(userId) {
+  static async getAccessibleGroups(userId, companyId) {
     try {
       const user = await User.findByPk(userId);
       if (user && user.role === "user") {
         return await Group.findAll({
-          where: { status: "Active" },
+          where: { status: "Active", companyId },
           order: [
             ["sortOrder", "ASC"],
             ["groupName", "ASC"],
@@ -261,6 +261,7 @@ class GroupPermissionService {
       const permissions = await GroupPermission.findAll({
         where: {
           userId,
+          companyId,
           status: "Active",
         },
         include: [
@@ -525,7 +526,6 @@ class GroupPermissionService {
       console.log("use id in hasAnyGroupPermission:", userId);
 
       const user = await User.findOne({ id: userId });
-      console.log("user:", user);
 
       if (user && (user.role === "user" || user.role === "admin")) {
         return true;

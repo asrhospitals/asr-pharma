@@ -162,6 +162,8 @@ const getSaleMaster = async (req, res) => {
       whereClause.isActive = isActive === 'true';
     }
 
+    console.log('Where clause:', whereClause);
+
     const { count, rows } = await SaleMaster.findAndCountAll({
       where: whereClause,
       include: [

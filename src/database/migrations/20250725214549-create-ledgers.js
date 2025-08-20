@@ -9,6 +9,16 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
+      companyId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'companies',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT',
+      },
       ledgerName: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -29,7 +39,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'companies',
+          model: 'user_companies',
           key: 'id'
         },
         onUpdate: 'CASCADE',

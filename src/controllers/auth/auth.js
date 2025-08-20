@@ -12,7 +12,6 @@ const securityConfig = require("../../config/security");
 const verificationService = require("../../services/verificationService");
 const otpModel = db.Otp;
 
-
 const sendPhoneOTP = async (req, res) => {
   try {
     const { phone } = req.body;
@@ -25,7 +24,6 @@ const sendPhoneOTP = async (req, res) => {
       });
     }
 
-    
     const existingUser = await User.findOne({ where: { phone } });
     if (existingUser) {
       return res.status(409).json({
@@ -35,20 +33,9 @@ const sendPhoneOTP = async (req, res) => {
       });
     }
 
-    
     const otp = verificationService.generatePhoneOTP();
     const expiry = verificationService.calculateExpiry("phone");
 
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
     await otpModel.create({
       phone,
       otp,
@@ -79,7 +66,6 @@ const sendPhoneOTP = async (req, res) => {
   }
 };
 
-
 const verifyPhoneOTP = async (req, res) => {
   try {
     const { phone, otp } = req.body;
@@ -92,23 +78,11 @@ const verifyPhoneOTP = async (req, res) => {
       });
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
     const storedVerification = await otpModel.findOne({
       where: { phone, otp },
       order: [["expiry", "DESC"]],
     });
 
-    
     const verification = verificationService.verifyPhoneOTP(
       storedVerification.otp,
       storedVerification.expiry,
@@ -122,9 +96,6 @@ const verifyPhoneOTP = async (req, res) => {
         code: "OTP_VERIFICATION_FAILED",
       });
     }
-
-    
-    
 
     res.status(200).json({
       success: true,
@@ -145,13 +116,10 @@ const verifyPhoneOTP = async (req, res) => {
   }
 };
 
-
 const register = async (req, res) => {
   try {
     const { phone, email, pin, password, firstName, lastName } = req.body;
 
-    
-    
     const phoneVerification = await otpModel.findOne({
       where: { phone },
       order: [["expiry", "DESC"]],
@@ -164,7 +132,6 @@ const register = async (req, res) => {
       });
     }
 
-    
     const existingUser = await User.findOne({
       where: {
         [Op.or]: [{ email: email }, { phone: phone }],
@@ -182,15 +149,12 @@ const register = async (req, res) => {
       });
     }
 
-    
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    
     const emailCode = verificationService.generateEmailCode();
     const emailExpiry = verificationService.calculateExpiry("email");
 
-    
     const newUser = await User.create({
       phone: phone,
       email: email,
@@ -211,9 +175,7 @@ const register = async (req, res) => {
     });
 
     console.log(`User registered: ${newUser}`);
-    
 
-    
     await verificationService.sendVerificationEmail(
       email,
       emailCode,
@@ -242,7 +204,6 @@ const register = async (req, res) => {
   }
 };
 
-
 const verifyEmail = async (req, res) => {
   try {
     const { code } = req.body;
@@ -255,7 +216,6 @@ const verifyEmail = async (req, res) => {
       });
     }
 
-    
     const user = await User.findOne({
       where: {
         emailVerificationCode: code,
@@ -271,7 +231,6 @@ const verifyEmail = async (req, res) => {
       });
     }
 
-    
     if (new Date() > new Date(user.emailVerificationExpiry)) {
       return res.status(400).json({
         success: false,
@@ -280,7 +239,6 @@ const verifyEmail = async (req, res) => {
       });
     }
 
-    
     await user.update({
       emailVerified: true,
       isactive: "active",
@@ -309,34 +267,30 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-
 const login = async (req, res) => {
   try {
-    const { uname, pwd } = req.body;
+    const { loginType, uname, email, phone, pwd } = req.body;
 
-    
+    const whereClause =
+      loginType === "username"
+        ? { uname: uname }
+        : loginType === "email"
+        ? { email: email }
+        : { phone: phone };
+
     const user = await User.findOne({
-      where: {
-        [Op.or]: [{ uname: uname }, { email: uname }],
-      },
-      include: [
-        {
-          model: Company,
-          as: "companies",
-          through: { attributes: ["role", "permissions"] },
-        },
-        {
-          model: Company,
-          as: "activeCompany",
-        },
-      ],
+      where: whereClause,
+    });
+
+    const userCompanies = await UserCompany.findAll({
+      where: { userId: user.id },
     });
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
-        code: "INVALID_CREDENTIALS",
+        message: "User not found",
+        code: "USER_NOT_FOUND",
       });
     }
 
@@ -354,23 +308,20 @@ const login = async (req, res) => {
       });
     }
 
-    
     const isPasswordValid = await bcrypt.compare(pwd, user.pwd);
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
-        code: "INVALID_CREDENTIALS",
+        message: "Invalid password",
+        code: "INVALID_PASSWORD",
       });
     }
 
-    
     await user.update({
       lastLoginAt: new Date(),
       updatedAt: new Date(),
     });
 
-    
     const accessToken = generateToken(user, "access");
     const refreshToken = generateRefreshToken({
       ...user.toJSON(),
@@ -378,7 +329,6 @@ const login = async (req, res) => {
       ip: req.ip,
     });
 
-    
     const userResponse = {
       id: user.id,
       username: user.uname,
@@ -389,11 +339,11 @@ const login = async (req, res) => {
       lastName: user.lname,
       isActive: user.isactive,
       lastLoginAt: user.lastLoginAt,
-      companies: user.companies || [],
+      companies: userCompanies || [],
       activeCompany: user.activeCompany,
+      currentCompany: userCompanies.find((company) => company.isPrimary === true),
     };
 
-    
     if (process.env.NODE_ENV === "production") {
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -425,7 +375,6 @@ const login = async (req, res) => {
   }
 };
 
-
 const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -433,7 +382,7 @@ const getProfile = async (req, res) => {
     const user = await User.findByPk(userId, {
       include: [
         {
-          model: userCompany,
+          model: UserCompany,
           as: "companies",
           through: { attributes: ["role", "permissions"] },
         },
@@ -481,7 +430,6 @@ const getProfile = async (req, res) => {
   }
 };
 
-
 const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -496,7 +444,6 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    
     if (email && email !== user.email) {
       const existingUser = await User.findOne({
         where: { email, id: { [Op.ne]: userId } },
@@ -511,7 +458,6 @@ const updateProfile = async (req, res) => {
       }
     }
 
-    
     await user.update({
       fname: firstName || user.fname,
       lname: lastName || user.lname,
@@ -547,7 +493,6 @@ const updateProfile = async (req, res) => {
   }
 };
 
-
 const changePassword = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -570,7 +515,6 @@ const changePassword = async (req, res) => {
       });
     }
 
-    
     const isCurrentPasswordValid = await bcrypt.compare(
       currentPassword,
       user.pwd
@@ -583,11 +527,9 @@ const changePassword = async (req, res) => {
       });
     }
 
-    
     const saltRounds = 12;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    
     await user.update({
       pwd: hashedNewPassword,
       updatedAt: new Date(),
@@ -608,7 +550,6 @@ const changePassword = async (req, res) => {
   }
 };
 
-
 const switchCompany = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -622,7 +563,6 @@ const switchCompany = async (req, res) => {
       });
     }
 
-    
     const userCompany = await UserCompany.findOne({
       where: {
         userId,
@@ -639,7 +579,6 @@ const switchCompany = async (req, res) => {
       });
     }
 
-    
     await User.update(
       { activeCompanyId: companyId, updatedAt: new Date() },
       { where: { id: userId } }
@@ -660,7 +599,6 @@ const switchCompany = async (req, res) => {
     });
   }
 };
-
 
 const resendEmailVerification = async (req, res) => {
   try {
@@ -691,18 +629,15 @@ const resendEmailVerification = async (req, res) => {
       });
     }
 
-    
     const emailCode = verificationService.generateEmailCode();
     const emailExpiry = verificationService.calculateExpiry("email");
 
-    
     await user.update({
       emailVerificationCode: emailCode,
       emailVerificationExpiry: emailExpiry,
       updatedAt: new Date(),
     });
 
-    
     await verificationService.sendVerificationEmail(
       email,
       emailCode,

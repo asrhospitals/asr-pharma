@@ -30,7 +30,7 @@ const validateUserRegistration = [
     .isEmail()
     .normalizeEmail({ gmail_remove_dots: false })
     .withMessage("Please provide a valid email address"),
-    
+
   body("password")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long")
@@ -43,11 +43,12 @@ const validateUserRegistration = [
 ];
 
 const validateUserLogin = [
-  body("uname")
-    .notEmpty()
-    .withMessage("Username is required")
-    .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage("Username can only contain letters, numbers, and underscores"),
+  body().custom((_, { req }) => {
+    if (!req.body.uname && !req.body.email && !req.body.phone) {
+      throw new Error("Either username, email, or phone is required");
+    }
+    return true;
+  }),
 
   body("pwd").notEmpty().withMessage("Password is required"),
 

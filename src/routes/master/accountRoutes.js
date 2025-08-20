@@ -1,16 +1,17 @@
-const Router = require('express');
-const { 
-  createLedger, 
-  getLedger, 
-  getLedgerById, 
-  updateLedger, 
+const Router = require("express");
+const {
+  createLedger,
+  getLedger,
+  getLedgerById,
+  updateLedger,
   deleteLedger,
   getLedgerBalance,
   getLedgerTransactions,
   getLedgerDetails,
   updateOpeningBalance,
-  getDefaultLedgers
-} = require('../../controllers/masters/account/ledger');
+  getDefaultLedgers,
+  getLedgerByCompanyId,
+} = require("../../controllers/masters/account/ledger");
 
 const {
   validateCreateLedger,
@@ -20,105 +21,114 @@ const {
   validateUpdateOpeningBalance,
   validateGetLedgerBalance,
   validateGetLedgerTransactions,
-  handleValidationErrors
-} = require('../../middleware/validation/ledgerValidation');
+  handleValidationErrors,
+  validateGetLedgerByCompanyId,
+} = require("../../middleware/validation/ledgerValidation");
 
 const {
   canCreateLedger,
   canEditLedger,
   canDeleteLedger,
   canViewLedger,
-  canModifyBalance
-} = require('../../middleware/permissions/groupPermissionMiddleware');
+  canModifyBalance,
+} = require("../../middleware/permissions/groupPermissionMiddleware");
 
-const transactionRoutes = require('./transactionRoutes');
-const reportRoutes = require('./reportRoutes');
-const saleMasterRoutes = require('./saleMasterRoutes');
-const purchaseMasterRoutes = require('./purchaseMasterRoutes');
+const transactionRoutes = require("./transactionRoutes");
+const reportRoutes = require("./reportRoutes");
+const saleMasterRoutes = require("./saleMasterRoutes");
+const purchaseMasterRoutes = require("./purchaseMasterRoutes");
+const companyContext = require("../../middleware/default/companyId");
 
 const router = Router();
 
-
-
-
-router.post('/ledger/v1/add-ledger', 
+router.post(
+  "/ledger/v1/add-ledger",
   canCreateLedger,
-  validateCreateLedger, 
-  handleValidationErrors, 
+  validateCreateLedger,
+  handleValidationErrors,
   createLedger
 );
 
-router.get('/ledger/v1/get-ledger', 
+router.get(
+  "/ledger/v1/get-ledger",
   canViewLedger,
-  validateGetLedgers, 
-  handleValidationErrors, 
+  validateGetLedgers,
+  handleValidationErrors,
   getLedger
 );
 
-router.get('/ledger/v1/get-ledger/:id', 
+router.get(
+  "/ledger/v1/get-ledger/by-companyId/:companyId",
   canViewLedger,
-  validateLedgerId, 
-  handleValidationErrors, 
+  validateGetLedgerByCompanyId,
+  handleValidationErrors,
+  getLedgerByCompanyId
+);
+
+router.get(
+  "/ledger/v1/get-ledger/:id",
+  canViewLedger,
+  validateLedgerId,
+  handleValidationErrors,
   getLedgerById
 );
 
-router.put('/ledger/v1/update-ledger/:id', 
+router.put(
+  "/ledger/v1/update-ledger/:id",
   canEditLedger,
-  validateUpdateLedger, 
-  handleValidationErrors, 
+  validateUpdateLedger,
+  handleValidationErrors,
   updateLedger
 );
 
-router.delete('/ledger/v1/delete-ledger/:id', 
+router.delete(
+  "/ledger/v1/delete-ledger/:id",
   canDeleteLedger,
-  validateLedgerId, 
-  handleValidationErrors, 
+  validateLedgerId,
+  handleValidationErrors,
   deleteLedger
 );
 
-router.get('/ledger/v1/:id/balance', 
+router.get(
+  "/ledger/v1/:id/balance",
   canViewLedger,
-  validateGetLedgerBalance, 
-  handleValidationErrors, 
+  validateGetLedgerBalance,
+  handleValidationErrors,
   getLedgerBalance
 );
 
-router.get('/ledger/v1/:id/transactions', 
+router.get(
+  "/ledger/v1/:id/transactions",
   canViewLedger,
-  validateGetLedgerTransactions, 
-  handleValidationErrors, 
+  validateGetLedgerTransactions,
+  handleValidationErrors,
   getLedgerTransactions
 );
 
-router.get('/ledger/v1/:id/details', 
+router.get(
+  "/ledger/v1/:id/details",
   canViewLedger,
-  validateGetLedgerTransactions, 
-  handleValidationErrors, 
+  validateGetLedgerTransactions,
+  handleValidationErrors,
   getLedgerDetails
 );
 
-router.put('/ledger/v1/:id/opening-balance', 
+router.put(
+  "/ledger/v1/:id/opening-balance",
   canModifyBalance,
-  validateUpdateOpeningBalance, 
-  handleValidationErrors, 
+  validateUpdateOpeningBalance,
+  handleValidationErrors,
   updateOpeningBalance
 );
 
+router.get("/ledger/v1/default-ledgers", canViewLedger, getDefaultLedgers);
 
-router.get('/ledger/v1/default-ledgers', 
-  canViewLedger,
-  getDefaultLedgers
-);
+router.use("/", transactionRoutes);
 
+router.use("/", reportRoutes);
 
-router.use('/', transactionRoutes);
+router.use("/", saleMasterRoutes);
 
-
-router.use('/', reportRoutes);
-
-
-router.use('/', saleMasterRoutes);
-
-router.use('/', purchaseMasterRoutes);
+router.use("/", purchaseMasterRoutes);
 
 module.exports = router;

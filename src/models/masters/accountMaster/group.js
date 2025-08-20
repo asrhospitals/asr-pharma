@@ -4,7 +4,6 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Group extends Model {
     static associate(models) {
-      
       Group.hasMany(models.Ledger, {
         foreignKey: "acgroup",
         as: "ledgers",
@@ -12,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
       });
 
-      
       Group.hasMany(models.Group, {
         foreignKey: "parentGroupId",
         as: "subGroups",
@@ -20,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
       });
 
-      
       Group.belongsTo(models.Group, {
         foreignKey: "parentGroupId",
         as: "parentGroup",
@@ -40,8 +37,9 @@ module.exports = (sequelize, DataTypes) => {
       companyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        field: "company_id",
         references: {
-          model: "companies",
+          model: "user_companies",
           key: "id",
         },
         onDelete: "CASCADE",
@@ -51,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+        field: "group_name",
         validate: {
           notEmpty: true,
         },
@@ -58,11 +57,13 @@ module.exports = (sequelize, DataTypes) => {
       undergroup: {
         type: DataTypes.STRING,
         allowNull: false,
+        field: "under_group",
         comment: "Parent group name for hierarchy",
       },
       parentGroupId: {
         type: DataTypes.INTEGER,
         allowNull: true,
+        field: "parent_group_id",
         references: {
           model: "groups",
           key: "id",
@@ -76,22 +77,26 @@ module.exports = (sequelize, DataTypes) => {
           "Expense",
           "Capital"
         ),
+        field: "group_type",
         allowNull: false,
         comment: "Type of account group",
       },
       isDefault: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
+        field: "is_default",
         comment: "Whether this is a default system group",
       },
       isEditable: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
+        field: "is_editable",
         comment: "Whether this group can be edited",
       },
       isDeletable: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
+        field: "is_deletable",
         comment: "Whether this group can be deleted",
       },
       prohibit: {
@@ -106,11 +111,22 @@ module.exports = (sequelize, DataTypes) => {
       sortOrder: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
+        field: "sort_order",
         comment: "Order for display purposes",
       },
       status: {
         type: DataTypes.ENUM("Active", "Inactive"),
         defaultValue: "Active",
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        field: "created_at",
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        field: "updated_at",
       },
     },
     {

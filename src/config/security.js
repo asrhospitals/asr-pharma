@@ -65,7 +65,8 @@ module.exports = {
       'Content-Type',
       'Accept',
       'Authorization',
-      'X-Request-ID'
+      'X-Request-ID',
+      'x-company-id'
     ],
     exposedHeaders: ['X-Request-ID', 'X-Total-Count'],
     maxAge: 86400

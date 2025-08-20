@@ -4,7 +4,7 @@ const GroupPermissionService = require("../../../utils/groupPermissionService");
 
 const inheritPermissionsFromParent = async (userId, parentGroupId) => {
   const parentPermissions = await GroupPermission.findOne({
-    where: { userId, groupId: parentGroupId }
+    where: { userId, groupId: parentGroupId },
   });
 
   if (parentPermissions) {
@@ -13,7 +13,7 @@ const inheritPermissionsFromParent = async (userId, parentGroupId) => {
       canCreate: parentPermissions.canCreate,
       canEdit: parentPermissions.canEdit,
       canDelete: parentPermissions.canDelete,
-      canManagePermissions: parentPermissions.canManagePermissions
+      canManagePermissions: parentPermissions.canManagePermissions,
     };
   }
   return null;
@@ -28,18 +28,18 @@ const GroupController = {
       if (!groupName || !parentGroupId) {
         return res.status(400).json({
           success: false,
-          message: "Group name and parent group are required"
+          message: "Group name and parent group are required",
         });
       }
 
       const existingGroup = await Group.findOne({
-        where: { groupName }
+        where: { groupName },
       });
 
       if (existingGroup) {
         return res.status(400).json({
           success: false,
-          message: "Group name already exists"
+          message: "Group name already exists",
         });
       }
 
@@ -47,24 +47,37 @@ const GroupController = {
       if (!parentGroup) {
         return res.status(400).json({
           success: false,
-          message: "Parent group not found"
+          message: "Parent group not found",
         });
       }
 
-      const canCreateSubGroup = await GroupPermissionService.canCreateSubGroup(userId, parentGroupId);
+      const canCreateSubGroup = await GroupPermissionService.canCreateSubGroup(
+        userId,
+        parentGroupId
+      );
       if (!canCreateSubGroup) {
         return res.status(403).json({
           success: false,
-          message: "You don't have permission to create sub-groups under this parent"
+          message:
+            "You don't have permission to create sub-groups under this parent",
         });
       }
 
+      const maxGroup = await Group.findOne({
+        where: { companyId: req.companyId },
+        order: [["id", "DESC"]],
+      });
+
+      const maxGroupId = maxGroup ? maxGroup.id : 0;
+
       const group = await Group.create({
+        id: maxGroupId + 1,
         groupName,
         groupType: parentGroup.groupType,
-        prohibit: prohibit || 'No',
+        prohibit: prohibit || "No",
         parentGroupId,
-        undergroup: parentGroup.groupName
+        companyId: req.companyId,
+        undergroup: parentGroup.groupName,
       });
 
       await inheritPermissionsFromParent(userId, parentGroupId);
@@ -72,14 +85,14 @@ const GroupController = {
       res.status(201).json({
         success: true,
         message: "Group created successfully",
-        data: group
+        data: group,
       });
     } catch (error) {
       console.error("Error creating group:", error);
       res.status(500).json({
         success: false,
         message: "Failed to create group",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -87,15 +100,23 @@ const GroupController = {
   getAllGroups: async (req, res) => {
     try {
       const userId = req.user.id;
+      const companyId = req.companyId;
 
-      const accessibleGroups = await GroupPermissionService.getAccessibleGroups(userId);
+      console.log('====================================');
+      console.log("companyId:", companyId);
+      console.log('====================================');
+
+      const accessibleGroups = await GroupPermissionService.getAccessibleGroups(
+        userId,
+        companyId
+      );
 
       const buildHierarchy = (groups, parentId = null) => {
         return groups
-          .filter(group => group.parentGroupId === parentId)
-          .map(group => ({
+          .filter((group) => group.parentGroupId === parentId)
+          .map((group) => ({
             ...group.toJSON(),
-            children: buildHierarchy(groups, group.id)
+            children: buildHierarchy(groups, group.id),
           }));
       };
 
@@ -104,26 +125,26 @@ const GroupController = {
       const groupsWithPermissions = await Promise.all(
         hierarchy.map(async (group) => {
           const permissions = await GroupPermission.findOne({
-            where: { userId, groupId: group.id }
+            where: { userId, groupId: group.id },
           });
 
           return {
             ...group,
-            userPermissions: permissions ? permissions.toJSON() : null
+            userPermissions: permissions ? permissions.toJSON() : null,
           };
         })
       );
 
       res.json({
         success: true,
-        data: groupsWithPermissions
+        data: groupsWithPermissions,
       });
     } catch (error) {
       console.error("Error getting groups:", error);
       res.status(500).json({
         success: false,
         message: "Failed to get groups",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -137,55 +158,59 @@ const GroupController = {
         include: [
           {
             model: Group,
-            as: 'subGroups',
+            as: "subGroups",
             include: [
               {
                 model: Group,
-                as: 'subGroups'
-              }
-            ]
+                as: "subGroups",
+              },
+            ],
           },
           {
             model: Group,
-            as: 'parentGroup'
-          }
-        ]
+            as: "parentGroup",
+          },
+        ],
       });
 
       if (!group) {
         return res.status(404).json({
           success: false,
-          message: "Group not found"
+          message: "Group not found",
         });
       }
 
-      const canView = await GroupPermissionService.hasGroupPermission(userId, group.id, 'view');
+      const canView = await GroupPermissionService.hasGroupPermission(
+        userId,
+        group.id,
+        "view"
+      );
       if (!canView) {
         return res.status(403).json({
           success: false,
-          message: "You don't have permission to view this group"
+          message: "You don't have permission to view this group",
         });
       }
 
       const permissions = await GroupPermission.findOne({
-        where: { userId, groupId: group.id }
+        where: { userId, groupId: group.id },
       });
 
       const groupData = {
         ...group.toJSON(),
-        userPermissions: permissions ? permissions.toJSON() : null
+        userPermissions: permissions ? permissions.toJSON() : null,
       };
 
       res.json({
         success: true,
-        data: groupData
+        data: groupData,
       });
     } catch (error) {
       console.error("Error getting group:", error);
       res.status(500).json({
         success: false,
         message: "Failed to get group",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -200,7 +225,7 @@ const GroupController = {
       if (!group) {
         return res.status(404).json({
           success: false,
-          message: "Group not found"
+          message: "Group not found",
         });
       }
 
@@ -211,23 +236,26 @@ const GroupController = {
         });
       }
 
-      const canEdit = await GroupPermissionService.canEditGroup(userId, group.id);
+      const canEdit = await GroupPermissionService.canEditGroup(
+        userId,
+        group.id
+      );
       if (!canEdit) {
         return res.status(403).json({
           success: false,
-          message: "You don't have permission to edit this group"
+          message: "You don't have permission to edit this group",
         });
       }
 
       if (groupName && groupName !== group.groupName) {
         const existingGroup = await Group.findOne({
-          where: { groupName }
+          where: { groupName },
         });
 
         if (existingGroup) {
           return res.status(400).json({
             success: false,
-            message: "Group name already exists"
+            message: "Group name already exists",
           });
         }
       }
@@ -235,20 +263,20 @@ const GroupController = {
       await group.update({
         groupName: groupName || group.groupName,
         groupType: groupType || group.groupType,
-        prohibit: prohibit !== undefined ? prohibit : group.prohibit
+        prohibit: prohibit !== undefined ? prohibit : group.prohibit,
       });
 
       res.json({
         success: true,
         message: "Group updated successfully",
-        data: group
+        data: group,
       });
     } catch (error) {
       console.error("Error updating group:", error);
       res.status(500).json({
         success: false,
         message: "Failed to update group",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -262,7 +290,7 @@ const GroupController = {
       if (!group) {
         return res.status(404).json({
           success: false,
-          message: "Group not found"
+          message: "Group not found",
         });
       }
 
@@ -273,52 +301,54 @@ const GroupController = {
         });
       }
 
-      const canDelete = await GroupPermissionService.canDeleteGroup(userId, group.id);
+      const canDelete = await GroupPermissionService.canDeleteGroup(
+        userId,
+        group.id
+      );
       if (!canDelete) {
         return res.status(403).json({
           success: false,
-          message: "You don't have permission to delete this group"
+          message: "You don't have permission to delete this group",
         });
       }
 
       try {
         const ledgerCount = await Ledger.count({
-          where: { acgroup: group.id }
+          where: { acgroup: group.id },
         });
 
         if (ledgerCount > 0) {
           return res.status(400).json({
             success: false,
-            message: "Cannot delete group that has ledgers"
+            message: "Cannot delete group that has ledgers",
           });
         }
-      } catch (error) {
-      }
+      } catch (error) {}
 
       const hasSubGroups = await GroupPermissionService.hasSubGroups(group.id);
       if (hasSubGroups) {
         return res.status(400).json({
           success: false,
-          message: "Cannot delete group that has sub-groups"
+          message: "Cannot delete group that has sub-groups",
         });
       }
 
       await GroupPermission.destroy({
-        where: { groupId: group.id }
+        where: { groupId: group.id },
       });
 
       await group.destroy();
 
       res.json({
         success: true,
-        message: "Group deleted successfully"
+        message: "Group deleted successfully",
       });
     } catch (error) {
       console.error("Error deleting group:", error);
       res.status(500).json({
         success: false,
         message: "Failed to delete group",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -328,11 +358,16 @@ const GroupController = {
       const { id: groupId } = req.params;
       const userId = req.user.id;
 
-      const canViewPermissions = await GroupPermissionService.hasGroupPermission(userId, groupId, 'managePermissions');
+      const canViewPermissions =
+        await GroupPermissionService.hasGroupPermission(
+          userId,
+          groupId,
+          "managePermissions"
+        );
       if (!canViewPermissions) {
         return res.status(403).json({
           success: false,
-          message: "You don't have permission to view group permissions"
+          message: "You don't have permission to view group permissions",
         });
       }
 
@@ -341,22 +376,22 @@ const GroupController = {
         include: [
           {
             model: db.User,
-            as: 'user',
-            attributes: ['id', 'username', 'email', 'role']
-          }
-        ]
+            as: "user",
+            attributes: ["id", "username", "email", "role"],
+          },
+        ],
       });
 
       res.json({
         success: true,
-        data: permissions
+        data: permissions,
       });
     } catch (error) {
       console.error("Error getting group permissions:", error);
       res.status(500).json({
         success: false,
         message: "Failed to get group permissions",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -367,11 +402,16 @@ const GroupController = {
       const { userId, permissions } = req.body;
       const currentUserId = req.user.id;
 
-      const canManagePermissions = await GroupPermissionService.hasGroupPermission(currentUserId, groupId, 'managePermissions');
+      const canManagePermissions =
+        await GroupPermissionService.hasGroupPermission(
+          currentUserId,
+          groupId,
+          "managePermissions"
+        );
       if (!canManagePermissions) {
         return res.status(403).json({
           success: false,
-          message: "You don't have permission to manage group permissions"
+          message: "You don't have permission to manage group permissions",
         });
       }
 
@@ -382,23 +422,25 @@ const GroupController = {
           canCreate: false,
           canEdit: false,
           canDelete: false,
-          canManagePermissions: false
-        }
+          canManagePermissions: false,
+        },
       });
 
       await groupPermission.update(permissions);
 
       res.json({
         success: true,
-        message: created ? "Permission created successfully" : "Permission updated successfully",
-        data: groupPermission
+        message: created
+          ? "Permission created successfully"
+          : "Permission updated successfully",
+        data: groupPermission,
       });
     } catch (error) {
       console.error("Error setting group permission:", error);
       res.status(500).json({
         success: false,
         message: "Failed to set group permission",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -408,20 +450,24 @@ const GroupController = {
       const { type } = req.params;
       const userId = req.user.id;
 
-      const accessibleGroups = await GroupPermissionService.getAccessibleGroups(userId);
+      const accessibleGroups = await GroupPermissionService.getAccessibleGroups(
+        userId
+      );
 
-      const filteredGroups = accessibleGroups.filter(group => group.groupType === type);
+      const filteredGroups = accessibleGroups.filter(
+        (group) => group.groupType === type
+      );
 
       res.json({
         success: true,
-        data: filteredGroups
+        data: filteredGroups,
       });
     } catch (error) {
       console.error("Error getting groups by type:", error);
       res.status(500).json({
         success: false,
         message: "Failed to get groups by type",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -429,15 +475,19 @@ const GroupController = {
   getGroupHierarchy: async (req, res) => {
     try {
       const userId = req.user.id;
+      const companyId = req.companyId;
 
-      const accessibleGroups = await GroupPermissionService.getAccessibleGroups(userId);
+      const accessibleGroups = await GroupPermissionService.getAccessibleGroups(
+        userId,
+        companyId
+      );
 
       const buildRecursiveHierarchy = (groups, parentId = null) => {
         return groups
-          .filter(group => group.parentGroupId === parentId)
-          .map(group => ({
+          .filter((group) => group.parentGroupId === parentId)
+          .map((group) => ({
             ...group.toJSON(),
-            children: buildRecursiveHierarchy(groups, group.id)
+            children: buildRecursiveHierarchy(groups, group.id),
           }));
       };
 
@@ -445,14 +495,14 @@ const GroupController = {
 
       res.json({
         success: true,
-        data: hierarchy
+        data: hierarchy,
       });
     } catch (error) {
       console.error("Error getting group hierarchy:", error);
       res.status(500).json({
         success: false,
         message: "Failed to get group hierarchy",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -462,11 +512,15 @@ const GroupController = {
       const { parentId } = req.params;
       const userId = req.user.id;
 
-      const canAccessParent = await GroupPermissionService.hasGroupPermission(userId, parentId, 'view');
+      const canAccessParent = await GroupPermissionService.hasGroupPermission(
+        userId,
+        parentId,
+        "view"
+      );
       if (!canAccessParent) {
         return res.status(403).json({
           success: false,
-          message: "You don't have permission to access this parent group"
+          message: "You don't have permission to access this parent group",
         });
       }
 
@@ -475,30 +529,36 @@ const GroupController = {
         include: [
           {
             model: Group,
-            as: 'subGroups'
-          }
-        ]
+            as: "subGroups",
+          },
+        ],
       });
 
       const accessibleSubGroups = await Promise.all(
         subGroups.map(async (group) => {
-          const canView = await GroupPermissionService.hasGroupPermission(userId, group.id, 'view');
+          const canView = await GroupPermissionService.hasGroupPermission(
+            userId,
+            group.id,
+            "view"
+          );
           return canView ? group : null;
         })
       );
 
-      const filteredGroups = accessibleSubGroups.filter(group => group !== null);
+      const filteredGroups = accessibleSubGroups.filter(
+        (group) => group !== null
+      );
 
       res.json({
         success: true,
-        data: filteredGroups
+        data: filteredGroups,
       });
     } catch (error) {
       console.error("Error getting groups by parent:", error);
       res.status(500).json({
         success: false,
         message: "Failed to get groups by parent",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -511,34 +571,37 @@ const GroupController = {
         include: [
           {
             model: Group,
-            as: 'subGroups'
-          }
+            as: "subGroups",
+          },
         ],
-        order: [['groupName', 'ASC']]
+        order: [["groupName", "ASC"]],
       });
 
       const groupsWhereCanCreateSubGroups = await Promise.all(
         allGroups.map(async (group) => {
-          const canCreateSubGroup = await GroupPermissionService.canCreateSubGroup(userId, group.id);
+          const canCreateSubGroup =
+            await GroupPermissionService.canCreateSubGroup(userId, group.id);
           return canCreateSubGroup ? group : null;
         })
       );
 
-      const filteredGroups = groupsWhereCanCreateSubGroups.filter(group => group !== null);
+      const filteredGroups = groupsWhereCanCreateSubGroups.filter(
+        (group) => group !== null
+      );
 
       res.json({
         success: true,
-        data: filteredGroups
+        data: filteredGroups,
       });
     } catch (error) {
       console.error("Error getting available parents:", error);
       res.status(500).json({
         success: false,
         message: "Failed to get available parents",
-        error: error.message
+        error: error.message,
       });
     }
-  }
+  },
 };
 
 module.exports = GroupController;

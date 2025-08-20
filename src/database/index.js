@@ -2,6 +2,7 @@
 
 const { Sequelize } = require("sequelize");
 const config = require("../config/config");
+const defineAssociations = require("./association")
 
 const env = process.env.NODE_ENV || "development";
 const dbConfig = config[env];
@@ -110,84 +111,18 @@ const Station = require("../models/masters/other/station")(
 );
 const Otp = require("../models/services/otp")(sequelize, Sequelize.DataTypes);
 
-const defineAssociations = () => {
-  User.belongsToMany(Company, {
-    through: UserCompany,
-    as: "companies",
-    foreignKey: "userId",
-    otherKey: "companyId",
-  });
-
-  Company.belongsToMany(User, {
-    through: UserCompany,
-    as: "users",
-    foreignKey: "companyId",
-    otherKey: "userId",
-  });
-
-  User.belongsTo(Company, {
-    as: "activeCompany",
-    foreignKey: "activeCompanyId",
-  });
-
-  Company.hasMany(Item, {
-    as: "CompanyItems",
-    foreignKey: "company",
-  });
-
-  Company.hasMany(Ledger, {
-    as: "CompanyLedgers",
-    foreignKey: "companyId",
-  });
-
-  Company.hasMany(Group, {
-    as: "CompanyGroups",
-    foreignKey: "companyId",
-  });
-
-  Item.belongsTo(Company, {
-    as: "Company",
-    foreignKey: "company",
-  });
-
-  Ledger.belongsTo(Company, {
-    as: "Company",
-    foreignKey: "companyId",
-  });
-
-  Group.belongsTo(Company, {
-    as: "Company",
-    foreignKey: "companyId",
-  });
-
-  Group.hasMany(Ledger, {
-    as: "GroupLedgers",
-    foreignKey: "acgroup",
-  });
-
-  Ledger.belongsTo(Group, {
-    as: "accountGroup",
-    foreignKey: "acgroup",
-  });
-
-  Group.hasMany(Group, { as: "subGroups", foreignKey: "parentGroupId" });
-  Group.belongsTo(Group, { as: "parentGroup", foreignKey: "parentGroupId" });
-};
-
-defineAssociations();
-
-const testConnection = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("✅ Database connection established successfully.");
-  } catch (error) {
-    console.error("❌ Unable to connect to the database:", error);
-  }
-};
-
-module.exports = {
+const SaleMaster = require("../models/masters/accountMaster/saleMaster")(
   sequelize,
-  Sequelize,
+  Sequelize.DataTypes
+);
+
+const PurchaseMaster =
+  require("../models/masters/accountMaster/purchaseMaster")(
+    sequelize,
+    Sequelize.DataTypes
+  );
+
+const allModels = {
   User,
   Company,
   UserCompany,
@@ -211,6 +146,23 @@ module.exports = {
   BillItem,
   Station,
   Otp,
-  defineAssociations,
+  SaleMaster,
+  PurchaseMaster
+}
+
+defineAssociations(allModels);
+
+const testConnection = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("✅ Database connection established successfully.");
+  } catch (error) {
+    console.error("❌ Unable to connect to the database:", error);
+  }
+};
+
+module.exports = {
+  ...allModels,
+  sequelize,
   testConnection,
 };
