@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
   Manufacturer.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
       },
 
       mfrname: {

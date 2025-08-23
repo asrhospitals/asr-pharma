@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
       });
 
-      Ledger.belongsTo(models.Company, {
+      Ledger.belongsTo(models.UserCompany, {
         foreignKey: "companyId",
         as: "company",
         onDelete: "RESTRICT",
@@ -23,12 +23,12 @@ module.exports = (sequelize, DataTypes) => {
   Ledger.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
       },
       companyId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: "user_companies",
@@ -40,13 +40,12 @@ module.exports = (sequelize, DataTypes) => {
       ledgerName: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
         validate: {
           notEmpty: true,
         },
       },
       acgroup: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: "groups",
@@ -94,7 +93,7 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "Active",
       },
       station: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         references: {
           model: "stations",
           key: "id",
@@ -139,7 +138,8 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          fields: ["ledgerName"],
+          fields: ["ledgerName", "companyId"],
+          name: "unique_ledger_name_per_company",
         },
         {
           fields: ["acgroup"],

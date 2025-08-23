@@ -5,18 +5,28 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('purchase_masters', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
+      },
+      companyId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'user_companies',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT',
+        comment: 'Foreign key to user_companies table'
       },
       purchaseType: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
         comment: 'Type of purchase (e.g., GST Purchase - 12%, GST Purchase - 18%, etc.)'
       },
       localPurchaseLedgerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'ledgers',
@@ -27,7 +37,7 @@ module.exports = {
         comment: 'Foreign key to ledgers table for local purchase ledger'
       },
       centralPurchaseLedgerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'ledgers',
@@ -68,7 +78,7 @@ module.exports = {
         comment: 'Taxability status'
       },
       igstLedgerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'ledgers',
@@ -79,7 +89,7 @@ module.exports = {
         comment: 'Foreign key to ledgers table for IGST ledger'
       },
       cgstLedgerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'ledgers',
@@ -90,7 +100,7 @@ module.exports = {
         comment: 'Foreign key to ledgers table for CGST ledger'
       },
       sgstLedgerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'ledgers',
@@ -101,7 +111,7 @@ module.exports = {
         comment: 'Foreign key to ledgers table for SGST ledger'
       },
       cessLedgerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'ledgers',

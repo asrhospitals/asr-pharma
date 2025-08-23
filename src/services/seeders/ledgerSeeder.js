@@ -1,15 +1,15 @@
 // seedLedgers.js
-async function seedLedgers(sequelize, userCompanyId) {
-  // fetch all groups for mapping
+async function seedLedgers(sequelize, userCompanyId, transaction) {
+  console.log(`🌱 Seeding ledgers start.............. ${userCompanyId}`);
   const allGroups = await sequelize.query(
     'SELECT id, group_name AS "groupName", parent_group_id AS "parentGroupId" FROM groups WHERE company_id = :userCompanyId',
     {
       replacements: { userCompanyId },
       type: sequelize.QueryTypes.SELECT,
+      transaction,
     }
   );
 
-  // build group lookup map
   const groupMap = {};
   allGroups.forEach((group) => {
     if (!groupMap[group.groupName]) groupMap[group.groupName] = [];
@@ -785,7 +785,7 @@ async function seedLedgers(sequelize, userCompanyId) {
   }));
   const validLedgers = defaultLedgers.filter((ledger) => ledger.acgroup);
   if (validLedgers.length > 0) {
-    await sequelize.getQueryInterface().bulkInsert("ledgers", validLedgers, {});
+    await sequelize.getQueryInterface().bulkInsert("ledgers", validLedgers, { transaction });
     console.log(
       `🌱 Seeded ${validLedgers.length} ledgers for company ${userCompanyId}`
     );

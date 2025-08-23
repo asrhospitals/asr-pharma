@@ -24,18 +24,25 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
       });
+
+      Group.belongsTo(models.UserCompany, {
+        foreignKey: "companyId",
+        as: "company",
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+      });
     }
   }
 
   Group.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
       },
       companyId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         field: "company_id",
         references: {
@@ -48,7 +55,6 @@ module.exports = (sequelize, DataTypes) => {
       groupName: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
         field: "group_name",
         validate: {
           notEmpty: true,
@@ -61,7 +67,7 @@ module.exports = (sequelize, DataTypes) => {
         comment: "Parent group name for hierarchy",
       },
       parentGroupId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: true,
         field: "parent_group_id",
         references: {
@@ -137,10 +143,11 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          fields: ["groupName"],
+          fields: ["company_id", "group_name"],
+          name: "unique_group_name_per_company",
         },
         {
-          fields: ["parentGroupId"],
+          fields: ["parent_group_id"],
         },
         {
           fields: ["groupType"],
@@ -149,7 +156,7 @@ module.exports = (sequelize, DataTypes) => {
           fields: ["isDefault"],
         },
         {
-          fields: ["companyId"],
+          fields: ["company_id"],
         },
       ],
     }

@@ -122,8 +122,8 @@ const validateGetLedgers = [
 
 const validateGetLedgerByCompanyId = [
   param('companyId')
-    .isInt({ min: 1 })
-    .withMessage('Company ID must be a valid positive integer')
+    .isUUID()
+    .withMessage('Company ID must be a valid UUID')
 ];
 
 const validateLedgerId = [

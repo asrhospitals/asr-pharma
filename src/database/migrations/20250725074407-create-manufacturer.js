@@ -5,9 +5,9 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('manufacturers', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       mfrname: {
         type: Sequelize.STRING,

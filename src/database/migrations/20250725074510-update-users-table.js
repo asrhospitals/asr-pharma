@@ -75,11 +75,11 @@ module.exports = {
     });
 
     await queryInterface.addColumn("users", "activeCompanyId", {
-      type: Sequelize.INTEGER,
+      type: Sequelize.UUID,
       allowNull: true,
       after: "emailVerificationExpiry",
       references: {
-        model: "companies",
+        model: "user_companies",
         key: "id",
       },
       onUpdate: "CASCADE",

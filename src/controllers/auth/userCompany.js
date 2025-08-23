@@ -1,4 +1,7 @@
 const db = require("../../database/index");
+const {
+  seedSalesMasters,
+} = require("../../services/seeders/SalesMastersSeeder");
 const { seedCompanyDefaults } = require("../../services/companySeeder");
 const { seedGroups } = require("../../services/seeders/groupSeeder");
 const User = db.User;
@@ -7,6 +10,7 @@ const sequelize = db.sequelize;
 const { buildQueryOptions } = require("../../utils/queryOptions");
 
 const createUserCompany = async (req, res) => {
+  const transaction = await sequelize.transaction();
   try {
     const {
       companyName,
@@ -32,10 +36,6 @@ const createUserCompany = async (req, res) => {
       logoUrl,
     } = req.body;
 
-    console.log('====================================');
-    console.log(req.body);
-    console.log('====================================');
-
     const userId = req.user.id;
 
     if (
@@ -48,6 +48,7 @@ const createUserCompany = async (req, res) => {
       !financialYearFrom ||
       !financialYearTo
     ) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message:
@@ -56,52 +57,51 @@ const createUserCompany = async (req, res) => {
     }
 
     const existingCompany = await UserCompany.findOne({
-      where: { companyName },
+      where: { companyName, userId },
+      transaction,
     });
     if (existingCompany) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message: "Company name already exists",
       });
     }
 
-    // const existingBranch = await UserCompany.findOne({ where: { branchCode } });
-    // if (existingBranch) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Branch code already exists",
-    //   });
-    // }
+    const userCompany = await UserCompany.create(
+      {
+        companyName,
+        address,
+        country,
+        state,
+        pinCode,
+        branchCode,
+        businessType,
+        calendarType,
+        financialYearFrom,
+        financialYearTo,
+        taxType,
+        phone,
+        website,
+        email,
+        companyRegType,
+        panNumber,
+        logoUrl,
+        status: "active",
+        userId,
+        role: "owner",
+        permissions: { all: true },
+        isActive: true,
+        joinedAt: new Date(),
+      },
+      { transaction }
+    );
 
-    const userCompany = await UserCompany.create({
-      companyName,
-      address,
-      country,
-      state,
-      pinCode,
-      branchCode,
-      businessType,
-      calendarType,
-      financialYearFrom,
-      financialYearTo,
-      taxType,
-      phone,
-      website,
-      email,
-      companyRegType,
-      panNumber,
-      logoUrl,
-      status: "active",
-      userId,
-      role: "owner",
-      permissions: { all: true },
-      isActive: true,
-      joinedAt: new Date(),
-    });
+    console.log(`🌱 Seeding defaults for company ${userCompany.id}`);
+    await seedCompanyDefaults(sequelize, userCompany.id, transaction);
 
-    console.log(`🌱 Seeding groups for company ${userCompany.id}`);
-    // await seedGroups(sequelize, userCompany.id);
-    await seedCompanyDefaults(sequelize, userCompany.id);
+    // ✅ Commit only if everything succeeds
+    await transaction.commit();
 
     res.status(201).json({
       success: true,
@@ -109,6 +109,7 @@ const createUserCompany = async (req, res) => {
       data: userCompany,
     });
   } catch (error) {
+    await transaction.rollback();
     console.error("Create company error:", error);
     res.status(500).json({
       success: false,

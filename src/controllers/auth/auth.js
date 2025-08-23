@@ -282,6 +282,14 @@ const login = async (req, res) => {
       where: whereClause,
     });
 
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+        code: "USER_NOT_FOUND",
+      });
+    }
+
     const userCompanies = await UserCompany.findAll({
       where: { userId: user.id },
     });

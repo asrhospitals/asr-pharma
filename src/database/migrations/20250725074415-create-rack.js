@@ -5,12 +5,12 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('racks', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       storeid: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'stores',

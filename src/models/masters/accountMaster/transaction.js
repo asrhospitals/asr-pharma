@@ -37,9 +37,9 @@ module.exports = (sequelize, DataTypes) => {
 
   Transaction.init({
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       primaryKey: true,
-      autoIncrement: true,
+      defaultValue: DataTypes.UUIDV4,
     },
     voucherNumber: {
       type: DataTypes.STRING,
@@ -75,7 +75,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'Transaction amount'
     },
     debitLedgerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'ledgers',
@@ -84,7 +84,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'Foreign key to debit ledger'
     },
     creditLedgerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'ledgers',
@@ -108,7 +108,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'Date when transaction was posted'
     },
     createdBy: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'users',
@@ -117,7 +117,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'User who created the transaction'
     },
     updatedBy: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true,
       references: {
         model: 'users',

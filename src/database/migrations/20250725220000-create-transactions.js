@@ -13,9 +13,9 @@ module.exports = {
     
     await queryInterface.createTable('transactions', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       voucherNumber: {
         type: Sequelize.STRING,
@@ -40,7 +40,7 @@ module.exports = {
         allowNull: false,
       },
       debitLedgerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'ledgers',
@@ -50,7 +50,7 @@ module.exports = {
         onDelete: 'RESTRICT',
       },
       creditLedgerId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'ledgers',
@@ -72,7 +72,7 @@ module.exports = {
         allowNull: true,
       },
       createdBy: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'users',
@@ -82,7 +82,7 @@ module.exports = {
         onDelete: 'RESTRICT',
       },
       updatedBy: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: true,
         references: {
           model: 'users',

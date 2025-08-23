@@ -25,18 +25,28 @@ module.exports = (sequelize, DataTypes) => {
         as: "ledgers",
         foreignKey: "companyId",
       });
+
+      UserCompany.hasMany(models.SaleMaster, {
+        as: "saleMasters",
+        foreignKey: "companyId",
+      });
+
+      UserCompany.hasMany(models.PurchaseMaster, {
+        as: "purchaseMasters",
+        foreignKey: "companyId",
+      });
     }
   }
 
   UserCompany.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
       },
       userId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: "users",

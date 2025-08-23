@@ -45,26 +45,43 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'RESTRICT',
         onUpdate: 'CASCADE'
       });
+
+      SaleMaster.belongsTo(models.UserCompany, {
+        foreignKey: 'companyId',
+        as: 'company',
+        onDelete: 'RESTRICT',
+        onUpdate: 'CASCADE'
+      });
     }
   }
 
   SaleMaster.init({
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       primaryKey: true,
-      autoIncrement: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    companyId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'user_companies',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'RESTRICT',
+      comment: 'Foreign key to companies table'
     },
     salesType: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         notEmpty: true
       },
       comment: 'Type of sale (e.g., GST Sale - 12%, GST Sale - 18%, etc.)'
     },
     localSalesLedgerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'ledgers',
@@ -73,7 +90,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'Foreign key to ledgers table for local sales ledger'
     },
     centralSalesLedgerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'ledgers',
@@ -128,7 +145,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'Taxability status'
     },
     igstLedgerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'ledgers',
@@ -137,7 +154,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'Foreign key to ledgers table for IGST ledger'
     },
     cgstLedgerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'ledgers',
@@ -146,7 +163,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'Foreign key to ledgers table for CGST ledger'
     },
     sgstLedgerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'ledgers',
@@ -155,7 +172,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: 'Foreign key to ledgers table for SGST ledger'
     },
     cessLedgerId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'ledgers',
@@ -196,7 +213,8 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['salesType']
+        fields: ['salesType', 'companyId'],
+        name: 'unique_sales_type_per_company'
       },
       {
         fields: ['isActive']

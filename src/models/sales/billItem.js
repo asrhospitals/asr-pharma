@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   BillItem.init({
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
     billId: { type: DataTypes.INTEGER, allowNull: false },
     itemId: { type: DataTypes.INTEGER, allowNull: false },
     product: { type: DataTypes.STRING },

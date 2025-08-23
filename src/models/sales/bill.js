@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Bill.init(
     {
-      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+      id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
       billNo: { type: DataTypes.STRING, allowNull: false },
       date: { type: DataTypes.DATEONLY, allowNull: false },
       partyName: { type: DataTypes.STRING },

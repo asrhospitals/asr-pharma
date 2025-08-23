@@ -5,9 +5,9 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('saltvariations', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       str: {
         type: Sequelize.STRING,
@@ -32,7 +32,7 @@ module.exports = {
         type: Sequelize.FLOAT,
       },
       salt_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: 'salts',
           key: 'id',

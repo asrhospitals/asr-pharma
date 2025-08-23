@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Item.init(
     {
-      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+      id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
 
       productname: {
         type: DataTypes.STRING,
@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
       unitindecimal: { type: DataTypes.STRING, defaultValue: "No" },
       hsnsac: { type: DataTypes.INTEGER, allowNull: false },
       taxcategory: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: "purchase_masters",

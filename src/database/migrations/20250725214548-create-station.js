@@ -4,9 +4,9 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('stations', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       name: {
         type: Sequelize.STRING,

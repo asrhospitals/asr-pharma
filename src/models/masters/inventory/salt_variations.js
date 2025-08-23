@@ -13,9 +13,9 @@ module.exports = (sequelize, DataTypes) => {
 
   SaltVariation.init({
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       primaryKey: true,
-      autoIncrement:true
+      defaultValue: DataTypes.UUIDV4
     },
     str: {
       type: DataTypes.STRING,
@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
     },
     salt_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       references: {
         model: "salts",
         key: "id",

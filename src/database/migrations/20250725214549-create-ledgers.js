@@ -5,15 +5,15 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('ledgers', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       companyId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'companies',
+          model: 'user_companies',
           key: 'id'
         },
         onUpdate: 'CASCADE',
@@ -22,10 +22,9 @@ module.exports = {
       ledgerName: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
       acgroup: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'groups',
@@ -36,7 +35,7 @@ module.exports = {
         comment: 'Foreign key to groups table'
       },
       companyId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: true,
         references: {
           model: 'user_companies',
@@ -91,7 +90,7 @@ module.exports = {
         comment: 'Address of the ledger (for parties)'
       },
       station:{
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: 'stations',
           key: 'id'

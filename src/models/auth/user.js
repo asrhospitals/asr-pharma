@@ -26,9 +26,9 @@ module.exports = (sequelize, DataTypes) => {
   User.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
       },
       uname: {
         type: DataTypes.STRING,
@@ -112,7 +112,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       activeCompanyId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: true,
         references: {
           model: "user_companies",

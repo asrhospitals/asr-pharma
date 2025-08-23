@@ -5,12 +5,12 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('prescription_items', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       prescriptionId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'prescriptions',
@@ -18,7 +18,7 @@ module.exports = {
         },
       },
       itemId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'items',

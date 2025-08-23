@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Otp.init(
     {
-      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+      id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
       phone: { type: DataTypes.STRING, allowNull: false },
       otp: { type: DataTypes.STRING, allowNull: false },
       expiry: { type: DataTypes.DATE, allowNull: false },

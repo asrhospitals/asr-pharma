@@ -12,12 +12,12 @@ module.exports = (sequelize, DataTypes) => {
 
   GroupPermission.init({
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       primaryKey: true,
-      autoIncrement: true,
+      defaultValue: DataTypes.UUIDV4,
     },
     groupId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'groups',
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     userId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'users',

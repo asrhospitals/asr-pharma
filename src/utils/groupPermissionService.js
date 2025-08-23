@@ -2,7 +2,7 @@ const db = require("../database");
 const { Group, GroupPermission, User } = db;
 
 class GroupPermissionService {
-  static async hasGroupPermission(userId, groupId, action) {
+  static async hasGroupPermission(userId, groupId, companyId, action) {
     try {
       const user = await User.findByPk(userId);
       if (user && (user.role === "user" || user.role === "admin")) {
@@ -13,6 +13,7 @@ class GroupPermissionService {
         where: {
           userId,
           groupId,
+          companyId,
           status: "Active",
         },
       });
@@ -514,8 +515,8 @@ class GroupPermissionService {
     return await this.hasGroupPermission(userId, groupId, "viewLedger");
   }
 
-  static async canCreateSubGroup(userId, groupId) {
-    return await this.hasGroupPermission(userId, groupId, "createSubGroup");
+  static async canCreateSubGroup(userId, groupId, companyId) {
+    return await this.hasGroupPermission(userId, groupId, companyId, "createSubGroup");
   }
 
   static async hasAnyGroupPermission(userId, action) {

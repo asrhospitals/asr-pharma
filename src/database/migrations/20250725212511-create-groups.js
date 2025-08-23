@@ -5,17 +5,16 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('groups', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       group_name: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
       company_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'user_companies',
@@ -30,7 +29,7 @@ module.exports = {
         comment: 'Parent group name for hierarchy'
       },
       parent_group_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: true,
         references: {
           model: 'groups',
