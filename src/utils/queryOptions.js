@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 
-function buildQueryOptions(query, searchableFields = ['name'], filterFields = []) {
+function buildQueryOptions(query, searchableFields = ['name'], filterFields = [],userCompanyId) {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
   const offset = (page - 1) * limit;
@@ -8,7 +8,7 @@ function buildQueryOptions(query, searchableFields = ['name'], filterFields = []
 
 
   const search = query.search || '';
-  const where = {};
+  const where = { userCompanyId };
 
   if (search && searchableFields.length) {
     where[Op.or] = searchableFields.map(field => ({

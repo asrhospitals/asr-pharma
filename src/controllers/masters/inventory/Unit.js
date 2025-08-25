@@ -6,7 +6,22 @@ const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 const addUnit = async (req, res) => {
     try {
-        const newUnit = await Unit.create(req.body);
+        const { unitName } = req.body;
+        const userCompanyId = req.companyId;
+        if (!unitName) {
+            return res.status(400).json({
+                success: false,
+                message: 'unitName is required',
+            });
+        }
+        const existingUnit = await Unit.findOne({ where: { unitName, userCompanyId } });
+        if (existingUnit) {
+            return res.status(400).json({
+                success: false,
+                message: 'unitName already exists',
+            });
+        }
+        const newUnit = await Unit.create({ ...req.body, userCompanyId });
         res.status(201).json(newUnit);
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -16,10 +31,12 @@ const addUnit = async (req, res) => {
 
 const getAllUnits = async (req, res) => {
     try {
+        const userCompanyId = req.companyId;
         const { where, offset, limit, order, page } = buildQueryOptions(
             req.query,
             ['unitname'],
-            [] 
+            [],
+            userCompanyId 
         );
         const { count, rows } = await Unit.findAndCountAll({
             where,

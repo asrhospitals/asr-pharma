@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
+    userCompanyId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "user_companies",
+        key: "id",
+      },
+    },
     storeid: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -29,13 +37,19 @@ module.exports = (sequelize, DataTypes) => {
     rackname: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
   }, {
     sequelize,
     modelName: "Rack",
     tableName: "racks",
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["userCompanyId", "rackname", "storeid"],
+        name: "unique_rack_per_store_per_user_company",
+      },
+    ],
   });
 
   return Rack;

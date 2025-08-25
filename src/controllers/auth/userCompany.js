@@ -141,10 +141,11 @@ const getUserCompanies = async (req, res) => {
   }
 };
 
-const getCompanyById = async (req, res) => {
+const updateUserCompany = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.id || req.params.userId;
+    const updateData = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -164,15 +165,71 @@ const getCompanyById = async (req, res) => {
       });
     }
 
-    const company = await Company.findByPk(id, {
-      include: [
-        {
-          model: User,
-          as: "users",
-          through: { attributes: ["role", "permissions", "joinedAt"] },
-        },
-      ],
+    if (!["owner", "admin"].includes(userCompany.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to update this company",
+      });
+    }
+
+    const company = await UserCompany.findByPk(id);
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+
+    if (
+      updateData.companyName &&
+      updateData.companyName !== company.companyName
+    ) {
+      const existingCompany = await Company.findOne({
+        where: { companyName: updateData.companyName },
+      });
+      if (existingCompany) {
+        return res.status(400).json({
+          success: false,
+          message: "Company name already exists",
+        });
+      }
+    }
+
+    if (updateData.branchCode && updateData.branchCode !== company.branchCode) {
+      const existingBranch = await UserCompany.findOne({
+        where: { branchCode: updateData.branchCode },
+      });
+      if (existingBranch) {
+        return res.status(400).json({
+          success: false,
+          message: "Branch code already exists",
+        });
+      }
+    }
+
+    const userCompanies = await UserCompany.findAll({
+      where: { userId, status: "active" },
     });
+
+    res.status(200).json({
+      success: true,
+      data: userCompanies,
+    });
+  } catch (error) {
+    console.error("Get user companies error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching user companies",
+      error: error.message,
+    });
+  }
+};
+
+const getCompanyById = async (req, res) => {
+  try {
+    const id = req.params.companyId;
+
+    const company = await UserCompany.findByPk(id);
 
     if (!company) {
       return res.status(404).json({
@@ -511,6 +568,7 @@ module.exports = {
   getCompanyById,
   updateCompany,
   deleteCompany,
+  updateUserCompany,
   //   addUserToCompany,
   //   removeUserFromCompany,
   getAllCompanies,

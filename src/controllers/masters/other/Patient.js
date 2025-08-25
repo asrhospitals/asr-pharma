@@ -28,10 +28,12 @@ const createPatient = async (req, res) => {
 
 const getAllPatients = async (req, res) => {
   try {
+    const userCompanyId = req.companyId;
     const { where, offset, limit, order, page } = buildQueryOptions(
       req.query,
       ["name", "email", "phone", "code"],
-      []
+      [],
+      userCompanyId
     );
     const { count, rows: patients } = await Patient.findAndCountAll({
       where,

@@ -11,10 +11,18 @@ const createSalt = async (req, res) => {
   const { saltData, variationData } = req.body;
 
   try {
+    const userCompanyId = req.companyId;
     const result = await sequelize.transaction(async (t) => {
-
-      const salt = await Salt.create(saltData, { transaction: t });
-
+      const existingSalt = await Salt.findOne({
+        where: { saltname: saltData.saltname, userCompanyId },
+        transaction: t,
+      });
+      if (existingSalt) {
+        return res.status(400).json({
+          error: "Salt with the same name already exists.",
+        });
+      }
+      const salt = await Salt.create({...saltData, userCompanyId}, { transaction: t });
 
       const variations = variationData.map((variation) => ({
         ...variation,
@@ -26,7 +34,7 @@ const createSalt = async (req, res) => {
 
 
       const fullSalt = await Salt.findOne({
-        where: { id: salt.id },
+        where: { id: salt.id, userCompanyId },
         include: [
           {
             model: SaltVariation,
@@ -58,10 +66,12 @@ const createSalt = async (req, res) => {
 
 const getSalt = async (req, res) => {
   try {
+    const userCompanyId = req.companyId;
     const { where, offset, limit, order, page } = buildQueryOptions(
       req.query,
       ['saltname'],
-      [] 
+      [],
+      userCompanyId
     );
     const { count, rows } = await Salt.findAndCountAll({
       where,

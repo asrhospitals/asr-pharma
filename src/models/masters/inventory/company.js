@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
 
       Company.hasMany(models.Item, {
         as: "items",
-        foreignKey: "companyId",
+        foreignKey: "company",
       });
     }
   }
@@ -27,14 +27,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: "UserCompanies",
+          model: "user_companies",
           key: "id",
         },
       },
       companyname: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       printremark: {
         type: DataTypes.STRING,
@@ -81,6 +80,13 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Company",
       tableName: "companies",
       timestamps: false,
+      indexes: [
+        {
+          unique: true,
+          fields: ["userCompanyId", "companyname"],
+          name: "unique_company_per_user_company",
+        },
+      ],
     }
   );
 

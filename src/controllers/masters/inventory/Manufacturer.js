@@ -1,24 +1,41 @@
-const db = require('../../../database/index');
+const db = require("../../../database/index");
 const Manufacturer = db.Manufacturer;
-const { buildQueryOptions } = require('../../../utils/queryOptions');
-
+const { buildQueryOptions } = require("../../../utils/queryOptions");
 
 const addManufacturer = async (req, res) => {
   try {
-    const newManufacturer = await Manufacturer.create(req.body);
+    const userCompanyId = req.companyId;
+    const { manufacturername } = req.body;
+    if (!manufacturername) {
+      return res.status(400).json({
+        success: false,
+        message: "manufacturername is required",
+      });
+    }
+    const existingManufacturer = await Manufacturer.findOne({
+      where: { manufacturername, userCompanyId },
+    });
+    if (existingManufacturer) {
+      return res.status(400).json({
+        success: false,
+        message: "manufacturername already exists",
+      });
+    }
+    const newManufacturer = await Manufacturer.create({ ...req.body, userCompanyId });
     res.status(201).json(newManufacturer);
   } catch (error) {
     res.status(500).json({ message: "Error creating manufacturer", error });
   }
 };
 
-
 const getAllManufacturers = async (req, res) => {
   try {
+    const userCompanyId = req.companyId;
     const { where, offset, limit, order, page } = buildQueryOptions(
       req.query,
-      ['manufacturername'],
-      [] 
+      ["manufacturername"],
+      [], 
+      userCompanyId
     );
     const { count, rows } = await Manufacturer.findAndCountAll({
       where,
@@ -37,14 +54,11 @@ const getAllManufacturers = async (req, res) => {
   }
 };
 
-
-
-
 const getManuById = async (req, res) => {
   try {
     const { id } = req.params;
     const manu = await Manufacturer.findByPk(id);
-      
+
     if (!manu) {
       return res.status(200).json({
         success: false,
@@ -56,11 +70,6 @@ const getManuById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
-
-
-
 
 const updateManufacturer = async (req, res) => {
   const { id } = req.params;
@@ -79,8 +88,6 @@ const updateManufacturer = async (req, res) => {
   }
 };
 
-
-
 const deleteManufacturer = async (req, res) => {
   const { id } = req.params;
   if (!id)
@@ -97,7 +104,6 @@ const deleteManufacturer = async (req, res) => {
     res.status(500).json({ message: "Error deleting manufacturer", error });
   }
 };
-
 
 module.exports = {
   addManufacturer,

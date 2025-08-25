@@ -31,6 +31,13 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE",
       });
+
+      Group.hasMany(models.GroupPermission, {
+        foreignKey: "groupId",
+        as: "groupPermissions",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
 

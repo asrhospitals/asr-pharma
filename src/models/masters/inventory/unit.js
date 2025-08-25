@@ -17,10 +17,17 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4,
       },
+      userCompanyId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "user_companies",
+          key: "id",
+        },
+      },
       unitName: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       uqc: {
         type: DataTypes.STRING,
@@ -28,9 +35,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       timestamps: false,
-      sequelize,
+      sequelize,  
       modelName: "Unit",
       tableName: "units",
+      indexes: [
+        {
+          unique: true,
+          fields: ["userCompanyId", "unitName"],
+          name: "unique_unit_per_user_company",
+        },
+      ],
     }
   );
 

@@ -27,8 +27,19 @@ module.exports = (sequelize, DataTypes) => {
 
   Item.init(
     {
-      id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
-
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+      },
+      userCompanyId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "user_companies",
+          key: "id",
+        },
+      },
       productname: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -40,8 +51,17 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "Goods",
       },
       packing: { type: DataTypes.STRING },
-      unit1: { type: DataTypes.INTEGER, allowNull: false },
-      unit2: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
+      unit1: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: { model: "units", key: "id" },
+      },
+      unit2: {
+        type: DataTypes.UUID,
+        references: { model: "units", key: "id" },
+        allowNull: true,
+        defaultValue: null,
+      },
       unitindecimal: { type: DataTypes.STRING, defaultValue: "No" },
       hsnsac: { type: DataTypes.INTEGER, allowNull: false },
       taxcategory: {
@@ -52,9 +72,17 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      company: { type: DataTypes.INTEGER, allowNull: false },
-      salt: { type: DataTypes.INTEGER },
-      rack: { type: DataTypes.INTEGER },
+      company: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "companies",
+          key: "id",
+        },
+      },
+
+      salt: { type: DataTypes.UUID, references: { model: "salts", key: "id" } },
+      rack: { type: DataTypes.UUID, references: { model: "racks", key: "id" } },
       price: { type: DataTypes.FLOAT, defaultValue: 0.0 },
       purchasePrice: { type: DataTypes.FLOAT, defaultValue: 0.0 },
       conversion: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 1 },
@@ -113,6 +141,13 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Item",
       tableName: "items",
       timestamps: false,
+      indexes: [
+        {
+          unique: true,
+          fields: ["userCompanyId", "productname"],
+          name: "unique_item_per_user_company",
+        },
+      ],
     }
   );
 

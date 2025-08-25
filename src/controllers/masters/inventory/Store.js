@@ -9,6 +9,7 @@ const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 const createStore = async (req, res) => {
   try {
+    const userCompanyId = req.companyId;
     const { storecode, storename, address1 } = req.body;
     if (!storecode || !storename || !address1) {
       return res.status(400).json({
@@ -17,14 +18,14 @@ const createStore = async (req, res) => {
       });
     }
 
-    const existingStore = await Store.findOne({ where: { storename } });
+    const existingStore = await Store.findOne({ where: { storename, userCompanyId } });
     if (existingStore) {
       return res.status(400).json({
         success: false,
         message: 'storename already exists',
       });
     }
-    const store = await Store.create(req.body);
+    const store = await Store.create({ ...req.body, userCompanyId });
     res.status(201).json(store);
   } catch (error) {
     res.status(500).json({
@@ -38,10 +39,12 @@ const createStore = async (req, res) => {
 
 const getStores = async (req, res) => {
   try {
+    const userCompanyId = req.companyId;
     const { where, offset, limit, order, page } = buildQueryOptions(
       req.query,
       ['storename'],
-      [] 
+      [],
+      userCompanyId
     );
     const { count, rows } = await Store.findAndCountAll({
       where,

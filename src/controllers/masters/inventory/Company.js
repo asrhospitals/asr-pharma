@@ -4,6 +4,7 @@ const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 const createCompany = async (req, res) => {
   try {
+    const userCompanyId = req.companyId;
     const { companyname } = req.body;
     if (!companyname) {
       return res.status(400).json({
@@ -11,14 +12,14 @@ const createCompany = async (req, res) => {
         message: 'companyname is required',
       });
     }
-    const existingCompany = await Company.findOne({ where: { companyname } });
+    const existingCompany = await Company.findOne({ where: { companyname, userCompanyId } });
     if (existingCompany) {
       return res.status(400).json({
         success: false,
         message: 'companyname already exists',
       });
     }
-    const company = await Company.create(req.body);
+    const company = await Company.create({ ...req.body, userCompanyId });
     res.status(201).json(company);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -27,10 +28,12 @@ const createCompany = async (req, res) => {
 
 const getAllCompanies = async (req, res) => {
   try {
+    const userCompanyId = req.companyId;
     const { where, offset, limit, order, page } = buildQueryOptions(
       req.query,
       ['companyname'],
-      [] 
+      [] ,
+      userCompanyId
     );
     const { count, rows } = await Company.findAndCountAll({
       where,

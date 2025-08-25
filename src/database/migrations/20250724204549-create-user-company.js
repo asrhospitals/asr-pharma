@@ -22,7 +22,6 @@ module.exports = {
       companyName: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
       address: {
         type: Sequelize.TEXT,
@@ -45,7 +44,6 @@ module.exports = {
       branchCode: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
       businessType: {
         type: Sequelize.ENUM(
@@ -165,6 +163,16 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
+    });
+
+    await queryInterface.addIndex("user_companies", ["branchCode", "userId"], {
+      unique: true,
+      name: "unique_branch_code_user",
+    });
+
+    await queryInterface.addIndex("user_companies", ["companyName", "userId"], {
+      unique: true,
+      name: "unique_company_name_user",
     });
   },
 

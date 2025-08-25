@@ -18,13 +18,17 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
+    userCompanyId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "user_companies",
+        key: "id",
+      },
+    },
     saltname: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
-      validate: {
-        notEmpty: true,
-      },
     },
 
     saltcode: {
@@ -72,6 +76,13 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: "Salt",
     tableName: "salts",
+    indexes: [
+      {
+        unique: true,
+        fields: ["userCompanyId", "saltname"],
+        name: "unique_salt_per_user_company",
+      },
+    ],
   }
 );
 

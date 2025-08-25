@@ -249,7 +249,7 @@ class GroupPermissionService {
   static async getAccessibleGroups(userId, companyId) {
     try {
       const user = await User.findByPk(userId);
-      if (user && user.role === "user") {
+      if (user && user.role === "user" || user.role === "admin") {
         return await Group.findAll({
           where: { status: "Active", companyId },
           order: [
@@ -287,7 +287,7 @@ class GroupPermissionService {
       return permissions.map((p) => p.group);
     } catch (error) {
       console.error("Error getting accessible groups:", error);
-      return [];
+      return [error];
     }
   }
 

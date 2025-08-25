@@ -4,10 +4,40 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class UserCompany extends Model {
     static associate(models) {
+      // master inventory associations
       UserCompany.hasMany(models.Company, {
         as: "companies",
         foreignKey: "userCompanyId",
       });
+      UserCompany.hasMany(models.HsnSac, {
+        as: "hsnSacs",
+        foreignKey: "userCompanyId",
+      });
+      UserCompany.hasMany(models.Store, {
+        as: "stores",
+        foreignKey: "userCompanyId",
+      });
+      UserCompany.hasMany(models.Rack, {
+        as: "racks",
+        foreignKey: "userCompanyId",
+      });
+      UserCompany.hasMany(models.Unit, {
+        as: "units",
+        foreignKey: "userCompanyId",
+      });
+      UserCompany.hasMany(models.Salt, {
+        as: "salts",
+        foreignKey: "userCompanyId",
+      });
+      UserCompany.hasMany(models.Manufacturer, {
+        as: "manufacturers",
+        foreignKey: "userCompanyId",
+      });
+      UserCompany.hasMany(models.Item, {
+        as: "items",
+        foreignKey: "userCompanyId",
+      });
+
 
       UserCompany.belongsTo(models.User, {
         as: "user",
@@ -58,7 +88,6 @@ module.exports = (sequelize, DataTypes) => {
       companyName: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       address: {
         type: DataTypes.TEXT,
@@ -84,7 +113,6 @@ module.exports = (sequelize, DataTypes) => {
       branchCode: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       businessType: {
         type: DataTypes.ENUM(
@@ -224,6 +252,18 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "UserCompany",
       tableName: "user_companies",
       timestamps: true,
+      indexes: [
+        {
+          unique: true,
+          fields: ["branchCode", "userId"],
+          name: "unique_branch_code_user",
+        },
+        {
+          unique: true,
+          fields: ["companyName", "userId"],
+          name: "unique_company_name_user",
+        }
+      ],
     }
   );
 

@@ -17,13 +17,17 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
+    userCompanyId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: "user_companies",
+        key: "id",
+      },
+    },
     hsnSacCode: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
-      validate: {
-        notEmpty: true,
-      },
     },
     hsnsacname: {
       type: DataTypes.STRING,
@@ -33,6 +37,13 @@ module.exports = (sequelize, DataTypes) => {
     modelName: "HsnSac",
     tableName: "hsnsac",
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["userCompanyId", "hsnSacCode"],
+        name: "unique_hsnsac_per_user_company",
+      },
+    ],
   });
 
   return HsnSac;

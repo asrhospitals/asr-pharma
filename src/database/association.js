@@ -253,7 +253,7 @@ const defineAssociations = (allModels) => {
    */
   Salt.hasMany(SaltVariation, {
     foreignKey: "salt_id",
-    as: "variations",
+    as: "saltvariations",
   });
 
   SaltVariation.belongsTo(Salt, {

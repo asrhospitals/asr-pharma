@@ -57,7 +57,9 @@ router.delete("/inventory/company/v1/delete-company/:id", verifyToken, CompanyCo
 
 // Company user management
 router.get("/inventory/userCompany/v1/get-UserCompanies/:userId", verifyToken, UserCompanyController.getUserCompanies);
+router.get("/inventory/userCompany/v1/get-UserCompany/:companyId", verifyToken, UserCompanyController.getCompanyById);
 router.post("/inventory/userCompany/v1/add-UserCompanies/:userId", verifyToken, UserCompanyController.createUserCompany);
+router.put("/inventory/userCompany/v1/update-UserCompany/:id/:userId", verifyToken, UserCompanyController.updateUserCompany);
 router.delete("/inventory/userCompany/v1/:companyId/delete-UserCompany/:userId", verifyToken, UserCompanyController.deleteCompany);
 router.get("/inventory/userCompany/v1/get-all-user-companies", verifyToken, UserCompanyController.getAllCompanies);
 

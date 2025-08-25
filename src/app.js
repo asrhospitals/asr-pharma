@@ -154,7 +154,7 @@ app.use(
   "/pharmacy/admin/master",
   verifyToken,
   companyContext,
-  authorizeRole("user"),
+  authorizeRole("user","admin"),
   MasterRoutes
 );
 
@@ -162,7 +162,7 @@ app.use(
   "/pharmacy/admin/master",
   verifyToken,
   companyContext,
-  authorizeRole("user"),
+  authorizeRole("user","admin"),
   accountRoutes
 );
 
@@ -179,7 +179,7 @@ app.use(
   "/pharmacy/admin/master",
   verifyToken,
   companyContext,
-  authorizeRole("user"),
+  authorizeRole("user","admin"),
   ledgerEntryRoutes
 );
 
@@ -187,7 +187,7 @@ app.use(
   "/pharmacy/admin/master",
   verifyToken,
   companyContext,
-  authorizeRole("user"),
+  authorizeRole("user","admin"),
   purchaseMasterRoutes
 );
 

@@ -6,6 +6,7 @@ const { buildQueryOptions } = require('../../../utils/queryOptions');
 
 const createRack = async (req, res) => {
     try {
+        const userCompanyId = req.companyId;
         const { storeid, rackname } = req.body;
         if (!storeid || !rackname) {
             return res.status(400).json({
@@ -22,14 +23,14 @@ const createRack = async (req, res) => {
             });
         }
         
-        const existingRack = await Rack.findOne({ where: { rackname } });
+        const existingRack = await Rack.findOne({ where: { rackname, userCompanyId } });
         if (existingRack) {
             return res.status(400).json({
                 success: false,
                 message: 'rackname already exists',
             });
         }
-        const rack = await Rack.create({ storeid, rackname });
+        const rack = await Rack.create({ storeid, rackname, userCompanyId });
         res.status(201).json(rack);
     } catch (error) {
         res.status(500).json({
@@ -43,10 +44,12 @@ const createRack = async (req, res) => {
 
 const getRacks = async (req, res) => {
     try {
+        const userCompanyId = req.companyId;
         const { where, offset, limit, order, page } = buildQueryOptions(
             req.query,
             ['rackname'],
-            [] 
+            [],
+            userCompanyId
         );
         const { count, rows } = await Rack.findAndCountAll({
             where,

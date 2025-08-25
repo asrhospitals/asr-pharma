@@ -16,7 +16,14 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4,
       },
-
+      userCompanyId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "user_companies",
+          key: "id",
+        },
+    },
       storecode: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -27,7 +34,6 @@ module.exports = (sequelize, DataTypes) => {
 
       storename: {
         type: DataTypes.STRING,
-        unique: true,
         allowNull: false,
         validate: {
           notEmpty: true,
@@ -43,6 +49,13 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Store",
       tableName: "stores",
       timestamps: false,
+      indexes: [
+        {
+          unique: true,
+          fields: ["userCompanyId", "storename"],
+          name: "unique_store_per_user_company",
+        },
+      ],
     }
   );
 

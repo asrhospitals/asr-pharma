@@ -473,15 +473,11 @@ const getGroupHierarchy = async (req, res) => {
     const userId = req.user.id;
     const companyId = req.companyId;
 
-    console.log("====================================");
-    console.log("companyId:", companyId);
-    console.log("====================================");
-
     const accessibleGroups = await GroupPermissionService.getAccessibleGroups(
       userId,
       companyId
     );
-
+    
     const buildRecursiveHierarchy = (groups, parentId = null) => {
       return groups
         .filter((group) => group.parentGroupId === parentId)

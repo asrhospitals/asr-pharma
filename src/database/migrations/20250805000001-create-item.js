@@ -3,8 +3,11 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("items", {
-      id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.literal("gen_random_uuid()"), },
-
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
+      },
       productname: { type: Sequelize.STRING, allowNull: false },
       goods: {
         type: Sequelize.ENUM("Goods", "Service"),
@@ -12,19 +15,56 @@ module.exports = {
         defaultValue: "Goods",
       },
       packing: { type: Sequelize.STRING },
-      unit1: { type: Sequelize.INTEGER, allowNull: false },
-      unit2: { type: Sequelize.INTEGER, allowNull: true, defaultValue: null },
-      taxcategory: { type: Sequelize.INTEGER, allowNull: false },
-      conversion: { type: Sequelize.INTEGER, allowNull: true, defaultValue: 1 },
-      unitindecimal: { type: Sequelize.STRING, defaultValue: "No" },
-      hsnsac: { type: Sequelize.INTEGER, allowNull: false },
-      company: { type: Sequelize.INTEGER, allowNull: false },
-      salt: { type: Sequelize.INTEGER },
-      rack: { type: Sequelize.INTEGER },
+
+      unit1: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: { model: "units", key: "id" },
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+      },
+      unit2: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        defaultValue: null,
+        references: { model: "units", key: "id" },
+      },
+
+      taxcategory: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: { model: "purchase_masters", key: "id" },
+      },
+
+      hsnsac: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: { model: "hsnsac", key: "id" },
+      },
+
+      company: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: { model: "companies", key: "id" },
+        onDelete: "CASCADE",
+      },
+
+      salt: {
+        type: Sequelize.UUID,
+        references: { model: "salts", key: "id" },
+      },
+
+      rack: {
+        type: Sequelize.UUID,
+        references: { model: "racks", key: "id" },
+      },
+
       price: { type: Sequelize.FLOAT, defaultValue: 0.0 },
       purchasePrice: { type: Sequelize.FLOAT, defaultValue: 0.0 },
       cost: { type: Sequelize.FLOAT, defaultValue: 0.0 },
       salerate: { type: Sequelize.FLOAT, defaultValue: 0.0 },
+      conversion: { type: Sequelize.INTEGER, allowNull: true, defaultValue: 1 },
+
       narcotic: { type: Sequelize.STRING, defaultValue: "No" },
       scheduleH: { type: Sequelize.STRING, defaultValue: "No" },
       scheduleH1: { type: Sequelize.STRING, defaultValue: "No" },
