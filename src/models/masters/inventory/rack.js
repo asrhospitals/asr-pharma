@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "RackItems",
         foreignKey: "rack",
       });
+      Rack.belongsTo(models.UserCompany, {
+        foreignKey: "userCompanyId",
+        as: "userCompany"
+      });
     }
   }
 

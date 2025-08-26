@@ -5,7 +5,10 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Doctor extends Model {
     static associate(models) {
-
+      Doctor.belongsTo(models.UserCompany, {
+        foreignKey: "userCompanyId",
+        as: "userCompany"
+      });
     }
   }
 
@@ -16,10 +19,17 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4,
       },
+      userCompanyId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "user_companies",
+          key: "id",
+        },
+      },
       mobileNo: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
         validate: {
           notEmpty: true,
         },
@@ -84,6 +94,13 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "Doctor",
       tableName: "doctors",
+      indexes: [
+        {
+          unique: true,
+          fields: ["userCompanyId", "mobileNo"],
+          name: "unique_doctors_mobileNo_userCompanyId",
+        }
+      ]
     }
   );
 

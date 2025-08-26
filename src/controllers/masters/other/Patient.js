@@ -5,6 +5,7 @@ const { buildQueryOptions } = require("../../../utils/queryOptions");
 const createPatient = async (req, res) => {
   try {
     const { name, phone, gender, age } = req.body;
+    const userCompanyId = req.companyId;
     if (!name || !phone || !gender || !age) {
       return res.status(400).json({
         success: false,
@@ -12,14 +13,14 @@ const createPatient = async (req, res) => {
       });
     }
 
-    const existingPatient = await Patient.findOne({ where: { phone } });
+    const existingPatient = await Patient.findOne({ where: { phone, userCompanyId } });
     if (existingPatient) {
       return res.status(400).json({
         success: false,
         message: 'phone already exists',
       });
     }
-    const patient = await Patient.create(req.body);
+    const patient = await Patient.create({ ...req.body, userCompanyId });
     res.status(201).json(patient);
   } catch (error) {
     res.status(400).json({ error: error.message });

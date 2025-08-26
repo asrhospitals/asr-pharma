@@ -60,43 +60,38 @@ const defineAssociations = (allModels) => {
   /**
    * USER ↔ ACTIVE COMPANY (single active company at a time)
    */
-  User.belongsTo(Company, {
-    as: "activeCompany",
-    foreignKey: "activeCompanyId",
-  });
+  // User.belongsTo(Company, {
+  //   as: "activeCompany",
+  //   foreignKey: "activeCompanyId",
+  // });
 
   /**
    * COMPANY RELATIONS
    */
   Company.hasMany(Item, {
     as: "items",
-    foreignKey: "companyId",
+    foreignKey: "company",
   });
 
-  Company.hasMany(Ledger, {
-    as: "ledgers",
-    foreignKey: "companyId",
-  });
+  // Company.hasMany(Group, {
+  //   as: "groups",
+  //   foreignKey: "companyId",
+  // });
 
-  Company.hasMany(Group, {
-    as: "groups",
-    foreignKey: "companyId",
-  });
+  // Item.belongsTo(Company, {
+  //   as: "CompanyDetails",
+  //   foreignKey: "companyId",
+  // });
 
-  Item.belongsTo(Company, {
-    as: "CompanyDetails",
-    foreignKey: "companyId",
-  });
+  // Ledger.belongsTo(Company, {
+  //   as: "company",
+  //   foreignKey: "companyId",
+  // });
 
-  Ledger.belongsTo(Company, {
-    as: "company",
-    foreignKey: "companyId",
-  });
-
-  Group.belongsTo(Company, {
-    as: "company",
-    foreignKey: "companyId",
-  });
+  // Group.belongsTo(Company, {
+  //   as: "company",
+  //   foreignKey: "companyId",
+  // });
 
   /**
    * GROUP ↔ LEDGER

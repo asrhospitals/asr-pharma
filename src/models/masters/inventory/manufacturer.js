@@ -5,7 +5,10 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Manufacturer extends Model {
     static associate(models) {
-
+      Manufacturer.belongsTo(models.UserCompany, {
+        foreignKey: "userCompanyId",
+        as: "userCompany"
+      });
     }
   }
 

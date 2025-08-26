@@ -1,6 +1,7 @@
 const db = require("../../../database");
 const { PurchaseMaster, Ledger } = db;
 const { Op } = require('sequelize');
+const { buildQueryOptions } = require("../../../utils/queryOptions");
 
 const createPurchaseMaster = async (req, res) => {
   try {
@@ -129,41 +130,18 @@ const createPurchaseMaster = async (req, res) => {
 
 const getPurchaseMaster = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit=10,
-      search = '',
-      taxability,
-      status,
-      isActive
-    } = req.query;
 
-    const offset = (page - 1) * limit;
-    const whereClause = {
-      natureOfTransaction: 'Purchase'
-    };
+    const companyId = req.companyId;
 
-    if (search) {
-      whereClause[Op.and] = [
-        { natureOfTransaction: 'Purchase' },
-        { purchaseType: { [Op.iLike]: `%${search}%` } }
-      ];
-    }
-
-    if (taxability) {
-      whereClause.taxability = taxability;
-    }
-
-    if (status) {
-      whereClause.status = status;
-    }
-
-    if (isActive !== undefined) {
-      whereClause.isActive = isActive === 'true';
-    }
-
+    const { where, offset, limit, order, page } = buildQueryOptions(
+      req.query,
+      ["name", "description"],
+      ["status", "company"],
+      null,
+      companyId
+    );
     const { count, rows } = await PurchaseMaster.findAndCountAll({
-      where: whereClause,
+      where,
       include: [
         { model: Ledger, as: 'localPurchaseLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'centralPurchaseLedger', attributes: ['id', 'ledgerName'] },

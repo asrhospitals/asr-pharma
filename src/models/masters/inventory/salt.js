@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'salt_id',
         as: 'saltvariations'
       });
+      Salt.belongsTo(models.UserCompany, {
+        foreignKey: "userCompanyId",
+        as: "userCompany"
+      });
     }
   }
 

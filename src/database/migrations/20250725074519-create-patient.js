@@ -9,10 +9,20 @@ module.exports = {
         primaryKey: true,
         defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
+      userCompanyId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "user_companies",
+          key: "id",
+        },
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        validate: {
+          notEmpty: true,
+        },
       },
       code: {
         type: Sequelize.STRING,
@@ -84,11 +94,18 @@ module.exports = {
         defaultValue: 'Active',
       },
     });
+
+    await queryInterface.addIndex('patients', ['userCompanyId', 'phone'], {
+      unique: true,
+      name: 'unique_userCompanyId_phone'
+    });
+
   },
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('patients');
     await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_patients_gender";');
     await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_patients_status";');
+    await queryInterface.removeIndex('patients', 'unique_userCompanyId_phone');
   }
 };

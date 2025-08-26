@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Unit.hasMany(models.Item, { as: "ItemsAsUnit1", foreignKey: "unit1" });
       Unit.hasMany(models.Item, { as: "ItemsAsUnit2", foreignKey: "unit2" });
+      Unit.belongsTo(models.UserCompany, {
+        foreignKey: "userCompanyId",
+        as: "userCompany"
+      });
     }
   }
 

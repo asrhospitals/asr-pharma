@@ -64,7 +64,7 @@ const getItems = async (req, res) => {
     const { where, offset, limit, order, page } = buildQueryOptions(
       req.query,
       ["name", "description"],
-      ["status", "companyId"],
+      ["status", "company"],
       userCompanyId
     );
     const { count, rows } = await Item.findAndCountAll({
@@ -80,6 +80,7 @@ const getItems = async (req, res) => {
       totalPages: Math.ceil(count / limit),
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Something went wrong" });
   }
 };

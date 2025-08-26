@@ -9,10 +9,17 @@ module.exports = {
         primaryKey: true,
         defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
+      userCompanyId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "user_companies",
+          key: "id",
+        },
+      },
       presNo: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
       presDate: {
         type: Sequelize.DATEONLY,
@@ -55,9 +62,15 @@ module.exports = {
         allowNull: true,
       },
     });
+
+    await queryInterface.addIndex('prescriptions', ['userCompanyId', 'presNo'], {
+      unique: true,
+      name: 'unique_userCompanyId_presNo'
+    });
   },
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('prescriptions');
+    await queryInterface.removeIndex('prescriptions', 'unique_userCompanyId_presNo');
   }
 };

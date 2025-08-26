@@ -4,7 +4,12 @@ const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Station extends Model {
-    static associate(models) {}
+    static associate(models) {
+      Station.belongsTo(models.UserCompany, {
+        foreignKey: "userCompanyId",
+        as: "userCompany"
+      });
+    }
   }
   Station.init(
     {
@@ -13,10 +18,17 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4,
       },
+      userCompanyId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "user_companies",
+          key: "id",
+        },
+      },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -34,6 +46,13 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Station",
       tableName: "stations",
       timestamps: true,
+      indexes: [
+        {
+          unique: true,
+          fields: ["userCompanyId", "name"],
+          name: "unique_userCompanyId_station_name"
+        },
+      ],
     }
   );
 

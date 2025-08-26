@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "HsnSacItems",
         foreignKey: "hsnsac",
       });
+      HsnSac.belongsTo(models.UserCompany, {
+        foreignKey: "userCompanyId",
+        as: "userCompany"
+      });
     }
   }
 

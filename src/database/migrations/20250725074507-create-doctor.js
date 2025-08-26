@@ -9,10 +9,17 @@ module.exports = {
         primaryKey: true,
         defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
+      userCompanyId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "user_companies",
+          key: "id",
+        },
+      },
       mobileNo: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
       registrationNo: {
         type: Sequelize.STRING,
@@ -64,6 +71,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 'Active',
       },
+    });
+
+    await queryInterface.addIndex('doctors', ['mobileNo', 'userCompanyId'], {
+      unique: true,
+      name: 'unique_doctors_mobileNo_userCompanyId'
     });
   },
 
