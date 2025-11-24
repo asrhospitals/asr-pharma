@@ -262,6 +262,24 @@ const defineAssociations = (allModels) => {
   });
 
   Rack.belongsTo(Store, { foreignKey: "storeid", as: "store" });
+
+  /**
+   * BILL ↔ BILLITEM
+   */
+  Bill.hasMany(BillItem, {
+    foreignKey: "billId",
+    as: "billItems",
+  });
+
+  BillItem.belongsTo(Bill, {
+    foreignKey: "billId",
+    as: "bill",
+  });
+
+  BillItem.belongsTo(Item, {
+    foreignKey: "itemId",
+    as: "item",
+  });
 };
 
 module.exports = defineAssociations;
