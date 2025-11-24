@@ -24,4 +24,5 @@ docs
 *.sln
 *.sw?
 
+default.data.json
 .env

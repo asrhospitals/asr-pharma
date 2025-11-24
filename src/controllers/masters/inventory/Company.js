@@ -1,6 +1,6 @@
-const db = require('../../../database/index');
+const db = require("../../../database/index");
 const Company = db.Company;
-const { buildQueryOptions } = require('../../../utils/queryOptions');
+const { buildQueryOptions } = require("../../../utils/queryOptions");
 
 const createCompany = async (req, res) => {
   try {
@@ -9,14 +9,16 @@ const createCompany = async (req, res) => {
     if (!companyname) {
       return res.status(400).json({
         success: false,
-        message: 'companyname is required',
+        message: "companyname is required",
       });
     }
-    const existingCompany = await Company.findOne({ where: { companyname, userCompanyId } });
+    const existingCompany = await Company.findOne({
+      where: { companyname, userCompanyId },
+    });
     if (existingCompany) {
       return res.status(400).json({
         success: false,
-        message: 'companyname already exists',
+        message: "companyname already exists",
       });
     }
     const company = await Company.create({ ...req.body, userCompanyId });
@@ -31,8 +33,8 @@ const getAllCompanies = async (req, res) => {
     const userCompanyId = req.companyId;
     const { where, offset, limit, order, page } = buildQueryOptions(
       req.query,
-      ['companyname'],
-      [] ,
+      ["companyname"],
+      [],
       userCompanyId
     );
     const { count, rows } = await Company.findAndCountAll({
@@ -56,7 +58,7 @@ const getCompanyById = async (req, res) => {
   try {
     const { id } = req.params;
     const company = await Company.findByPk(id);
-      
+
     if (!company) {
       return res.status(200).json({
         success: false,
@@ -87,7 +89,21 @@ const updateCompany = async (req, res) => {
       });
     }
 
-    await company.update(req.body);
+    const updateData = { ...req.body };
+    const isMoreOptions = req.body.isMoreOptions;
+    if (!isMoreOptions) {
+      updateData.printremark = "";
+      updateData.prohibited = "No";
+      updateData.invoiceprintindex = null;
+      updateData.recorderformula = null;
+      updateData.recorderprefrence = null;
+      updateData.expiredays = null;
+      updateData.dumpdays = null;
+      updateData.minimummargin = null;
+      updateData.storeroom = null;
+    }
+    
+    await company.update(updateData);
     res.status(200).json({
       success: true,
       message: "Company updated successfully",

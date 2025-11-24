@@ -28,20 +28,16 @@ const defineAssociations = (allModels) => {
   } = allModels;
 
   /**
-   * USER ↔ USERCOMPANY (Many-to-Many through UserCompanyUsers)
+   * USER ↔ USERCOMPANY (One-to-Many)
    */
-  User.belongsToMany(UserCompany, {
-    through: "UserCompanyUsers",
+  User.hasMany(UserCompany, {
     as: "userCompanies",
     foreignKey: "userId",
-    otherKey: "userCompanyId",
   });
 
-  UserCompany.belongsToMany(User, {
-    through: "UserCompanyUsers",
-    as: "users",
-    foreignKey: "userCompanyId",
-    otherKey: "userId",
+  UserCompany.belongsTo(User, {
+    as: "user",
+    foreignKey: "userId",
   });
 
   /**
@@ -232,16 +228,17 @@ const defineAssociations = (allModels) => {
    */
   Item.belongsTo(Unit, { as: "Unit1", foreignKey: "unit1" });
   Item.belongsTo(Unit, { as: "Unit2", foreignKey: "unit2" });
-  Item.belongsTo(HSN, { as: "hsnSacDetail", foreignKey: "hsnsac" });
-  Item.belongsTo(Salt, { as: "saltDetail", foreignKey: "salt" });
-  Item.belongsTo(Rack, { as: "rackDetail", foreignKey: "rack" });
+  Item.belongsTo(HSN, { as: "HsnSacDetail", foreignKey: "hsnsac" });
+  Item.belongsTo(Salt, { as: "SaltDetail", foreignKey: "salt" });
+  Item.belongsTo(Rack, { as: "RackDetail", foreignKey: "rack" });
 
   Item.belongsTo(PurchaseMaster, {
-    as: "taxCategoryDetail",
+    as: "TaxCategoryDetail",
     foreignKey: "taxcategory",
     onDelete: "RESTRICT",
     onUpdate: "CASCADE",
   });
+  Item.belongsTo(Company, { as: "CompanyDetails", foreignKey: "company" });
 
   /**
    * SALT ↔ SALT VARIATION

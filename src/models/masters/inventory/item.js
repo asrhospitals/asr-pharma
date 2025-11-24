@@ -63,7 +63,11 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: null,
       },
       // unitindecimal: { type: DataTypes.STRING, defaultValue: "No" },
-      hsnsac: { type: DataTypes.INTEGER, allowNull: false },
+      hsnsac: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: { model: "hsnsac", key: "id" },
+      },
       taxcategory: {
         type: DataTypes.UUID,
         allowNull: false,

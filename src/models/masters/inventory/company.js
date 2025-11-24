@@ -62,6 +62,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         defaultValue: 90,
       },
+      isMoreOptions: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
       dumpdays: {
         type: DataTypes.INTEGER,
         defaultValue: 60,

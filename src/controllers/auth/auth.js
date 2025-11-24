@@ -294,14 +294,6 @@ const login = async (req, res) => {
       where: { userId: user.id },
     });
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found",
-        code: "USER_NOT_FOUND",
-      });
-    }
-
     if (user.isactive !== "active") {
       return res.status(401).json({
         success: false,

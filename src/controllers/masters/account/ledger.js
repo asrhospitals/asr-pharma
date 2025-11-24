@@ -172,7 +172,7 @@ const getLedgerByCompanyId = async (req, res) => {
   try {
     const {
       page = 1,
-      limit,
+      limit = 10,
       groupId,
       search,
       status,
@@ -182,7 +182,10 @@ const getLedgerByCompanyId = async (req, res) => {
     } = req.query;
     const companyId = req.companyId;
 
-    const offset = (page - 1) * limit;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
+
     const whereClause = { companyId };
 
     if (groupId) whereClause.acgroup = groupId;
@@ -197,6 +200,8 @@ const getLedgerByCompanyId = async (req, res) => {
       ];
     }
 
+    console.log('Query params:', { page: pageNum, limit: limitNum, offset });
+
     const { count, rows } = await Ledger.findAndCountAll({
       where: whereClause,
       include: [{ model: Group, as: "accountGroup" }],
@@ -205,9 +210,11 @@ const getLedgerByCompanyId = async (req, res) => {
         ["sortOrder", "ASC"],
         ["ledgerName", "ASC"],
       ],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
+      limit: limitNum,
+      offset: offset,
     });
+
+    console.log(`Query returned ${rows.length} rows out of ${count} total`);
 
     const ledgersWithInfo = await Promise.all(
       rows.map(async (ledger) => {
@@ -225,16 +232,16 @@ const getLedgerByCompanyId = async (req, res) => {
       })
     );
 
-    console.log(`Fetched`, JSON.stringify(ledgersWithInfo));
+    console.log(`Returning ${ledgersWithInfo.length} items for page ${pageNum}`);
 
     res.status(200).json({
       success: true,
       data: ledgersWithInfo,
       pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(count / limit),
+        currentPage: pageNum,
+        totalPages: Math.ceil(count / limitNum),
         totalItems: count,
-        itemsPerPage: parseInt(limit),
+        itemsPerPage: limitNum,
       },
     });
   } catch (error) {

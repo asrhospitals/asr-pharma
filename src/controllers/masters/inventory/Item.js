@@ -50,6 +50,9 @@ const createItem = async (req, res) => {
         message: "productname already exists",
       });
     }
+
+    console.log("Creating new item:", { ...req.body, userCompanyId });
+
     const newItem = await Item.create({ ...req.body, userCompanyId });
     res.status(201).json(newItem);
   } catch (error) {
@@ -63,12 +66,32 @@ const getItems = async (req, res) => {
     const userCompanyId = req.companyId;
     const { where, offset, limit, order, page } = buildQueryOptions(
       req.query,
-      ["name", "description"],
+      ["productname"],
       ["status", "company"],
       userCompanyId
     );
     const { count, rows } = await Item.findAndCountAll({
       where,
+      include: [
+        { model: db.Unit, as: "Unit1" },
+        { model: db.Unit, as: "Unit2" },
+        { model: db.HSN, as: "HsnSacDetail" },
+        { model: db.Company, as: "CompanyDetails" },
+        { model: db.Salt, as: "SaltDetail" },
+        { model: db.Rack, as: "RackDetail" },
+        { model: db.PurchaseMaster, as: "TaxCategoryDetail" },
+      ],
+      attributes: {
+        exclude: [
+          "company",
+          "hsnsac",
+          "salt",
+          "rack",
+          "taxcategory",
+          "unit1",
+          "unit2",
+        ],
+      },
       offset,
       limit,
       order,
