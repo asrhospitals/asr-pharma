@@ -17,6 +17,13 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "RESTRICT",
         onUpdate: "CASCADE",
       });
+
+      Ledger.hasOne(models.Station, {
+        foreignKey: "ledgerId",
+        as: "stationLedger",
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+      });
     }
   }
 

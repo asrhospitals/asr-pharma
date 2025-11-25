@@ -120,7 +120,9 @@ const getLedger = async (req, res) => {
 
     const { count, rows } = await Ledger.findAndCountAll({
       where: whereClause,
-      include: [{ model: Group, as: "accountGroup" }],
+      include: [
+        { model: Group, as: "accountGroup" },
+      ],
       order: [
         ["isDefault", "DESC"],
         ["sortOrder", "ASC"],
@@ -200,7 +202,7 @@ const getLedgerByCompanyId = async (req, res) => {
       ];
     }
 
-    console.log('Query params:', { page: pageNum, limit: limitNum, offset });
+    console.log("Query params:", { page: pageNum, limit: limitNum, offset });
 
     const { count, rows } = await Ledger.findAndCountAll({
       where: whereClause,
@@ -232,7 +234,9 @@ const getLedgerByCompanyId = async (req, res) => {
       })
     );
 
-    console.log(`Returning ${ledgersWithInfo.length} items for page ${pageNum}`);
+    console.log(
+      `Returning ${ledgersWithInfo.length} items for page ${pageNum}`
+    );
 
     res.status(200).json({
       success: true,

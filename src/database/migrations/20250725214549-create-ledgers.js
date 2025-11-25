@@ -34,17 +34,6 @@ module.exports = {
         onDelete: 'RESTRICT',
         comment: 'Foreign key to groups table'
       },
-      companyId: {
-        type: Sequelize.UUID,
-        allowNull: true,
-        references: {
-          model: 'user_companies',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT',
-        comment: 'Foreign key to companies table'
-      },
       openingBalance: {
         type: Sequelize.DECIMAL(15, 2),
         defaultValue: 0.00,

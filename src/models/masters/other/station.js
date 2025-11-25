@@ -9,6 +9,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "userCompanyId",
         as: "userCompany"
       });
+
+      Station.belongsTo(models.Ledger, {
+        foreignKey: "ledgerId",
+        as: "ledger",
+        onDelete: "RESTRICT",
+        onUpdate: "CASCADE",
+      });
     }
   }
   Station.init(

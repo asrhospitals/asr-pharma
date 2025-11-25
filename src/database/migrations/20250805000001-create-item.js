@@ -49,6 +49,13 @@ module.exports = {
         onDelete: "CASCADE",
       },
 
+      userCompanyId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: { model: "user_companies", key: "id" },
+        onDelete: "CASCADE",
+      },
+
       salt: {
         type: Sequelize.UUID,
         references: { model: "salts", key: "id" },

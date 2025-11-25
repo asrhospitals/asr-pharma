@@ -4,16 +4,16 @@ const bcrypt = require("bcryptjs");
 module.exports = {
   async up(queryInterface, Sequelize) {
     const isUserExists = await queryInterface.sequelize.query(
-      `SELECT COUNT(*) as count FROM users WHERE email = 'admin@example.com'`,
+      `SELECT COUNT(*) as count FROM users WHERE uname = 'admin'`,
       { type: Sequelize.QueryTypes.SELECT }
     );
 
-    const hashedPwd = await bcrypt.hash("Admin@123", 12);
-
     if (isUserExists[0].count > 0) {
-      console.log("Admin user already exists, skipping creation.");
+      console.log("✓ Admin user already exists, skipping creation.");
       return;
     }
+
+    const hashedPwd = await bcrypt.hash("Admin@123", 12);
 
     await queryInterface.bulkInsert("users", [
       {
@@ -40,9 +40,11 @@ module.exports = {
         updatedAt: new Date(),
       },
     ]);
+
+    console.log("✓ Admin user created successfully (username: admin, password: Admin@123)");
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("users", { email: "admin@example.com" });
+    await queryInterface.bulkDelete("users", { uname: "admin" });
   },
 };

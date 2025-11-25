@@ -2,77 +2,28 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Store
-    await queryInterface.addColumn('stores', 'userCompanyId', {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: 'user_companies',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-
-    // Rack
-    await queryInterface.addColumn('racks', 'userCompanyId', {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: 'user_companies',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-
-    // Unit
-    await queryInterface.addColumn('units', 'userCompanyId', {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: 'user_companies',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-
-    // Salt
-    await queryInterface.addColumn('salts', 'userCompanyId', {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: 'user_companies',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-
-    // Manufacturer
-    await queryInterface.addColumn('manufacturers', 'userCompanyId', {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: 'user_companies',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
-
-    // Item
-    await queryInterface.addColumn('items', 'userCompanyId', {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: 'user_companies',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE',
-    });
+    // Check if columns already exist before adding
+    const tables = ['stores', 'racks', 'units', 'salts', 'manufacturers'];
+    
+    for (const table of tables) {
+      try {
+        const columns = await queryInterface.describeTable(table);
+        if (!columns.userCompanyId) {
+          await queryInterface.addColumn(table, 'userCompanyId', {
+            type: Sequelize.UUID,
+            allowNull: false,
+            references: {
+              model: 'user_companies',
+              key: 'id',
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE',
+          });
+        }
+      } catch (error) {
+        console.log(`Skipping ${table}: ${error.message}`);
+      }
+    }
   },
 
   async down(queryInterface, Sequelize) {
@@ -81,6 +32,5 @@ module.exports = {
     await queryInterface.removeColumn('units', 'userCompanyId');
     await queryInterface.removeColumn('salts', 'userCompanyId');
     await queryInterface.removeColumn('manufacturers', 'userCompanyId');
-    await queryInterface.removeColumn('items', 'userCompanyId');
   }
 };
