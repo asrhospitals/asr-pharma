@@ -42,6 +42,7 @@ const {
 const MasterRoutes = require("./routes/master/masterroutes");
 const AuthRoutes = require("./routes/auth/auth");
 const salesBillRoutes = require("./routes/sales/billRoutes");
+const purchaseBillRoutes = require("./routes/purchase/purchaseBill");
 const accountRoutes = require("./routes/master/accountRoutes");
 const groupRoutes = require("./routes/master/groupRoutes");
 const ledgerEntryRoutes = require("./routes/master/ledgerEntryRoutes");
@@ -173,6 +174,13 @@ app.use(
   verifyToken,
   companyContext,
   salesBillRoutes
+);
+
+app.use(
+  "/pharmacy/admin/purchase/bill",
+  verifyToken,
+  companyContext,
+  purchaseBillRoutes
 );
 
 app.use(
