@@ -128,13 +128,60 @@ const updateItem = async (req, res) => {
   try {
     const { id } = req.params;
     const itemData = req.body;
-    const updatedItem = await Item.findByIdAndUpdate(id, itemData, {
-      new: true,
+    const userCompanyId = req.companyId;
+
+    const item = await Item.findOne({
+      where: { id, userCompanyId }
     });
-    if (!updatedItem) {
+
+    if (!item) {
       return res.status(404).json({ error: "Item not found" });
     }
-    res.status(200).json(updatedItem);
+
+    // Validate foreign keys if provided
+    if (itemData.unit1) {
+      const unit1Exists = await db.Unit.findByPk(itemData.unit1);
+      if (!unit1Exists) {
+        return res.status(400).json({ error: "Invalid unit1" });
+      }
+    }
+
+    if (itemData.unit2) {
+      const unit2Exists = await db.Unit.findByPk(itemData.unit2);
+      if (!unit2Exists) {
+        return res.status(400).json({ error: "Invalid unit2" });
+      }
+    }
+
+    if (itemData.hsnsac) {
+      const hsnsacExists = await db.HSN.findByPk(itemData.hsnsac);
+      if (!hsnsacExists) {
+        return res.status(400).json({ error: "Invalid hsnsac" });
+      }
+    }
+
+    if (itemData.taxcategory) {
+      const taxcategoryExists = await db.PurchaseMaster.findByPk(itemData.taxcategory);
+      if (!taxcategoryExists) {
+        return res.status(400).json({ error: "Invalid taxcategory" });
+      }
+    }
+
+    const updatedItem = await item.update(itemData);
+    
+    const fullItem = await Item.findByPk(id, {
+      include: [
+        { model: db.Unit, as: "Unit1" },
+        { model: db.Unit, as: "Unit2" },
+        { model: db.HSN, as: "HsnSacDetail" },
+        { model: db.Company, as: "CompanyDetails" },
+        { model: db.Salt, as: "SaltDetail" },
+        { model: db.Rack, as: "RackDetail" },
+        { model: db.PurchaseMaster, as: "TaxCategoryDetail" },
+      ],
+    });
+
+    res.status(200).json(fullItem);
   } catch (error) {
     console.error("Error updating item:", error);
     res.status(500).json({ error: "Internal Server Error" });

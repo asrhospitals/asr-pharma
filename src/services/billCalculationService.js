@@ -19,10 +19,10 @@ class BillCalculationService {
     const discountPercent = parseFloat(item.discountPercent) || 0;
     
     // Use item-level taxes if provided, otherwise use bill-level taxes
-    const igstPercent = parseFloat(item.igstPercent) !== undefined ? parseFloat(item.igstPercent) : (billLevelTaxes.igstPercent || 0);
-    const cgstPercent = parseFloat(item.cgstPercent) !== undefined ? parseFloat(item.cgstPercent) : (billLevelTaxes.cgstPercent || 0);
-    const sgstPercent = parseFloat(item.sgstPercent) !== undefined ? parseFloat(item.sgstPercent) : (billLevelTaxes.sgstPercent || 0);
-    const cessPercent = parseFloat(item.cessPercent) !== undefined ? parseFloat(item.cessPercent) : (billLevelTaxes.cessPercent || 0);
+    const igstPercent = item.igstPercent !== undefined && item.igstPercent !== null ? parseFloat(item.igstPercent) : (billLevelTaxes.igstPercent || 0);
+    const cgstPercent = item.cgstPercent !== undefined && item.cgstPercent !== null ? parseFloat(item.cgstPercent) : (billLevelTaxes.cgstPercent || 0);
+    const sgstPercent = item.sgstPercent !== undefined && item.sgstPercent !== null ? parseFloat(item.sgstPercent) : (billLevelTaxes.sgstPercent || 0);
+    const cessPercent = item.cessPercent !== undefined && item.cessPercent !== null ? parseFloat(item.cessPercent) : (billLevelTaxes.cessPercent || 0);
 
     const baseAmount = this.calculateItemAmount(quantity, rate);
     const discountAmount = this.calculateDiscountAmount(baseAmount, discountPercent);
@@ -64,11 +64,19 @@ class BillCalculationService {
 
     const processedItems = items.map(item => this.processBillItem(item, billLevelTaxes));
 
-    const subtotal = processedItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+    // Calculate subtotal from item amounts (which already include item-level taxes)
+    const subtotalBeforeBillDiscount = processedItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+    
+    // Calculate item-level discounts
     const itemDiscount = processedItems.reduce((sum, item) => sum + (item.discountAmount || 0), 0);
-    const billDiscountAmount = this.calculateDiscountAmount(subtotal, billDiscountPercent);
-    const amountAfterDiscount = subtotal - billDiscountAmount;
+    
+    // Calculate bill-level discount on subtotal
+    const billDiscountAmount = this.calculateDiscountAmount(subtotalBeforeBillDiscount, billDiscountPercent);
+    
+    // Amount after all discounts
+    const amountAfterDiscount = subtotalBeforeBillDiscount - billDiscountAmount;
 
+    // Calculate bill-level taxes on amount after discount
     const billIgstAmount = this.calculateTaxAmount(amountAfterDiscount, billLevelTaxes.igstPercent);
     const billCgstAmount = this.calculateTaxAmount(amountAfterDiscount, billLevelTaxes.cgstPercent);
     const billSgstAmount = this.calculateTaxAmount(amountAfterDiscount, billLevelTaxes.sgstPercent);
@@ -79,7 +87,7 @@ class BillCalculationService {
 
     return {
       items: processedItems,
-      subtotal: parseFloat(subtotal.toFixed(2)),
+      subtotal: parseFloat(subtotalBeforeBillDiscount.toFixed(2)),
       itemDiscount: parseFloat(itemDiscount.toFixed(2)),
       billDiscountPercent,
       billDiscountAmount: parseFloat(billDiscountAmount.toFixed(2)),

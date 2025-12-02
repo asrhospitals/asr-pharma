@@ -79,6 +79,7 @@ const createSaleMaster = async (req, res) => {
     }
 
     const saleMasterData = {
+      companyId: req.companyId,
       salesType: salesType.trim(),
       localSalesLedgerId,
       centralSalesLedgerId,
@@ -140,11 +141,13 @@ const getSaleMaster = async (req, res) => {
 
     const offset = (page - 1) * limit;
     const whereClause = {
+      companyId: req.companyId,
       natureOfTransaction: 'Sales'
     };
 
     if (search) {
       whereClause[Op.and] = [
+        { companyId: req.companyId },
         { natureOfTransaction: 'Sales' },
         { salesType: { [Op.iLike]: `%${search}%` } }
       ];
@@ -206,8 +209,10 @@ const getSaleMaster = async (req, res) => {
 const getSaleMasterById = async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.companyId;
 
-    const saleMaster = await SaleMaster.findByPk(id, {
+    const saleMaster = await SaleMaster.findOne({
+      where: { id, companyId },
       include: [
         { model: Ledger, as: 'localSalesLedger', attributes: ['id', 'ledgerName'] },
         { model: Ledger, as: 'centralSalesLedger', attributes: ['id', 'ledgerName'] },
@@ -244,6 +249,7 @@ const getSaleMasterById = async (req, res) => {
 const updateSaleMaster = async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.companyId;
     const {
       salesType,
       localSalesLedgerId,
@@ -264,7 +270,9 @@ const updateSaleMaster = async (req, res) => {
       status
     } = req.body;
 
-    const saleMaster = await SaleMaster.findByPk(id);
+    const saleMaster = await SaleMaster.findOne({
+      where: { id, companyId }
+    });
     if (!saleMaster) {
       return res.status(404).json({
         success: false,
@@ -401,8 +409,11 @@ const updateSaleMaster = async (req, res) => {
 const deleteSaleMaster = async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.companyId;
 
-    const saleMaster = await SaleMaster.findByPk(id);
+    const saleMaster = await SaleMaster.findOne({
+      where: { id, companyId }
+    });
     if (!saleMaster) {
       return res.status(404).json({
         success: false,

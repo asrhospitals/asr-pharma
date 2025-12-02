@@ -53,12 +53,16 @@ const createBill = async (req, res) => {
       billData.billNo = await generateBillNumber(userCompanyId);
     }
 
-    // Calculate totals
+    // Calculate totals with proper tax structure
     const calculations = BillCalculationService.calculateBillTotals(
       items || [],
       billDiscountPercent,
-      cgstPercent,
-      sgstPercent
+      {
+        igstPercent: 0,
+        cgstPercent,
+        sgstPercent,
+        cessPercent: 0,
+      }
     );
 
     // Create bill with calculated values
@@ -238,12 +242,16 @@ const updateBill = async (req, res) => {
     // Validate bill data
     BillCalculationService.validateBillData({ ...billData, items });
 
-    // Calculate totals
+    // Calculate totals with proper tax structure
     const calculations = BillCalculationService.calculateBillTotals(
       items || [],
       billDiscountPercent,
-      cgstPercent,
-      sgstPercent
+      {
+        igstPercent: 0,
+        cgstPercent,
+        sgstPercent,
+        cessPercent: 0,
+      }
     );
 
     // Update bill
