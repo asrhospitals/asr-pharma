@@ -25,6 +25,7 @@ const defineAssociations = (allModels) => {
     Otp,
     SaleMaster,
     PurchaseMaster,
+    Batch,
   } = allModels;
 
   /**
@@ -239,6 +240,36 @@ const defineAssociations = (allModels) => {
     onUpdate: "CASCADE",
   });
   Item.belongsTo(Company, { as: "CompanyDetails", foreignKey: "company" });
+
+  /**
+   * BATCH ↔ ITEM
+   */
+  Item.hasMany(Batch, {
+    foreignKey: "itemId",
+    as: "batches",
+    onDelete: "CASCADE"
+  });
+
+  Batch.belongsTo(Item, {
+    foreignKey: "itemId",
+    as: "item",
+    onDelete: "CASCADE"
+  });
+
+  /**
+   * BATCH ↔ USERCOMPANY
+   */
+  UserCompany.hasMany(Batch, {
+    foreignKey: "userCompanyId",
+    as: "batches",
+    onDelete: "CASCADE"
+  });
+
+  Batch.belongsTo(UserCompany, {
+    foreignKey: "userCompanyId",
+    as: "company",
+    onDelete: "CASCADE"
+  });
 
   /**
    * SALT ↔ SALT VARIATION

@@ -1,5 +1,5 @@
 const db = require('../../database');
-const { PurchaseBill, PurchaseBillItem, Ledger, PurchaseMaster } = db;
+const { PurchaseBill, PurchaseBillItem, Ledger, PurchaseMaster, Batch, Item } = db;
 const BillCalculationService = require('../../services/billCalculationService');
 const { Op } = require('sequelize');
 
@@ -84,13 +84,25 @@ const createPurchaseBill = async (req, res) => {
       paymentStatus: BillCalculationService.getPaymentStatus(calculations.totalAmount, 0),
     });
 
-    // Create bill items
+    // Create bill items and update batch quantities
     if (items && items.length) {
       for (const item of calculations.items) {
-        await PurchaseBillItem.create({
+        const billItem = await PurchaseBillItem.create({
           ...item,
           purchaseBillId: bill.id,
         });
+
+        // Update batch quantity if batchId is provided
+        if (item.batchId) {
+          const batch = await Batch.findOne({
+            where: { id: item.batchId, userCompanyId }
+          });
+
+          if (batch) {
+            batch.quantity = parseFloat(batch.quantity) + parseFloat(item.quantity);
+            await batch.save();
+          }
+        }
       }
     }
 

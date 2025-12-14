@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'itemId',
         as: 'item'
       });
+
+      PurchaseBillItem.belongsTo(models.Batch, {
+        foreignKey: 'batchId',
+        as: 'batch'
+      });
     }
   }
 
@@ -36,6 +41,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       references: {
         model: 'items',
+        key: 'id'
+      }
+    },
+    batchId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'batches',
         key: 'id'
       }
     },

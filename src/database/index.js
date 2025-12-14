@@ -122,6 +122,21 @@ const PurchaseMaster =
     Sequelize.DataTypes
   );
 
+const Batch = require("../models/masters/inventory/batch")(
+  sequelize,
+  Sequelize.DataTypes
+);
+
+const PurchaseBill = require("../models/purchase/purchaseBill")(
+  sequelize,
+  Sequelize.DataTypes
+);
+
+const PurchaseBillItem = require("../models/purchase/purchaseBillItem")(
+  sequelize,
+  Sequelize.DataTypes
+);
+
 const allModels = {
   User,
   Company,
@@ -147,7 +162,10 @@ const allModels = {
   Station,
   Otp,
   SaleMaster,
-  PurchaseMaster
+  PurchaseMaster,
+  Batch,
+  PurchaseBill,
+  PurchaseBillItem
 }
 
 defineAssociations(allModels);
