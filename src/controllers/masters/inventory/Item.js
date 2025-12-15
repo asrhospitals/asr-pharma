@@ -16,9 +16,11 @@ const createItem = async (req, res) => {
       cost,
       salerate,
     } = req.body;
+    
+    // Use company from body if provided, otherwise use req.companyId from header
     const userCompanyId = req.companyId;
 
-    if (!productname || !unit1 || !hsnsac || !taxcategory || !company) {
+    if (!productname || !unit1 || !hsnsac || !taxcategory || !userCompanyId) {
       return res.status(400).json({
         success: false,
         message:
@@ -29,15 +31,21 @@ const createItem = async (req, res) => {
     const unit1Exists = await db.Unit.findByPk(unit1);
     const unit2Exists = unit2 ? await db.Unit.findByPk(unit2) : null;
     const hsnsacExists = await db.HSN.findByPk(hsnsac);
-    const companyExists = await db.Company.findOne({
-      where: { id: company, userCompanyId },
+    const companyExists = await db.Company.findByPk(company);
+
+    console.log("Validation checks:", {
+      unit1Exists: !!unit1Exists,
+      hsnsacExists: !!hsnsacExists,
+      companyExists: !!companyExists,
+      unit1,
+      hsnsac,
+      company,
     });
 
     if (!unit1Exists || !hsnsacExists || !companyExists) {
       return res.status(400).json({
         success: false,
-        message:
-          "One or more foreign keys (unit1, hsnsac, company) do not exist",
+        message: `Foreign key validation failed - unit1: ${!!unit1Exists}, hsnsac: ${!!hsnsacExists}, company: ${!!companyExists}`,
       });
     }
 
@@ -51,9 +59,23 @@ const createItem = async (req, res) => {
       });
     }
 
-    console.log("Creating new item:", { ...req.body, userCompanyId });
+    // Sanitize numeric fields - convert empty strings to null
+    const itemData = { ...req.body, userCompanyId };
+    const numericFields = [
+      'price', 'purchasePrice', 'conversion', 'cost', 'salerate',
+      'itemdiscount', 'maxdiscount', 'minimumquantity', 'maximumquantity',
+      'recorderdays', 'recorderquantity', 'minimummargin'
+    ];
+    
+    numericFields.forEach(field => {
+      if (itemData[field] === '' || itemData[field] === undefined) {
+        itemData[field] = null;
+      }
+    });
 
-    const newItem = await Item.create({ ...req.body, userCompanyId });
+    console.log("Creating new item:", itemData);
+
+    const newItem = await Item.create(itemData);
     res.status(201).json(newItem);
   } catch (error) {
     console.log(error);

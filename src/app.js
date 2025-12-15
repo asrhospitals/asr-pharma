@@ -19,6 +19,7 @@ console.log("🌍 Current NODE_ENV:", process.env.NODE_ENV || "development");
 const express = require("express");
 const db = require("./database/index");
 const sequelize = db.sequelize;
+const setupSwagger = require("../swagger-setup");
 
 const {
   applySecurityMiddleware,
@@ -52,6 +53,9 @@ const companyContext = require("./middleware/default/companyId");
 const app = express();
 
 applySecurityMiddleware(app, process.env.NODE_ENV || "development");
+
+// Setup Swagger UI with authentication
+setupSwagger(app);
 
 app.use(apiLogger);
 

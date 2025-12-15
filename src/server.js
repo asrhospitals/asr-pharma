@@ -17,9 +17,15 @@ const startServer = async () => {
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔒 Security: Enhanced security middleware active`);
       console.log(`📊 API Logging: Enabled`);
+      console.log(`\n📋 SYSTEM ENDPOINTS:`);
       console.log(`📊 Health Check: http://localhost:${PORT}/pharmacy/security/health`);
       console.log(`📊 Logs Config: http://localhost:${PORT}/pharmacy/logs/config`);
       console.log(`📊 Logs Stats: http://localhost:${PORT}/pharmacy/logs/stats`);
+      console.log(`\n📚 API DOCUMENTATION:`);
+      console.log(`🔐 Swagger UI: http://localhost:${PORT}/api-docs`);
+      console.log(`   Username: ${process.env.SWAGGER_USER || 'admin'}`);
+      console.log(`   Password: ${process.env.SWAGGER_PASSWORD || 'swagger123'}`);
+      console.log(`📖 OpenAPI Spec: http://localhost:${PORT}/api-docs.json`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -39,4 +45,4 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-startServer(); 
+startServer();
