@@ -68,9 +68,15 @@ module.exports = {
     });
 
     // Create indexes
-    await queryInterface.addIndex('batches', ['itemId']);
-    await queryInterface.addIndex('batches', ['userCompanyId']);
-    await queryInterface.addIndex('batches', ['batchNumber']);
+    await queryInterface.addIndex('batches', ['itemId'], {
+      name: 'idx_batches_itemId'
+    });
+    await queryInterface.addIndex('batches', ['userCompanyId'], {
+      name: 'idx_batches_userCompanyId'
+    });
+    await queryInterface.addIndex('batches', ['batchNumber'], {
+      name: 'idx_batches_batchNumber'
+    });
     await queryInterface.addIndex('batches', ['itemId', 'batchNumber'], {
       unique: true,
       name: 'unique_batch_per_item'
