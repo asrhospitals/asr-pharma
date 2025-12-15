@@ -25,6 +25,31 @@ const generateBillNumber = async (userCompanyId) => {
   }
 };
 
+const getOrCreateBatch = async (itemId, userCompanyId) => {
+  try {
+    // Check if any batch exists for this item
+    let batch = await Batch.findOne({
+      where: { itemId, userCompanyId }
+    });
+
+    // If no batch exists, create a default one named "B1"
+    if (!batch) {
+      batch = await Batch.create({
+        userCompanyId,
+        itemId,
+        batchNumber: 'B1',
+        quantity: 0,
+        status: 'Active'
+      });
+    }
+
+    return batch;
+  } catch (error) {
+    console.error('Error getting or creating batch:', error);
+    return null;
+  }
+};
+
 const createPurchaseBill = async (req, res) => {
   try {
     const { items, ...billData } = req.body;
@@ -87,15 +112,26 @@ const createPurchaseBill = async (req, res) => {
     // Create bill items and update batch quantities
     if (items && items.length) {
       for (const item of calculations.items) {
+        let batchId = item.batchId;
+
+        // If no batch is provided, auto-create or get default batch
+        if (!batchId && item.itemId) {
+          const batch = await getOrCreateBatch(item.itemId, userCompanyId);
+          if (batch) {
+            batchId = batch.id;
+          }
+        }
+
         const billItem = await PurchaseBillItem.create({
           ...item,
           purchaseBillId: bill.id,
+          batchId: batchId || null,
         });
 
         // Update batch quantity if batchId is provided
-        if (item.batchId) {
+        if (batchId) {
           const batch = await Batch.findOne({
-            where: { id: item.batchId, userCompanyId }
+            where: { id: batchId, userCompanyId }
           });
 
           if (batch) {
@@ -320,15 +356,26 @@ const updatePurchaseBill = async (req, res) => {
     await PurchaseBillItem.destroy({ where: { purchaseBillId: bill.id } });
     if (items && items.length) {
       for (const item of calculations.items) {
+        let batchId = item.batchId;
+
+        // If no batch is provided, auto-create or get default batch
+        if (!batchId && item.itemId) {
+          const batch = await getOrCreateBatch(item.itemId, userCompanyId);
+          if (batch) {
+            batchId = batch.id;
+          }
+        }
+
         const billItem = await PurchaseBillItem.create({
           ...item,
           purchaseBillId: bill.id,
+          batchId: batchId || null,
         });
 
         // Update batch quantity if batchId is provided
-        if (item.batchId) {
+        if (batchId) {
           const batch = await Batch.findOne({
-            where: { id: item.batchId, userCompanyId }
+            where: { id: batchId, userCompanyId }
           });
 
           if (batch) {
