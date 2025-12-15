@@ -275,6 +275,24 @@ const updatePurchaseBill = async (req, res) => {
       });
     }
 
+    // Reverse old batch quantities before updating
+    const oldItems = await PurchaseBillItem.findAll({
+      where: { purchaseBillId: bill.id }
+    });
+
+    for (const oldItem of oldItems) {
+      if (oldItem.batchId) {
+        const batch = await Batch.findOne({
+          where: { id: oldItem.batchId, userCompanyId }
+        });
+
+        if (batch) {
+          batch.quantity = Math.max(0, parseFloat(batch.quantity) - parseFloat(oldItem.quantity));
+          await batch.save();
+        }
+      }
+    }
+
     // Calculate totals
     const calculations = BillCalculationService.calculateBillTotals(
       items || [],
@@ -298,14 +316,26 @@ const updatePurchaseBill = async (req, res) => {
       ),
     });
 
-    // Update bill items
+    // Update bill items and add new batch quantities
     await PurchaseBillItem.destroy({ where: { purchaseBillId: bill.id } });
     if (items && items.length) {
       for (const item of calculations.items) {
-        await PurchaseBillItem.create({
+        const billItem = await PurchaseBillItem.create({
           ...item,
           purchaseBillId: bill.id,
         });
+
+        // Update batch quantity if batchId is provided
+        if (item.batchId) {
+          const batch = await Batch.findOne({
+            where: { id: item.batchId, userCompanyId }
+          });
+
+          if (batch) {
+            batch.quantity = parseFloat(batch.quantity) + parseFloat(item.quantity);
+            await batch.save();
+          }
+        }
       }
     }
 
@@ -352,6 +382,24 @@ const deletePurchaseBill = async (req, res) => {
         success: false,
         message: 'Purchase bill not found',
       });
+    }
+
+    // Reverse batch quantities before deleting
+    const billItems = await PurchaseBillItem.findAll({
+      where: { purchaseBillId: bill.id }
+    });
+
+    for (const item of billItems) {
+      if (item.batchId) {
+        const batch = await Batch.findOne({
+          where: { id: item.batchId, userCompanyId }
+        });
+
+        if (batch) {
+          batch.quantity = Math.max(0, parseFloat(batch.quantity) - parseFloat(item.quantity));
+          await batch.save();
+        }
+      }
     }
 
     await PurchaseBillItem.destroy({ where: { purchaseBillId: bill.id } });
