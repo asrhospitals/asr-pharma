@@ -136,6 +136,51 @@ module.exports = (sequelize, DataTypes) => {
         ],
         comment: "Array of field names that can be edited for this ledger",
       },
+      formConfig: {
+        type: DataTypes.JSON,
+        defaultValue: {
+          showOpeningBalance: true,
+          showAddress: false,
+          showFullDetail: false,
+          showBankInfo: false,
+          balancingMethod: 0,
+          showContact: false,
+          showTaxType: false,
+          showCreditDays: false,
+          showGstInfo: false,
+        },
+        comment: "Form configuration for dynamic field rendering",
+      },
+      bankName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "Bank name for bank accounts",
+      },
+      accountNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "Account number for bank accounts",
+      },
+      ifscCode: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "IFSC code for bank accounts",
+      },
+      creditDays: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        comment: "Credit days for debtors/creditors",
+      },
+      contactPerson: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "Contact person name",
+      },
+      mobileNumber: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "Mobile number for contact",
+      },
     },
     {
       sequelize,

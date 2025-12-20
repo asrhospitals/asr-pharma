@@ -3,17 +3,30 @@ const defaultGroups = require('../../defaultSeedData/defaultGroups');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Skip for now - groups require company_id which needs to be created first
-    console.log("⏭ Skipping default groups seeder - requires company setup first");
-    return;
-    
+    // Get the default company
+    const [defaultCompany] = await queryInterface.sequelize.query(
+      'SELECT id FROM user_companies WHERE "companyName" = :companyName LIMIT 1',
+      {
+        replacements: { companyName: "Default Company" },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (!defaultCompany) {
+      console.log("⚠ No default company found. Please create a company first.");
+      return;
+    }
+
     const existingGroups = await queryInterface.sequelize.query(
-      'SELECT COUNT(*) as count FROM groups WHERE "is_default" = true',
-      { type: Sequelize.QueryTypes.SELECT }
+      'SELECT COUNT(*) as count FROM groups WHERE company_id = :companyId AND is_default = true',
+      {
+        replacements: { companyId: defaultCompany.id },
+        type: Sequelize.QueryTypes.SELECT,
+      }
     );
 
     if (existingGroups[0].count > 0) {
-      console.log("✓ Default groups already exist, skipping creation.");
+      console.log("✓ Default groups already exist for this company, skipping creation.");
       return;
     }
 
@@ -38,6 +51,7 @@ module.exports = {
         description: group.description,
         sort_order: group.sortOrder,
         status: group.status,
+        company_id: defaultCompany.id,
         created_at: now,
         updated_at: now,
       };
@@ -52,10 +66,20 @@ module.exports = {
     
     await queryInterface.bulkInsert("groups", groupsToInsert);
 
-    console.log(`✓ Successfully created ${defaultGroups.length} default accounting groups`);
+    console.log(`✓ Successfully created ${defaultGroups.length} default accounting groups for Default Company`);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("groups", { "is_default": true }, {});
+    const [defaultCompany] = await queryInterface.sequelize.query(
+      'SELECT id FROM user_companies WHERE "companyName" = :companyName LIMIT 1',
+      {
+        replacements: { companyName: "Default Company" },
+        type: Sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (defaultCompany) {
+      await queryInterface.bulkDelete("groups", { company_id: defaultCompany.id, is_default: true });
+    }
   },
 };

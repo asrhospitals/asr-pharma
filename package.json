@@ -13,6 +13,7 @@
     "migrate": "sequelize-cli db:migrate --env production --config src/config/config.js",
     "seed": "sequelize-cli db:seed:all --env production --config src/config/config.js",
     "migrate:undo": "sequelize-cli db:migrate:undo",
+    "migrate:undo:all": "sequelize-cli db:migrate:undo:all",
     "seed:undo": "sequelize-cli db:seed:undo:all",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
