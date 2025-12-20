@@ -2,25 +2,8 @@
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const existingPurchaseMasters = await queryInterface.sequelize.query(
-      'SELECT COUNT(*) as count FROM purchase_masters WHERE "isDefault" = true',
-      { type: Sequelize.QueryTypes.SELECT }
-    );
-
-    if (existingPurchaseMasters[0].count > 0) {
-      console.log('✓ Default purchase masters already exist, skipping creation.');
-      return;
-    }
-
-    const ledgers = await queryInterface.sequelize.query(
-      `SELECT id, "ledgerName" FROM ledgers WHERE "isDefault" = true LIMIT 10`,
-      { type: Sequelize.QueryTypes.SELECT }
-    );
-
-    if(ledgers.length === 0) {
-      console.log('⚠ No default ledgers found, skipping creation of default purchase masters.');
-      return;
-    }
+    console.log('⏭ Skipping purchase masters seeder - can be configured later');
+    return;
 
     // const findLedger = (name) => {
     //   const ledger = ledgers.find(l => l.ledgerName.toLowerCase().includes(name.toLowerCase()));
