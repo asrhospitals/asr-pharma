@@ -96,7 +96,7 @@ module.exports = {
         });
       }
 
-      // Create indexes for better query performance (use camelCase as Sequelize converts to snake_case)
+      // Create indexes for better query performance
       try {
         await queryInterface.addIndex('ledgers', ['companyId', 'isActive'], {
           name: 'idx_ledgers_company_active'

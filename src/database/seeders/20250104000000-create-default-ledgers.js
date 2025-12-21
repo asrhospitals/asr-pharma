@@ -1,6 +1,5 @@
 "use strict";
-
-const defaultLedgersConfig = require("../../defaultSeedData/defaultLedgersConfig");
+const defaultLedgersData = require("../../defaultSeedData/defaultLedgres");
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -60,26 +59,22 @@ module.exports = {
     const { v4: uuidv4 } = require("uuid");
 
     // Transform to database format
-    const defaultLedgers = defaultLedgersConfig.map((ledger) => ({
+    const defaultLedgers = defaultLedgersData.map((ledger) => ({
       id: uuidv4(),
       companyId: defaultCompany.id,
       ledgerName: ledger.ledgerName,
       acgroup: groupMap[ledger.groupName] || null,
-      openingBalance: 0.0,
-      balance: 0.0,
+      openingBalance: ledger.openingBalance,
+      balance: ledger.balance,
       balanceType: ledger.balanceType,
       description: null,
-      isActive: true,
+      isActive: ledger.isActive,
       sortOrder: ledger.sortOrder,
-      status: "Active",
-      isDefault: true,
-      isEditable: true,
-      isDeletable: false,
-      editableFields: JSON.stringify([
-        "openingBalance",
-        "balanceType",
-        "description",
-      ]),
+      status: ledger.status,
+      isDefault: ledger.isDefault,
+      isEditable: ledger.isEditable,
+      isDeletable: ledger.isDeletable,
+      editableFields: ledger.editableFields,
       createdAt: now,
       updatedAt: now,
     }));
@@ -88,7 +83,7 @@ module.exports = {
     const validLedgers = defaultLedgers.filter((ledger) => {
       if (!ledger.acgroup) {
         console.warn(
-          `⚠ Skipping ledger "${ledger.ledger_name}" - group not found`
+          `⚠ Skipping ledger "${ledger.ledgerName}" - group not found`
         );
         return false;
       }

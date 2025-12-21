@@ -131,22 +131,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("Active", "Inactive"),
         defaultValue: "Active",
       },
-      formConfig: {
-        type: DataTypes.JSON,
-        defaultValue: {
-          showOpeningBalance: true,
-          showAddress: false,
-          showFullDetail: false,
-          showBankInfo: false,
-          balancingMethod: 0,
-          showContact: false,
-          showTaxType: false,
-          showCreditDays: false,
-          showGstInfo: false,
-        },
-        field: "form_config",
-        comment: "Form configuration for dynamic field rendering",
-      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
