@@ -206,7 +206,29 @@ const getLedgerByCompanyId = async (req, res) => {
 
     const { count, rows } = await Ledger.findAndCountAll({
       where: whereClause,
-      include: [{ model: Group, as: "accountGroup" }],
+      include: [
+        {
+          model: Group,
+          as: "accountGroup",
+          attributes: [
+            "id",
+            "companyId",
+            "groupName",
+            "undergroup",
+            "parentGroupId",
+            "groupType",
+            "isDefault",
+            "isEditable",
+            "isDeletable",
+            "prohibit",
+            "description",
+            "sortOrder",
+            "status",
+            "createdAt",
+            "updatedAt",
+          ],
+        },
+      ],
       order: [
         ["isDefault", "DESC"],
         ["sortOrder", "ASC"],
@@ -552,7 +574,29 @@ const getLedgerDetails = async (req, res) => {
     const { startDate, endDate, page = 1, limit = 50 } = req.query;
 
     const ledger = await Ledger.findByPk(id, {
-      include: [{ model: Group, as: "accountGroup" }],
+      include: [
+        {
+          model: Group,
+          as: "accountGroup",
+          attributes: [
+            "id",
+            "companyId",
+            "groupName",
+            "undergroup",
+            "parentGroupId",
+            "groupType",
+            "isDefault",
+            "isEditable",
+            "isDeletable",
+            "prohibit",
+            "description",
+            "sortOrder",
+            "status",
+            "createdAt",
+            "updatedAt",
+          ],
+        },
+      ],
     });
 
     if (!ledger) {
