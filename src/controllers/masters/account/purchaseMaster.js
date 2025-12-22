@@ -43,11 +43,13 @@ const createPurchaseMaster = async (req, res) => {
     }
 
     const ledgerIds = [localPurchaseLedgerId, centralPurchaseLedgerId, igstLedgerId, cgstLedgerId, sgstLedgerId, cessLedgerId];
+    const uniqueLedgerIds = [...new Set(ledgerIds)];
+    
     const ledgers = await Ledger.findAll({
-      where: { id: { [Op.in]: ledgerIds } }
+      where: { id: { [Op.in]: uniqueLedgerIds } }
     });
 
-    if (ledgers.length !== ledgerIds.length) {
+    if (ledgers.length !== uniqueLedgerIds.length) {
       return res.status(400).json({
         success: false,
         message: 'One or more ledger IDs are invalid'
@@ -281,12 +283,13 @@ const updatePurchaseMaster = async (req, res) => {
         sgstLedgerId || purchaseMaster.sgstLedgerId,
         cessLedgerId || purchaseMaster.cessLedgerId
       ];
+      const uniqueLedgerIds = [...new Set(ledgerIds)];
 
       const ledgers = await Ledger.findAll({
-        where: { id: { [Op.in]: ledgerIds } }
+        where: { id: { [Op.in]: uniqueLedgerIds } }
       });
 
-      if (ledgers.length !== ledgerIds.length) {
+      if (ledgers.length !== uniqueLedgerIds.length) {
         return res.status(400).json({
           success: false,
           message: 'One or more ledger IDs are invalid'

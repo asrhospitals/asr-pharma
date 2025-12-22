@@ -57,7 +57,7 @@ applySecurityMiddleware(app, process.env.NODE_ENV || "development");
 // Setup Swagger UI with authentication
 setupSwagger(app);
 
-app.use(apiLogger);
+// app.use(apiLogger);
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));

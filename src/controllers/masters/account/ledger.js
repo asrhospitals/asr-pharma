@@ -148,8 +148,6 @@ const getLedger = async (req, res) => {
       })
     );
 
-    console.log(`Fetched`, JSON.stringify(ledgersWithInfo));
-
     res.status(200).json({
       success: true,
       data: ledgersWithInfo,

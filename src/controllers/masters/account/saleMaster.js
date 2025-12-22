@@ -42,11 +42,13 @@ const createSaleMaster = async (req, res) => {
     }
 
     const ledgerIds = [localSalesLedgerId, centralSalesLedgerId, igstLedgerId, cgstLedgerId, sgstLedgerId, cessLedgerId];
+    const uniqueLedgerIds = [...new Set(ledgerIds)];
+    
     const ledgers = await Ledger.findAll({
-      where: { id: { [Op.in]: ledgerIds } }
+      where: { id: { [Op.in]: uniqueLedgerIds } }
     });
 
-    if (ledgers.length !== ledgerIds.length) {
+    if (ledgers.length !== uniqueLedgerIds.length) {
       return res.status(400).json({
         success: false,
         message: 'One or more ledger IDs are invalid'
@@ -164,8 +166,6 @@ const getSaleMaster = async (req, res) => {
     if (isActive !== undefined) {
       whereClause.isActive = isActive === 'true';
     }
-
-    console.log('Where clause:', whereClause);
 
     const { count, rows } = await SaleMaster.findAndCountAll({
       where: whereClause,
@@ -313,12 +313,13 @@ const updateSaleMaster = async (req, res) => {
         sgstLedgerId || saleMaster.sgstLedgerId,
         cessLedgerId || saleMaster.cessLedgerId
       ];
+      const uniqueLedgerIds = [...new Set(ledgerIds)];
 
       const ledgers = await Ledger.findAll({
-        where: { id: { [Op.in]: ledgerIds } }
+        where: { id: { [Op.in]: uniqueLedgerIds } }
       });
 
-      if (ledgers.length !== ledgerIds.length) {
+      if (ledgers.length !== uniqueLedgerIds.length) {
         return res.status(400).json({
           success: false,
           message: 'One or more ledger IDs are invalid'
