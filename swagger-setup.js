@@ -34,7 +34,7 @@ const options = {
         description: 'Development server',
       },
       {
-        url: 'https://api.asrpharma.com',
+        url: 'https://asrpharma.asrhospitalindia.in',
         description: 'Production server',
       },
     ],
