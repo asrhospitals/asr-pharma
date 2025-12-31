@@ -10,8 +10,8 @@ const validateCreateLedger = [
     .withMessage('Ledger name can only contain letters, numbers, spaces, hyphens, underscores, and dots'),
   
   body('acgroup')
-    .isInt({ min: 1 })
-    .withMessage('Group ID must be a valid positive integer'),
+    .isUUID()
+    .withMessage('Group ID must be a valid UUID'),
   
   body('openingBalance')
     .optional()
@@ -49,8 +49,8 @@ const validateUpdateLedger = [
   
   body('acgroup')
     .optional()
-    .isInt({ min: 1 })
-    .withMessage('Group ID must be a valid positive integer'),
+    .isUUID()
+    .withMessage('Group ID must be a valid UUID'),
   
   body('openingBalance')
     .optional()

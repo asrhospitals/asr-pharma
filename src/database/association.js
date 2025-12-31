@@ -26,6 +26,8 @@ const defineAssociations = (allModels) => {
     SaleMaster,
     PurchaseMaster,
     Batch,
+    PurchaseBill,
+    PurchaseBillItem,
   } = allModels;
 
   /**
@@ -310,6 +312,75 @@ const defineAssociations = (allModels) => {
   BillItem.belongsTo(Item, {
     foreignKey: "itemId",
     as: "item",
+  });
+
+  /**
+   * PURCHASEBILL ↔ PURCHASEBILLITEM
+   */
+  PurchaseBill.hasMany(PurchaseBillItem, {
+    foreignKey: "purchaseBillId",
+    as: "billItems",
+    onDelete: "CASCADE",
+  });
+
+  PurchaseBillItem.belongsTo(PurchaseBill, {
+    foreignKey: "purchaseBillId",
+    as: "bill",
+  });
+
+  PurchaseBillItem.belongsTo(Item, {
+    foreignKey: "itemId",
+    as: "item",
+  });
+
+  PurchaseBillItem.belongsTo(Batch, {
+    foreignKey: "batchId",
+    as: "batchDetails",
+  });
+
+  /**
+   * PURCHASEBILL ↔ LEDGER (Supplier)
+   */
+  PurchaseBill.belongsTo(Ledger, {
+    foreignKey: "supplierLedgerId",
+    as: "supplierLedger",
+    onDelete: "RESTRICT",
+    onUpdate: "CASCADE",
+  });
+
+  Ledger.hasMany(PurchaseBill, {
+    foreignKey: "supplierLedgerId",
+    as: "purchaseBills",
+  });
+
+  /**
+   * PURCHASEBILL ↔ PURCHASEMASTER
+   */
+  PurchaseBill.belongsTo(PurchaseMaster, {
+    foreignKey: "purchaseMasterId",
+    as: "purchaseMaster",
+    onDelete: "RESTRICT",
+    onUpdate: "CASCADE",
+  });
+
+  PurchaseMaster.hasMany(PurchaseBill, {
+    foreignKey: "purchaseMasterId",
+    as: "purchaseBills",
+  });
+
+  /**
+   * PURCHASEBILL ↔ USERCOMPANY
+   */
+  PurchaseBill.belongsTo(UserCompany, {
+    foreignKey: "userCompanyId",
+    as: "company",
+    onDelete: "RESTRICT",
+    onUpdate: "CASCADE",
+  });
+
+  UserCompany.hasMany(PurchaseBill, {
+    foreignKey: "userCompanyId",
+    as: "purchaseBills",
   });
 };
 

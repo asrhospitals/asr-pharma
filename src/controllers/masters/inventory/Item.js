@@ -73,7 +73,6 @@ const createItem = async (req, res) => {
       }
     });
 
-    console.log("Creating new item:", itemData);
 
     const newItem = await Item.create(itemData);
     res.status(201).json(newItem);
